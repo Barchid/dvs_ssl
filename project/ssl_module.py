@@ -8,13 +8,22 @@ import torch.optim as optim
 import pytorch_lightning as pl
 from torchmetrics.functional import accuracy
 
+from project.models.snn_models import get_encoder_snn
+
 class SSLModule(pl.LightningModule):
-    def __init__(self, n_classes: int, learning_rate: float, epochs: int, ssl_loss: str = 'barlow_twins', **kwargs):
+    def __init__(self, n_classes: int, learning_rate: float, epochs: int, timesteps: int, ssl_loss: str = 'barlow_twins', network: str = 'cnn', **kwargs):
         super().__init__()
-        self.save_hyperparameters(ignore=['epochs', 'n_classes', 'ssl_loss'])
+        self.save_hyperparameters(ignore=['epochs', 'n_classes', 'ssl_loss', 'timesteps'])
         self.epochs = epochs
         
-        self.encoder = get_encoder()
+        if network == 'cnn':
+            self.encoder = get_encoder(in_channels=2 * timesteps)
+        elif network == 'snn':
+            self.encoder = get_encoder_snn(in_channels=2, T=timesteps)
+        else: # cnn and snn
+            self.encoder_cnn = get_encoder(in_channels=2 * timesteps)
+            self.encoder = get_encoder_snn(in_channels=2)
+            
         self.projector = get_projector()
         
         # either barlow twins or VICReg
