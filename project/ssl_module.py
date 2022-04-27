@@ -8,24 +8,59 @@ import torch.optim as optim
 import pytorch_lightning as pl
 from torchmetrics.functional import accuracy
 
-from project.models.snn_models import get_encoder_snn
+from project.models.snn_models import get_encoder_snn, get_projector_liaf
+from project.models.utils import MeanSpike
 
 class SSLModule(pl.LightningModule):
-    def __init__(self, n_classes: int, learning_rate: float, epochs: int, timesteps: int, ssl_loss: str = 'barlow_twins', network: str = 'cnn', **kwargs):
+    def __init__(self, n_classes: int, learning_rate: float, epochs: int, timesteps: int, ssl_loss: str = 'barlow_twins', enc1: str = 'cnn', enc2: str = 'cnn', proj1: str = 'ann', proj2: str = 'ann', **kwargs):
         super().__init__()
         self.save_hyperparameters(ignore=['epochs', 'n_classes', 'ssl_loss', 'timesteps'])
         self.epochs = epochs
+        self.enc1 = enc1
+        self.enc2 = enc2
+        self.proj1 = proj1
+        self.proj2 = proj2
         
-        if network == 'cnn':
-            self.encoder = get_encoder(in_channels=2 * timesteps)
-        elif network == 'snn':
-            self.encoder = get_encoder_snn(in_channels=2, T=timesteps)
-        else: # cnn and snn
-            self.encoder_cnn = get_encoder(in_channels=2 * timesteps)
-            self.encoder = get_encoder_snn(in_channels=2)
+        self.encoder = None
+        self.projector = None
+        self.encoder1 = None
+        self.encoder2 = None
+        self.projector1 = None
+        self.projector2 = None
+        
+        # this is ugly af but nvm
+        if proj1 == proj2:
+            if proj1 == 'ann':
+                self.projector = get_projector()
+            else:
+                self.projector = get_projector_liaf()
+        else:
+            if proj1 == 'ann':
+                self.projector1 = get_projector()
+            else:
+                self.projector1 = get_projector_liaf()
+
+            if proj2 == 'ann':
+                self.projector2 = get_projector()
+            else:
+                self.projector2 = get_projector_liaf()
+        
+        if enc1 == enc2:
+            if enc1 == 'cnn':
+                self.encoder = get_encoder(in_channels=2 * timesteps)
+            elif enc1 == 'snn':
+                self.encoder = get_encoder_snn(2, timesteps, output_all=proj1 != 'ann')
+        else:
+            if enc1 == 'cnn':
+                self.encoder1 = get_encoder(in_channels=2 * timesteps)
+            elif enc1 == 'snn':
+                self.encoder1 = get_encoder_snn(2, timesteps, output_all=proj1 != 'ann')
+                
+            if enc2 == 'cnn':
+                self.encoder2 = get_encoder(in_channels=2 * timesteps)
+            elif enc2 == 'snn':
+                self.encoder2 = get_encoder_snn(2, timesteps, output_all=proj2 != 'ann')
             
-        self.projector = get_projector()
-        
         # either barlow twins or VICReg
         if ssl_loss == 'barlow_twins':
             self.criterion = BarlowTwinsLoss()
@@ -33,18 +68,38 @@ class SSLModule(pl.LightningModule):
             self.criterion = VICRegLoss()
         
         # Attributes used to evaluate the feature extractor
-        self.eval_fc = nn.Linear(512, n_classes) # Linear layer used to evaluate our model (512 for ResNet-18)
-        self.eval_optimizer = torch.optim.Adam(self.eval_fc.parameters())
+        if proj1 == 'ann':
+            self.eval_fc = nn.Linear(512, n_classes) # Linear layer used to evaluate our model (512 for ResNet-18)
+        else:
+            self.eval_fc = nn.Sequential([
+                MeanSpike(),
+                nn.Linear(512, n_classes)
+            ])
+            
+        self.eval_optimizer = torch.optim.Adam(self.eval_fc.parameters(), lr=1e-3)
 
-    def forward(self, Y):
-        representation = self.encoder(Y)
-        Z = self.projector(representation)
+    def forward(self, Y, enc=None):
+        if enc is None:    
+            representation = self.encoder(Y)
+            Z = self.projector(representation)
+        elif enc == 1:
+            representation = self.encoder1(Y)
+            Z = self.projector1(representation)
+        else:
+            representation = self.encoder2(Y)
+            Z = self.projector2(representation)
+            
         return representation, Z
     
     def shared_step(self, batch):
         (X, Y_a, Y_b), label = batch
-        _, Z_a = self(Y_a)
-        _, Z_b = self(Y_b)
+        
+        if self.encoder is None:
+            _, Z_a = self(Y_a, enc=1)
+            _, Z_b = self(Y_b, enc=2)
+        else:
+            _, Z_a = self(Y_a)
+            _, Z_b = self(Y_b)
         loss = self.criterion(Z_a, Z_b)
         return loss
 
@@ -71,7 +126,10 @@ class SSLModule(pl.LightningModule):
         
         # get representation (without gradient computation! We don't want to train that)
         with torch.no_grad():
-            representation, _ = self(Y_a)
+            if self.encoder is None:
+                representation, _ = self(X, enc=1)
+            else:
+                representation, _ = self(X)
         
         representation = representation.detach()
         
@@ -94,7 +152,10 @@ class SSLModule(pl.LightningModule):
         
         # get representation (without gradient computation! We don't want to train that)
         with torch.no_grad():
-            representation, _ = self(X) # WARNING: we use the original input (X) for validation
+            if self.encoder is None:
+                representation, _ = self(X, enc=1)
+            else:
+                representation, _ = self(X)
         
             # use the FC layer to obtain some classification
             prediction = self.eval_fc(representation)

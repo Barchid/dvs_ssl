@@ -6,24 +6,15 @@ import torchvision.models as models
 from project.models import sew_resnet
 from spikingjelly.clock_driven import neuron, functional, surrogate, layer
 
-from project.models.utils import LinearBnSpike, LinearSpike
-
-
-def get_projector_snn(in_channels=512) -> nn.Sequential:
-    projector = nn.Sequential(
-        LinearBnSpike(in_channels, 3 * in_channels),
-        LinearBnSpike(3 * in_channels, 3 * in_channels),
-        LinearSpike(3 * in_channels, 3 * in_channels)
-    )
-
-    return projector
+from project.models.utils import LinearBnSpike, LinearSpike, MeanSpike
 
 
 def get_projector_liaf(in_channels=512) -> nn.Sequential:
     projector = nn.Sequential(
         LinearBnSpike(in_channels, 3 * in_channels, neuron_model='LIAF'),
         LinearBnSpike(3 * in_channels, 3 * in_channels, neuron_model='LIAF'),
-        LinearSpike(3 * in_channels, 3 * in_channels, neuron_model='LIAF')
+        LinearSpike(3 * in_channels, 3 * in_channels, neuron_model='LIAF'),
+        MeanSpike()
     )
 
     return projector
@@ -47,17 +38,3 @@ def get_encoder_snn(in_channels: int, T: int, output_all: bool):
             7, 7), stride=(2, 2), padding=(3, 3), bias=False)
 
     return resnet18
-
-
-def get_projector(in_channels: int = 512):
-    projector = nn.Sequential(
-        nn.Linear(in_channels, 3 * in_channels),
-        nn.BatchNorm1d(3 * in_channels),
-        nn.ReLU(),
-        nn.Linear(3 * in_channels, 3 * in_channels),
-        nn.BatchNorm1d(3 * in_channels),
-        nn.ReLU(),
-        nn.Linear(3 * in_channels, 3 * in_channels),
-    )
-
-    return projector

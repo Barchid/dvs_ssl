@@ -5,7 +5,6 @@ import torch
 import torch.nn as nn
 
 
-
 class ConvBnSpike(nn.Sequential):
     """Convolution + BatchNorm + spiking neuron activation. Accepts input of dimension (T, B, C, H, W)"""
 
@@ -35,7 +34,8 @@ class ConvBnSpike(nn.Sequential):
         elif neuron_model == "IF":
             self.add_module('spike', neuron.MultiStepIFNode(detach_reset=True, surrogate_function=surr_func))
         elif neuron_model == 'LIAF':
-            self.add_module('spike', MultiStepLIAFNode(nn.SELU(), True, detach_reset=True, surrogate_function=surr_func))
+            self.add_module('spike', MultiStepLIAFNode(nn.ReLU(), True,
+                                                       detach_reset=True, surrogate_function=surr_func))
         else:
             self.add_module('spike', neuron.MultiStepLIFNode(detach_reset=True, surrogate_function=surr_func))
 
@@ -68,7 +68,8 @@ class ConvSpike(nn.Sequential):
         elif neuron_model == "IF":
             self.add_module('spike', neuron.MultiStepIFNode(detach_reset=True, surrogate_function=surr_func))
         elif neuron_model == 'LIAF':
-            self.add_module('spike', MultiStepLIAFNode(nn.SELU(), True, detach_reset=True, surrogate_function=surr_func))
+            self.add_module('spike', MultiStepLIAFNode(nn.ReLU(), True,
+                                                       detach_reset=True, surrogate_function=surr_func))
         else:
             self.add_module('spike', neuron.MultiStepLIFNode(detach_reset=True, surrogate_function=surr_func))
 
@@ -93,10 +94,12 @@ class LinearSpike(nn.Sequential):
         elif neuron_model == "IF":
             self.add_module('spike', neuron.MultiStepIFNode(detach_reset=True, surrogate_function=surr_func))
         elif neuron_model == 'LIAF':
-            self.add_module('spike', MultiStepLIAFNode(nn.SELU(), True, detach_reset=True, surrogate_function=surr_func))
+            self.add_module('spike', MultiStepLIAFNode(nn.ReLU(), True,
+                                                       detach_reset=True, surrogate_function=surr_func))
         else:
             self.add_module('spike', neuron.MultiStepLIFNode(detach_reset=True, surrogate_function=surr_func))
-            
+
+
 class LinearBnSpike(nn.Sequential):
     """FC layer + spiking neuron activation. Accepts input of dimension (T, B, C)"""
 
@@ -118,7 +121,8 @@ class LinearBnSpike(nn.Sequential):
         elif neuron_model == "IF":
             self.add_module('spike', neuron.MultiStepIFNode(detach_reset=True, surrogate_function=surr_func))
         elif neuron_model == 'LIAF':
-            self.add_module('spike', MultiStepLIAFNode(nn.SELU(), True, detach_reset=True, surrogate_function=surr_func))
+            self.add_module('spike', MultiStepLIAFNode(nn.ReLU(), True,
+                                                       detach_reset=True, surrogate_function=surr_func))
         else:
             self.add_module('spike', neuron.MultiStepLIFNode(detach_reset=True, surrogate_function=surr_func))
 
@@ -150,8 +154,8 @@ class LIAFNode(neuron.LIFNode):
         spike = self.neuronal_fire()
         self.neuronal_reset(spike)
         return y
-    
-    
+
+
 class MultiStepLIAFNode(LIAFNode):
     def __init__(self, act: Callable, threshold_related: bool, *args, **kwargs):
         super().__init__(act, threshold_related, *args, **kwargs)
@@ -169,7 +173,16 @@ class MultiStepLIAFNode(LIAFNode):
             self.v_seq.append(self.v.unsqueeze(0))
         spike_seq = torch.cat(spike_seq, 0)
         self.v_seq = torch.cat(self.v_seq, 0)
-        return spike_seq # analogous spikes
+        return spike_seq  # analogous spikes
 
     def extra_repr(self):
         return super().extra_repr() + f', backend=torch'
+
+
+class MeanSpike(nn.Module):
+    def __init__(self):
+        super(MeanSpike, self).__init__()
+
+    def forward(self, x):
+        # shape = (T,B,C) to (B,C)
+        return torch.mean(x, dim=0)
