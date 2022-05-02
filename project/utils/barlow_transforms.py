@@ -96,13 +96,13 @@ class BarlowTwinsTransform:
             
             self.transform = transforms.Compose([
                 representation,
-                transforms.RandomResizedCrop((224, 224), interpolation=transforms.InterpolationMode.NEAREST),
+                transforms.Resize((224, 224), interpolation=transforms.InterpolationMode.NEAREST),
                 transforms.Lambda(lambda x: rearrange(x, 'frames polarity height width -> (frames polarity) height width'))
             ])
         else:
             self.transform = transforms.Compose([
                 representation,
-                transforms.RandomResizedCrop((224, 224), interpolation=transforms.InterpolationMode.NEAREST)
+                transforms.Resize((224, 224), interpolation=transforms.InterpolationMode.NEAREST)
             ])
 
         self.transform_a = transforms.Compose(trans_a)
