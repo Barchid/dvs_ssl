@@ -15,8 +15,7 @@ import pytorch_lightning as pl
 def main():
     pl.seed_everything(1234)
     
-    tr = BarlowTwinsTransform(
-        None, 30, [
+    tr = [
             'static_rotation',
             # 'statc_translation', 
             # 'dynamic_rotation',
@@ -24,7 +23,6 @@ def main():
             # 'cutout',
             # 'moving_occlusion'
         ]
-    )
     
     datamodule = DVSDataModule(1, 'cifar10-dvs', 30, data_dir='data', barlow_transf=tr)
     
