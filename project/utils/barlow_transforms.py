@@ -94,7 +94,7 @@ class BarlowTwinsTransform:
         )
 
         self.transform_a = transforms.Compose(trans_a)
-        self.transfrom_b = transforms.Compose(trans_b)
+        self.transform_b = transforms.Compose(trans_b)
         self.transform = transforms.Compose([
             representation,
             transforms.Lambda(lambda x: rearrange(x, 'frames polarity height width -> (frames polarity) height width'))
