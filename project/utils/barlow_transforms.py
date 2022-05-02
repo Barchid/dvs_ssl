@@ -119,7 +119,7 @@ class BarlowTwinsTransform:
 
 @dataclass(frozen=True)
 class DynamicRotation:
-    degrees: Tuple[float] = (-10, 10)
+    degrees: Tuple[float] = (-90, 90)
 
     def __call__(self, frames: torch.Tensor):  # shape (..., H, W)
         timesteps = frames.shape[0]
