@@ -119,12 +119,11 @@ class BarlowTwinsTransform:
 
 @dataclass(frozen=True)
 class DynamicRotation:
-    degrees: Tuple[float] = (-20, 20)
+    degrees: Tuple[float] = (-10, 10)
 
     def __call__(self, frames: torch.Tensor):  # shape (..., H, W)
         timesteps = frames.shape[0]
         angle = float(torch.empty(1).uniform_(float(self.degrees[0]), float(self.degrees[1])).item())
-        
         step_angle = angle / (timesteps - 1)
 
         current_angle = 0.
@@ -159,7 +158,7 @@ class DynamicTranslation:
         result = torch.zeros_like(frames)
         for t in range(timesteps):
             translations = (current_tx, current_ty)
-            result[t] = functional.affine(frames[t], 0., translate=translations, scale=0., shear=0., fill=0)
+            result[t] = functional.affine(frames[t], 0., translate=translations, scale=1., shear=0., fill=0)
             current_tx += step_tx
             current_ty += step_ty
 
@@ -221,7 +220,7 @@ class MovingOcclusion:
         translated = torch.zeros((timesteps, H, W))  # shape=(T,H,W)
         for t in range(timesteps):
             translations = (current_tx, current_ty)
-            translated[t] = functional.affine(mask, 0., translate=translations, scale=0., shear=0., fill=0)
+            translated[t] = functional.affine(mask, 0., translate=translations, scale=1., shear=0., fill=0)
             current_tx += step_tx
             current_ty += step_ty
 
