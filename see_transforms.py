@@ -24,7 +24,7 @@ def main():
             # 'moving_occlusion'
         ]
     
-    datamodule = DVSDataModule(1, 'cifar10-dvs', 30, data_dir='data', barlow_transf=tr)
+    datamodule = DVSDataModule(1, 'cifar10-dvs', 30, data_dir='data', barlow_transf=tr, mode="snn")
     datamodule.prepare_data()
     datamodule.setup()
     
@@ -33,7 +33,7 @@ def main():
     batch = next(it)
     (X, Y_a, Y_b), label = batch
     
-    Y_a = Y_a[:, 0, :, :, :] # shape=(30,2,224,224) = (T,C,H,W)
+    Y_a = Y_a[0, :, :, :, :] # shape=(30,2,224,224) = (T,C,H,W)
     
     for t in range(30):
         frame = np.zeros((224, 224, 3))

@@ -18,7 +18,7 @@ from project.utils.transform_dvs import BackgroundActivityNoise, RandomFlipLR, T
 
 
 class BarlowTwinsTransform:
-    def __init__(self, sensor_size = None, timesteps: int = 10, transforms_list=[]):
+    def __init__(self, sensor_size = None, timesteps: int = 10, transforms_list=[], concat_time_channels = True):
         trans_a = []
         trans_b = []
 
@@ -86,12 +86,13 @@ class BarlowTwinsTransform:
             trans_b.append(Cutout())
 
         # finish by concatenating polarity and timesteps
-        trans_a.append(
-            transforms.Lambda(lambda x: rearrange(x, 'frames polarity height width -> (frames polarity) height width'))
-        )
-        trans_b.append(
-            transforms.Lambda(lambda x: rearrange(x, 'frames polarity height width -> (frames polarity) height width'))
-        )
+        if concat_time_channels:
+            trans_a.append(
+                transforms.Lambda(lambda x: rearrange(x, 'frames polarity height width -> (frames polarity) height width'))
+            )
+            trans_b.append(
+                transforms.Lambda(lambda x: rearrange(x, 'frames polarity height width -> (frames polarity) height width'))
+            )
 
         self.transform_a = transforms.Compose(trans_a)
         self.transform_b = transforms.Compose(trans_b)

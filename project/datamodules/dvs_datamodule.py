@@ -16,7 +16,7 @@ from project.utils.barlow_transforms import BarlowTwinsTransform
 
 
 class DVSDataModule(pl.LightningDataModule):
-    def __init__(self, batch_size: int, dataset: str, timesteps: int = 10, data_dir: str = "data/", noise: str = None, severity=1, num_workers: int = 0, barlow_transf=None, **kwargs):
+    def __init__(self, batch_size: int, dataset: str, timesteps: int = 10, data_dir: str = "data/", noise: str = None, severity=1, num_workers: int = 0, barlow_transf=None, mode="ann", **kwargs):
         super().__init__()
         self.batch_size = batch_size
         self.data_dir = data_dir
@@ -32,7 +32,7 @@ class DVSDataModule(pl.LightningDataModule):
         # transform
         self.sensor_size, self.num_classes = self._get_dataset_info()
         self.train_transform = BarlowTwinsTransform(
-            self.sensor_size, timesteps=timesteps, transforms_list=barlow_transf)
+            self.sensor_size, timesteps=timesteps, transforms_list=barlow_transf, concat_time_channels=mode=="ann")
         self.val_transform = BarlowTwinsTransform(self.sensor_size, timesteps=timesteps, transforms_list=barlow_transf)
 
     def _get_dataset_info(self):

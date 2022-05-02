@@ -78,7 +78,10 @@ class SSLModule(pl.LightningModule):
             
         self.eval_optimizer = torch.optim.Adam(self.eval_fc.parameters(), lr=1e-3)
 
-    def forward(self, Y, enc=None):
+    def forward(self, Y, enc=None, mode="ann"):
+        if mode == "snn":
+            Y = Y.permute(1, 0, 2, 3, 4)# from (B,T,C,H,W) to (T, B, C, H, W)
+            
         if enc is None:    
             representation = self.encoder(Y)
             Z = self.projector(representation)
@@ -95,11 +98,11 @@ class SSLModule(pl.LightningModule):
         (X, Y_a, Y_b), label = batch
         
         if self.encoder is None:
-            _, Z_a = self(Y_a, enc=1)
-            _, Z_b = self(Y_b, enc=2)
+            _, Z_a = self(Y_a, enc=1, mode=self.enc1)
+            _, Z_b = self(Y_b, enc=2, mode=self.enc2)
         else:
-            _, Z_a = self(Y_a)
-            _, Z_b = self(Y_b)
+            _, Z_a = self(Y_a, mode=self.enc1)
+            _, Z_b = self(Y_b, mode=self.enc1)
         loss = self.criterion(Z_a, Z_b)
         return loss
 
@@ -141,9 +144,9 @@ class SSLModule(pl.LightningModule):
         # get representation (without gradient computation! We don't want to train that)
         with torch.no_grad():
             if self.encoder is None:
-                representation, _ = self(X, enc=1)
+                representation, _ = self(X, enc=1, mode=self.enc1)
             else:
-                representation, _ = self(X)
+                representation, _ = self(X, mode=self.enc1)
         
         representation = representation.detach()
         
@@ -167,9 +170,9 @@ class SSLModule(pl.LightningModule):
         # get representation (without gradient computation! We don't want to train that)
         with torch.no_grad():
             if self.encoder is None:
-                representation, _ = self(X, enc=1)
+                representation, _ = self(X, enc=1, mode=self.enc1)
             else:
-                representation, _ = self(X)
+                representation, _ = self(X, mode=self.enc1)
         
             # use the FC layer to obtain some classification
             prediction = self.eval_fc(representation)
