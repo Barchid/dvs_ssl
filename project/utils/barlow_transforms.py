@@ -223,14 +223,14 @@ class MovingOcclusion:
             current_tx += step_tx
             current_ty += step_ty
 
-        translated = delta(translated, padding=True, off_spike=True)  # composed of 1's and -1's for the polarities
+        deltaed = delta(translated, padding=True, off_spike=True)  # composed of 1's and -1's for the polarities
 
         result = torch.zeros((timesteps, 2, H, W))  # shape=(T,C,H,W)
         for t in range(timesteps):
-            result[t, 0, :, :] = (translated[t] == 1.).type(torch.float32)  # positive events
-            result[t, 1, :, :] = (translated[t] == -1.).type(torch.float32)  # negative events
+            result[t, 0, :, :] = (deltaed[t] == 1.).type(torch.float32)  # positive events
+            result[t, 1, :, :] = (deltaed[t] == -1.).type(torch.float32)  # negative events
 
-        return result
+        return result, translated
 
     def __call__(self, frames: torch.Tensor):  # shape (T, C, H, W)
         timesteps, H, W = frames.shape[0], frames.shape[-2], frames.shape[-1]
@@ -246,14 +246,14 @@ class MovingOcclusion:
             x_max, y_max = x_min + size_w, y_min + size_h
             mask[y_min:(y_max + 1), x_min:(x_max + 1)] = 0.
 
-            is_on = random.choice([True, False])  # choice if the hole is ON polarity or OFF polarity
-            if is_on:
-                mask = (~(mask > 0)).type(torch.float32)
-
             # random translation
-            hole = self._hole_translation(mask, H, W, timesteps)  # hole.shape=(T, C, H, W)
-
-            # drop events where the mask
+            hole, mask_translated = self._hole_translation(mask, H, W, timesteps)  # hole.shape=(T, C, H, W)
+            
+            # drop events where the mask is located
+            for t in range(timesteps):
+                frames[t, :, mask_translated[t] == 0.] = 0. 
+            
+            # add events from moving holes
             frames = torch.logical_or(frames, hole, out=torch.empty_like(frames))
 
         return frames
