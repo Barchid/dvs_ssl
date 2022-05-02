@@ -68,8 +68,8 @@ class BarlowTwinsTransform:
             trans_b.append(transforms.RandomRotation(10))
 
         if 'static_translation' in transforms_list:
-            trans_a.append(transforms.RandomAffine(0, translate=(0.8, 0.8)))  # translation in Y and X axes
-            trans_b.append(transforms.RandomAffine(0, translate=(0.8, 0.8)))  # translation in Y and X axes
+            trans_a.append(transforms.RandomAffine(0, translate=(0.1, 0.1)))  # translation in Y and X axes
+            trans_b.append(transforms.RandomAffine(0, translate=(0.1, 0.1)))  # translation in Y and X axes
 
         if 'dynamic_rotation' in transforms_list:
             trans_a.append(DynamicRotation())
