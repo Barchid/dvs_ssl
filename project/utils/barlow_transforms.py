@@ -137,7 +137,7 @@ class DynamicRotation:
 
 @dataclass(frozen=True)
 class DynamicTranslation:
-    translate: Tuple[float] = (0.9, 0.9)
+    translate: Tuple[float] = (0.2, 0.2)
 
     def __call__(self, frames: torch.Tensor):  # shape (T, C, H, W)
         timesteps, H, W = frames.shape[0], frames.shape[-2], frames.shape[-1]
@@ -147,7 +147,7 @@ class DynamicTranslation:
         max_dy = float(self.translate[1] * W)
         max_tx = int(round(torch.empty(1).uniform_(-max_dx, max_dx).item()))
         max_ty = int(round(torch.empty(1).uniform_(-max_dy, max_dy).item()))
-
+        print(max_tx, max_ty)
         # step translation
         step_tx = max_tx // (timesteps - 1)
         current_tx = 0
@@ -161,6 +161,7 @@ class DynamicTranslation:
             result[t] = functional.affine(frames[t], 0., translate=translations, scale=1., shear=0., fill=0)
             current_tx += step_tx
             current_ty += step_ty
+            print(current_tx, current_ty)
 
         return result
 
