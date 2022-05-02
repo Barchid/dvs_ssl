@@ -13,7 +13,7 @@ import pytorch_lightning as pl
 from celluloid import Camera
 
 def main():
-    pl.seed_everything(11111)
+    pl.seed_everything(4)
 
     tr = [
         # 'static_rotation',
