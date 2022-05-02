@@ -250,8 +250,8 @@ class MovingOcclusion:
             hole, mask_translated = self._hole_translation(mask, H, W, timesteps)  # hole.shape=(T, C, H, W)
             
             # drop events where the mask is located
-            for t in range(timesteps):
-                frames[t, :, mask_translated[t] == 0.] = 0. 
+            # for t in range(timesteps):
+            #     frames[t, :, mask_translated[t] == 0.] = 0. 
             
             # add events from moving holes
             frames = torch.logical_or(frames, hole, out=torch.empty_like(frames))
