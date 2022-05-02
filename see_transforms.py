@@ -17,7 +17,7 @@ def main():
 
     tr = [
         # 'static_rotation',
-        'statc_translation',
+        'static_translation',
         # 'dynamic_rotation',
         # 'dynamic_translation',
         # 'cutout',
