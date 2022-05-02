@@ -34,7 +34,7 @@ def main():
     (X, Y_a, Y_b), label = batch
 
     Y_a = Y_a[0, :, :, :, :]  # shape=(100,2,224,224) = (T,C,H,W)
-
+    X = X[0, :, :, :, :]
     fig1 = plt.figure()
     plt.axis("off")
     camera1 = Camera(fig1)
@@ -56,7 +56,6 @@ def main():
     camera2 = Camera(fig2)
     for t in range(100):
         frame = np.zeros((224, 224, 3))
-        print(X.shape, Y_a.shape)
         data = X[t].numpy().transpose(1, 2, 0)  # (C,H,W) -> (H, W, C)
         frame[:, :, 0:2] = data
         plt.imshow(frame)
