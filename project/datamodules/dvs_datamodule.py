@@ -49,7 +49,7 @@ class DVSDataModule(pl.LightningDataModule):
         elif self.dataset == "dvsgesture":
             return tonic.datasets.DVSGesture.sensor_size, len(tonic.datasets.DVSGesture.classes)
         elif self.dataset == "n-caltech101":
-            return (224, 224, 2), 101
+            return None, 101 # variable sensor_size for NCaltech
         elif self.dataset == "asl-dvs":
             return tonic.datasets.ASLDVS.sensor_size, len(tonic.datasets.ASLDVS.classes)
         elif self.dataset == 'ncars':
@@ -82,7 +82,7 @@ class DVSDataModule(pl.LightningDataModule):
             dataset_train = CIFAR10DVS(save_to=self.data_dir, transform=self.train_transform, target_transform=None)
             dataset_val = CIFAR10DVS(save_to=self.data_dir, transform=self.val_transform, target_transform=None)
             full_len = len(dataset_train)
-            train_len = int(0.9 * full_len)
+            train_len = int(0.85 * full_len)
             val_len = full_len - train_len
             print(full_len, train_len, val_len)
             self.train_set, _ = random_split(dataset_train, lengths=[train_len, val_len])

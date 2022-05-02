@@ -66,31 +66,6 @@ class CenteredOcclusion:
         return tonic.transforms.functional.drop_pixel_numpy(events=events, coordinates=coordinates)
 
 
-@dataclass(frozen=True)
-class BackgroundActivityNoise:
-    sensor_size: Tuple[int, int, int]
-    severity: int
-
-    def __call__(self, events):
-        c = [.005, 0.01, 0.03, .10, .15][self.severity - 1]  # percentage of events to add in noise
-        n_noise_events = int(c * len(events))
-        noise_events = np.zeros(n_noise_events, dtype=events.dtype)
-        for channel in events.dtype.names:
-            event_channel = events[channel]
-            if channel == "x":
-                low, high = 0, self.sensor_size[0]
-            if channel == "y":
-                low, high = 0, self.sensor_size[1]
-            if channel == "p":
-                low, high = 0, self.sensor_size[2]
-            if channel == "t":
-                low, high = events["t"].min(), events["t"].max()
-            noise_events[channel] = np.random.uniform(
-                low=low, high=high, size=n_noise_events
-            )
-        events = np.concatenate((events, noise_events))
-        return events[np.argsort(events["t"])]
-
 
 @dataclass(frozen=True)
 class HotPixelActivty:

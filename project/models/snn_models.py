@@ -6,7 +6,7 @@ import torchvision.models as models
 from project.models import sew_resnet
 from spikingjelly.clock_driven import neuron, functional, surrogate, layer
 
-from project.models.utils import LinearBnSpike, LinearSpike, MeanSpike
+from project.models.utils import LinearBnSpike, LinearSpike, MeanSpike, MultiStepLIAFNode
 
 
 def get_projector_liaf(in_channels=512) -> nn.Sequential:
@@ -32,6 +32,9 @@ def get_encoder_snn(in_channels: int, T: int, output_all: bool):
         surrogate_function=surrogate.ATan(),
         output_all=output_all
     )
+
+    resnet18.layer4[-1].sn2 = MultiStepLIAFNode(torch.nn.ReLU(), threshold_related=False,
+                                                detach_reset=True, surrogate_function=surrogate.ATan())
 
     if in_channels != 3:
         resnet18.conv1 = nn.Conv2d(in_channels, 64, kernel_size=(

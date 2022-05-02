@@ -5,7 +5,7 @@ import torch.optim as optim
 import torchvision.models as models
 
 
-def get_encoder(in_channels: int):
+def get_encoder(in_channels: int) -> nn.Module:
     resnet18 = models.resnet18(progress=True)
 
     resnet18.fc = nn.Identity()

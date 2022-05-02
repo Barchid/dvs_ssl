@@ -114,7 +114,21 @@ class SSLModule(pl.LightningModule):
         self.log('val_loss', loss, on_epoch=True, prog_bar=True)
 
     def configure_optimizers(self):
-        optimizer = torch.optim.SGD(self.parameters(), lr=self.hparams.learning_rate,
+        # Only the parameters of the encoder and projector (not the eval_fc layer)
+        params = []
+        if self.encoder is None:
+            params = params + list(self.encoder1.parameters())
+            params = params + list(self.encoder2.parameters())
+        else:
+            params = params + list(self.encoder.parameters())
+            
+        if self.projector is None:
+            params = params + list(self.projector1.parameters())
+            params = params + list(self.projector2.parameters())
+        else:
+            params = params + list(self.projector.parameters())
+            
+        optimizer = torch.optim.SGD(params, lr=self.hparams.learning_rate,
                                 momentum=0.9, weight_decay=5e-4)
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, self.epochs)
         

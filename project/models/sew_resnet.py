@@ -351,9 +351,9 @@ class MultiStepSEWResNet(nn.Module):
         
         
         # TODO: edit layer4 to have a LIAF layer at the end
-        self.layer4[-1] = MultiStepLIAFNode(
-            torch.nn.SELU(), threshold_related=False, detach_reset=True, surrogate_function=surrogate.ATan()
-        )
+        # self.layer4[-1].sn2 = MultiStepLIAFNode(
+        #     torch.nn.ReLU(), threshold_related=False, detach_reset=True, surrogate_function=surrogate.ATan()
+        # )
 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         # self.fc = nn.Linear(512 * block.expansion, num_classes)

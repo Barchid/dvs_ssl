@@ -6,11 +6,11 @@ import torch
 import os
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-epochs = 150
+epochs = 200
 learning_rate = 1e-3
 timesteps = 12
 batch_size = 32
-dataset = 'n-mnist'
+dataset = 'cifar10-dvs'
 ssl_loss = 'barlow_twins'
 
 def main(args):    
@@ -38,7 +38,8 @@ def main(args):
         max_epochs=epochs,
         gpus=torch.cuda.device_count(),
         callbacks=[checkpoint_callback],
-        logger=pl.loggers.TensorBoardLogger("experiments", name=name)
+        logger=pl.loggers.TensorBoardLogger("experiments", name=name),
+        default_root_dir=f"experiments/{name}"
     )
     
     trainer.fit(module, datamodule=datamodule)
@@ -83,3 +84,5 @@ if __name__ == "__main__":
     #     main({
     #         'transforms': new_tran
     #     })
+    
+    # test 
