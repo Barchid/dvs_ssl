@@ -18,7 +18,7 @@ from project.utils.transform_dvs import BackgroundActivityNoise, RandomFlipLR, T
 
 
 class BarlowTwinsTransform:
-    def __init__(self, sensor_size = None, timesteps: int = 10, transforms_list=[], concat_time_channels = True):
+    def __init__(self, sensor_size=None, timesteps: int = 10, transforms_list=[], concat_time_channels=True):
         trans_a = []
         trans_b = []
 
@@ -57,49 +57,52 @@ class BarlowTwinsTransform:
         trans_b.append(representation)
 
         # if 'crop' in transforms_list:
-        # trans_a.append(transforms.RandomResizedCrop((224, 224), interpolation=transforms.InterpolationMode.NEAREST))
-        trans_a.append(transforms.Resize((224, 224), interpolation=transforms.InterpolationMode.NEAREST)) # debug
-        # trans_b.append(transforms.RandomResizedCrop((224, 224), interpolation=transforms.InterpolationMode.NEAREST))
-        trans_b.append(transforms.Resize((224, 224), interpolation=transforms.InterpolationMode.NEAREST)) # debug
+        trans_a.append(transforms.RandomResizedCrop((224, 224), interpolation=transforms.InterpolationMode.NEAREST))
+        # trans_a.append(transforms.Resize((224, 224), interpolation=transforms.InterpolationMode.NEAREST)) # debug
+        trans_b.append(transforms.RandomResizedCrop((224, 224), interpolation=transforms.InterpolationMode.NEAREST))
+        # trans_b.append(transforms.Resize((224, 224), interpolation=transforms.InterpolationMode.NEAREST)) # debug
 
         # AFTER TENSOR TRANSFORMATION
         if 'static_rotation' in transforms_list:
-            trans_a.append(transforms.RandomRotation(10))  # Random rotation of [-10, 10] degrees)
-            trans_b.append(transforms.RandomRotation(10))
+            trans_a.append(transforms.RandomRotation(20))  # Random rotation of [-10, 10] degrees)
+            trans_b.append(transforms.RandomRotation(20))
 
         if 'static_translation' in transforms_list:
-            trans_a.append(transforms.RandomAffine(0, translate=(0.1, 0.1)))  # translation in Y and X axes
-            trans_b.append(transforms.RandomAffine(0, translate=(0.1, 0.1)))  # translation in Y and X axes
+            trans_a.append(transforms.RandomAffine(0, translate=(0.2, 0.2)))  # translation in Y and X axes
+            trans_b.append(transforms.RandomAffine(0, translate=(0.2, 0.2)))  # translation in Y and X axes
 
         if 'dynamic_rotation' in transforms_list:
-            trans_a.append(DynamicRotation())
-            trans_b.append(DynamicRotation())
+            trans_a.append(transforms.RandomApply([DynamicRotation()], p=0.5))
+            trans_b.append(transforms.RandomApply([DynamicRotation()], p=0.5))
 
         if 'dynamic_translation' in transforms_list:
-            trans_a.append(DynamicTranslation())
-            trans_b.append(DynamicTranslation())
+            trans_a.append(transforms.RandomApply([DynamicTranslation()], p=0.5))
+            trans_b.append(transforms.RandomApply([DynamicTranslation()], p=0.5))
 
         if 'moving_occlusion' in transforms_list:
-            trans_a.append(MovingOcclusion())
-            trans_b.append(MovingOcclusion())
+            trans_a.append(transforms.RandomApply([MovingOcclusion()], p=0.5))
+            trans_b.append(transforms.RandomApply([MovingOcclusion()], p=0.5))
 
         if 'cutout' in transforms_list:
-            trans_a.append(Cutout())
-            trans_b.append(Cutout())
+            trans_a.append(transforms.RandomApply([Cutout()], p=0.5))
+            trans_b.append(transforms.RandomApply([Cutout()], p=0.5))
 
         # finish by concatenating polarity and timesteps
         if concat_time_channels:
             trans_a.append(
-                transforms.Lambda(lambda x: rearrange(x, 'frames polarity height width -> (frames polarity) height width'))
+                transforms.Lambda(lambda x: rearrange(
+                    x, 'frames polarity height width -> (frames polarity) height width'))
             )
             trans_b.append(
-                transforms.Lambda(lambda x: rearrange(x, 'frames polarity height width -> (frames polarity) height width'))
+                transforms.Lambda(lambda x: rearrange(
+                    x, 'frames polarity height width -> (frames polarity) height width'))
             )
-            
+
             self.transform = transforms.Compose([
                 representation,
                 transforms.Resize((224, 224), interpolation=transforms.InterpolationMode.NEAREST),
-                transforms.Lambda(lambda x: rearrange(x, 'frames polarity height width -> (frames polarity) height width'))
+                transforms.Lambda(lambda x: rearrange(
+                    x, 'frames polarity height width -> (frames polarity) height width'))
             ])
         else:
             self.transform = transforms.Compose([
@@ -119,7 +122,7 @@ class BarlowTwinsTransform:
 
 @dataclass(frozen=True)
 class DynamicRotation:
-    degrees: Tuple[float] = (-10, 10)
+    degrees: Tuple[float] = (-20, 20)
 
     def __call__(self, frames: torch.Tensor):  # shape (..., H, W)
         timesteps = frames.shape[0]
@@ -198,7 +201,7 @@ class Cutout:
 
 @dataclass(frozen=True)
 class MovingOcclusion:
-    size: Tuple[float] = (0.1, 0.2)
+    size: Tuple[float] = (0.05, 0.25)
     nb_holes: int = 4
     translate: Tuple[float] = (0.3, 0.3)
 
@@ -219,7 +222,8 @@ class MovingOcclusion:
         translated = torch.zeros((timesteps, H, W))  # shape=(T,H,W)
         for t in range(timesteps):
             translations = (round(current_tx), round(current_ty))
-            translated[t] = functional.affine(mask.unsqueeze(0), 0., translate=translations, scale=1., shear=0., fill=1).squeeze()
+            translated[t] = functional.affine(mask.unsqueeze(
+                0), 0., translate=translations, scale=1., shear=0., fill=1).squeeze()
             current_tx += step_tx
             current_ty += step_ty
 
@@ -248,11 +252,11 @@ class MovingOcclusion:
 
             # random translation
             hole, mask_translated = self._hole_translation(mask, H, W, timesteps)  # hole.shape=(T, C, H, W)
-            
+
             # drop events where the mask is located
             for t in range(timesteps):
-                frames[t, :, mask_translated[t] == 0.] = 0. 
-            
+                frames[t, :, mask_translated[t] == 0.] = 0.
+
             # add events from moving holes
             frames = torch.logical_or(frames, hole, out=torch.empty_like(frames))
 
