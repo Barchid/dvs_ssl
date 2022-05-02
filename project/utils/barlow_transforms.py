@@ -137,7 +137,7 @@ class DynamicRotation:
 
 @dataclass(frozen=True)
 class DynamicTranslation:
-    translate: Tuple[float] = (0.1, 0.1)
+    translate: Tuple[float] = (0.9, 0.9)
 
     def __call__(self, frames: torch.Tensor):  # shape (T, C, H, W)
         timesteps, H, W = frames.shape[0], frames.shape[-2], frames.shape[-1]
