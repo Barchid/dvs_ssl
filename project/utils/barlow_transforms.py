@@ -162,7 +162,7 @@ class DynamicTranslation:
             current_tx += step_tx
             current_ty += step_ty
 
-        return result[t]
+        return result
 
 
 def get_frame_representation(sensor_size, timesteps):
