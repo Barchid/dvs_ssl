@@ -219,7 +219,7 @@ class MovingOcclusion:
         translated = torch.zeros((timesteps, H, W))  # shape=(T,H,W)
         for t in range(timesteps):
             translations = (current_tx, current_ty)
-            translated[t] = functional.affine(mask, 0., translate=translations, scale=1., shear=0., fill=0)
+            translated[t] = functional.affine(mask.unsqueeze(0), 0., translate=translations, scale=1., shear=0., fill=0).squeeze()
             current_tx += step_tx
             current_ty += step_ty
 
