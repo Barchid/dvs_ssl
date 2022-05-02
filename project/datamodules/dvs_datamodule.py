@@ -7,18 +7,12 @@ from torch.utils import data
 from torch.utils.data import random_split, DataLoader
 from torch.nn import functional as F
 import tonic
-import torchvision
-from torchvision import transforms
 import os
 import numpy as np
 
 from project.datamodules.cifar10dvs import CIFAR10DVS
-from einops import rearrange
 from project.datamodules.ncars import NCARS
-from project.utils.barlow_transforms import BarlowTwinsTransform, get_frame_representation
-from project.utils.dvs_noises import BackgroundActivityNoise, CenteredOcclusion, RandomTimeReversal, background_activity, hot_pixels
-
-from project.utils.phase_dvs import ToBitEncoding, ToWeightedFrames, ToTimeSurfaceCustom
+from project.utils.barlow_transforms import BarlowTwinsTransform
 
 
 class DVSDataModule(pl.LightningDataModule):
