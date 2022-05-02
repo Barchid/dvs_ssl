@@ -119,12 +119,12 @@ class BarlowTwinsTransform:
 
 @dataclass(frozen=True)
 class DynamicRotation:
-    degrees: Tuple[float] = (-90, 90)
+    degrees: Tuple[float] = (-20, 20)
 
     def __call__(self, frames: torch.Tensor):  # shape (..., H, W)
         timesteps = frames.shape[0]
         angle = float(torch.empty(1).uniform_(float(self.degrees[0]), float(self.degrees[1])).item())
-        print(angle)
+        
         step_angle = angle / (timesteps - 1)
 
         current_angle = 0.
