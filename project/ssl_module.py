@@ -7,6 +7,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 import pytorch_lightning as pl
 from torchmetrics.functional import accuracy
+from spikingjelly.clock_driven import functional
 
 from project.models.snn_models import get_encoder_snn, get_projector_liaf
 from project.models.utils import MeanSpike
@@ -81,6 +82,13 @@ class SSLModule(pl.LightningModule):
     def forward(self, Y, enc=None, mode="ann"):
         if mode == "snn":
             Y = Y.permute(1, 0, 2, 3, 4)# from (B,T,C,H,W) to (T, B, C, H, W)
+            
+            if enc is None:
+                functional.reset_net(self.encoder)
+            elif enc == 1:
+                functional.reset_net(self.encoder1)
+            else:
+                functional.reset_net(self.encoder2)
             
         if enc is None:    
             representation = self.encoder(Y)
