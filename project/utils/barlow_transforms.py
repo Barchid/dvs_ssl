@@ -132,7 +132,7 @@ class DynamicRotation:
             result[t] = functional.rotate(frames[t], current_angle)
             current_angle += step_angle
 
-        return result[t]
+        return result
 
 
 @dataclass(frozen=True)
