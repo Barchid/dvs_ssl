@@ -16,8 +16,8 @@ def main():
     pl.seed_everything(2222)
 
     tr = [
-        'static_rotation',
-        # 'statc_translation',
+        # 'static_rotation',
+        'statc_translation',
         # 'dynamic_rotation',
         # 'dynamic_translation',
         # 'cutout',
