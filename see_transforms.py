@@ -37,6 +37,7 @@ def main():
     
     for t in range(30):
         frame = np.zeros((224, 224, 3))
+        print(Y_a.shape)
         data = Y_a.numpy().transpose(1, 2, 0) # (C,H,W) -> (H, W, C)
         frame[:, :, 0:2] = data
         plt.imsave(f'ex_{t}.png', frame)
