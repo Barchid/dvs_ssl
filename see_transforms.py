@@ -61,7 +61,7 @@ def main():
         ax.imshow(frame)
         camera2.snap()
         
-    anim = camera2.animate(interval=200)
+    anim = camera2.animate(interval=50)
     anim.save('norm.mp4')
     plt.close(fig)
     print(label)
