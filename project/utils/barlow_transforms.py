@@ -174,7 +174,7 @@ def get_frame_representation(sensor_size, timesteps):
 
 @dataclass(frozen=True)
 class Cutout:
-    size: Tuple[float] = (0.1, 0.2)
+    size: Tuple[float] = (0.05, 0.25)
     nb_holes: int = 4
 
     def __call__(self, frames: torch.Tensor):  # shape (T, C, H, W)
