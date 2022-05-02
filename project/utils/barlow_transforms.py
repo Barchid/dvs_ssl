@@ -124,6 +124,7 @@ class DynamicRotation:
     def __call__(self, frames: torch.Tensor):  # shape (..., H, W)
         timesteps = frames.shape[0]
         angle = float(torch.empty(1).uniform_(float(self.degrees[0]), float(self.degrees[1])).item())
+        print(angle)
         step_angle = angle / (timesteps - 1)
 
         current_angle = 0.
