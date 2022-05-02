@@ -210,15 +210,15 @@ class MovingOcclusion:
         max_ty = int(round(torch.empty(1).uniform_(-max_dy, max_dy).item()))
 
         # step translation
-        step_tx = max_tx // (timesteps - 1)
+        step_tx = max_tx / (timesteps - 1)
         current_tx = 0
 
-        step_ty = max_ty // (timesteps - 1)
+        step_ty = max_ty / (timesteps - 1)
         current_ty = 0
 
         translated = torch.zeros((timesteps, H, W))  # shape=(T,H,W)
         for t in range(timesteps):
-            translations = (current_tx, current_ty)
+            translations = (round(current_tx), round(current_ty))
             translated[t] = functional.affine(mask.unsqueeze(0), 0., translate=translations, scale=1., shear=0., fill=0).squeeze()
             current_tx += step_tx
             current_ty += step_ty
