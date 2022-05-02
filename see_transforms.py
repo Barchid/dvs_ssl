@@ -35,35 +35,35 @@ def main():
 
     Y_a = Y_a[0, :, :, :, :]  # shape=(100,2,224,224) = (T,C,H,W)
     X = X[0, :, :, :, :]
-    fig1 = plt.figure()
+    fig, ax = plt.subplots()
     plt.axis("off")
-    camera1 = Camera(fig1)
+    camera1 = Camera(fig)
     
     for t in range(100):
         frame = np.zeros((224, 224, 3))
         data = Y_a[t].numpy().transpose(1, 2, 0)  # (C,H,W) -> (H, W, C)
         frame[:, :, 0:2] = data
-        plt.imshow(frame)
+        ax.imshow(frame)
         camera1.snap()
         
-    plt.close()
+    ax.close()
     
     anim = camera1.animate(interval=50)
     anim.save('trans.mp4')
         
-    fig2 = plt.figure()
+    fig, ax = plt.subplots()
     plt.axis("off")
-    camera2 = Camera(fig2)
+    camera2 = Camera(fig)
     for t in range(100):
         frame = np.zeros((224, 224, 3))
         data = X[t].numpy().transpose(1, 2, 0)  # (C,H,W) -> (H, W, C)
         frame[:, :, 0:2] = data
-        plt.imshow(frame)
+        ax.imshow(frame)
         camera2.snap()
         
     anim = camera2.animate(interval=200)
-    anim.save('trans.mp4')
-
+    anim.save('norm.mp4')
+    ax.close()
     print(label)
 
 
