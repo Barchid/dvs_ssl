@@ -57,8 +57,8 @@ class BarlowTwinsTransform:
         trans_b.append(representation)
 
         # if 'crop' in transforms_list:
-        trans_a.append(transforms.RandomResizedCrop((224, 224), interpolation='nearest'))
-        trans_b.append(transforms.RandomResizedCrop((224, 224), interpolation='nearest'))
+        trans_a.append(transforms.RandomResizedCrop((224, 224), interpolation=transforms.InterpolationMode.NEAREST))
+        trans_b.append(transforms.RandomResizedCrop((224, 224), interpolation=transforms.InterpolationMode.NEAREST))
 
         # AFTER TENSOR TRANSFORMATION
         if 'static_rotation' in transforms_list:
