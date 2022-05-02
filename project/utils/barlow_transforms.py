@@ -219,7 +219,7 @@ class MovingOcclusion:
         translated = torch.zeros((timesteps, H, W))  # shape=(T,H,W)
         for t in range(timesteps):
             translations = (round(current_tx), round(current_ty))
-            translated[t] = functional.affine(mask.unsqueeze(0), 0., translate=translations, scale=1., shear=0., fill=0).squeeze()
+            translated[t] = functional.affine(mask.unsqueeze(0), 0., translate=translations, scale=1., shear=0., fill=1).squeeze()
             current_tx += step_tx
             current_ty += step_ty
 
@@ -250,8 +250,8 @@ class MovingOcclusion:
             hole, mask_translated = self._hole_translation(mask, H, W, timesteps)  # hole.shape=(T, C, H, W)
             
             # drop events where the mask is located
-            # for t in range(timesteps):
-            #     frames[t, :, mask_translated[t] == 0.] = 0. 
+            for t in range(timesteps):
+                frames[t, :, mask_translated[t] == 0.] = 0. 
             
             # add events from moving holes
             frames = torch.logical_or(frames, hole, out=torch.empty_like(frames))
