@@ -46,7 +46,7 @@ def main():
         ax.imshow(frame)
         camera1.snap()
         
-    ax.close()
+    plt.close(fig)
     
     anim = camera1.animate(interval=50)
     anim.save('trans.mp4')
@@ -63,7 +63,7 @@ def main():
         
     anim = camera2.animate(interval=200)
     anim.save('norm.mp4')
-    ax.close()
+    plt.close(fig)
     print(label)
 
 
