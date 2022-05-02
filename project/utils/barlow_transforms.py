@@ -93,13 +93,20 @@ class BarlowTwinsTransform:
             trans_b.append(
                 transforms.Lambda(lambda x: rearrange(x, 'frames polarity height width -> (frames polarity) height width'))
             )
+            
+            self.transform = transforms.Compose([
+                representation,
+                transforms.RandomResizedCrop((224, 224), interpolation=transforms.InterpolationMode.NEAREST),
+                transforms.Lambda(lambda x: rearrange(x, 'frames polarity height width -> (frames polarity) height width'))
+            ])
+        else:
+            self.transform = transforms.Compose([
+                representation,
+                transforms.RandomResizedCrop((224, 224), interpolation=transforms.InterpolationMode.NEAREST)
+            ])
 
         self.transform_a = transforms.Compose(trans_a)
         self.transform_b = transforms.Compose(trans_b)
-        self.transform = transforms.Compose([
-            representation,
-            transforms.Lambda(lambda x: rearrange(x, 'frames polarity height width -> (frames polarity) height width'))
-        ])
 
     def __call__(self, X):
         Y_a = self.transform_a(X)
