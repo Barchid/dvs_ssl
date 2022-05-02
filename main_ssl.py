@@ -8,7 +8,7 @@ import os
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 epochs = 200
 learning_rate = 1e-3
-timesteps = 12
+timesteps = 16
 batch_size = 32
 dataset = 'cifar10-dvs'
 ssl_loss = 'barlow_twins'
