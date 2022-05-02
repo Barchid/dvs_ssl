@@ -25,6 +25,8 @@ def main():
         ]
     
     datamodule = DVSDataModule(1, 'cifar10-dvs', 30, data_dir='data', barlow_transf=tr)
+    datamodule.prepare_data()
+    datamodule.setup()
     
     dataloader = datamodule.train_dataloader()
     it = iter(dataloader)
