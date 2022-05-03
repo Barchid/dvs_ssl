@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 epochs = 200
-learning_rate = 3.31e-5
+learning_rate = 2e-4
 timesteps = 32
 batch_size = 32
 dataset = 'cifar10-dvs'
