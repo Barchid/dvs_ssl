@@ -14,7 +14,7 @@ import numpy as np
 import random
 from snntorch.spikegen import delta
 
-from project.utils.transform_dvs import BackgroundActivityNoise, RandomFlipLR, RandomFlipPolarity, ToFrame
+from project.utils.transform_dvs import BackgroundActivityNoise, RandomFlipLR, RandomFlipPolarity, RandomTimeReversal, ToFrame
 
 
 class BarlowTwinsTransform:
@@ -41,8 +41,8 @@ class BarlowTwinsTransform:
             pass
 
         if 'reverse' in transforms_list:
-            trans_a.append(TF.RandomTimeReversal(p=0.2))  # only for transformation A (not B)
-            trans_b.append(TF.RandomTimeReversal(p=0.2))  # only for transformation A (not B)
+            trans_a.append(RandomTimeReversal(p=0.2))  # only for transformation A (not B)
+            trans_b.append(RandomTimeReversal(p=0.2))  # only for transformation A (not B)
 
         if 'flip_polarity' in transforms_list:
             trans_a.append(RandomFlipPolarity(p=0.35))

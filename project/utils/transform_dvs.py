@@ -7,6 +7,29 @@ import torch.optim as optim
 import numpy as np
 from tonic.transforms import functional
 
+@dataclass(frozen=True)
+class RandomTimeReversal:
+    """Temporal flip is defined as:
+
+        .. math::
+           t_i' = max(t) - t_i
+
+           p_i' = -1 * p_i
+
+    Parameters:
+        p (float): probability of performing the flip
+    """
+
+    p: float = 0.5
+
+    def __call__(self, events):
+        events = events.copy()
+        assert "t" and "p" in events.dtype.names
+        if np.random.rand() < self.p:
+            print(events['p'])
+            events["t"] = np.max(events["t"]) - events["t"]
+            events["p"] *= -1
+        return events
 
 @dataclass(frozen=True)
 class RandomFlipPolarity:
