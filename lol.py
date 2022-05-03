@@ -12,12 +12,21 @@ def main():
     datamodule = DVSDataModule(32, 'cifar10-dvs', 32, data_dir='data', barlow_transf=[])
     datamodule.prepare_data()
     datamodule.setup()
-    dataloader = datamodule.train_dataloader()
+    # dataloader = datamodule.train_dataloader()
+    
+    # i = 0
+    # for batch in dataloader:
+    #     print(f"number : {i} / {len(dataloader)}\n")
+    #     i += 1
+        
+    dataloader = datamodule.val_dataloader()
     
     i = 0
     for batch in dataloader:
         print(f"number : {i} / {len(dataloader)}\n")
         i += 1
+        
+    
     
 
 if __name__ == "__main__":
