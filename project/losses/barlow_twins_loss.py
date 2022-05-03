@@ -21,6 +21,8 @@ class BarlowTwinsLoss(nn.Module):
         return x.flatten()[:-1].view(n - 1, n + 1)[:, 1:].flatten()
 
     def forward(self, Z_a, Z_b):
+        batch_size = Z_a.shape[0]
+        
         # normalize repr. along the batch dimension
         Z_a = (Z_a - Z_a.mean(0)) / Z_a.std(0)
         Z_b = (Z_b - Z_b.mean(0)) / Z_b.std(0)
@@ -29,7 +31,7 @@ class BarlowTwinsLoss(nn.Module):
         Z_a = (Z_a - torch.mean(Z_a, dim=0)) / torch.std(Z_a, dim=0)
         Z_b = (Z_b - torch.mean(Z_b, dim=0)) / torch.std(Z_b, dim=0)
 
-        cross_corr = torch.matmul(Z_a.T, Z_b) / self.batch_size
+        cross_corr = torch.matmul(Z_a.T, Z_b) / batch_size
 
         on_diag = torch.diagonal(cross_corr).add_(-1).pow_(2).sum()
         off_diag = self._off_diagonal(cross_corr).pow_(2).sum()
