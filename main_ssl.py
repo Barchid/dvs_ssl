@@ -44,13 +44,13 @@ def main(args):
         default_root_dir=f"experiments/{name}"
     )
     
-    lr_finder = trainer.tuner.lr_find(module, datamodule=datamodule)
-    fig = lr_finder.plot(suggest=True)
-    fig.savefig('lr.png')   # save the figure to file
-    plt.close(fig)    # close th
-    print(f'SUGGESTION IS :', lr_finder.suggestion())
-    exit()
-    # trainer.fit(module, datamodule=datamodule)
+    # lr_finder = trainer.tuner.lr_find(module, datamodule=datamodule)
+    # fig = lr_finder.plot(suggest=True)
+    # fig.savefig('lr.png')   # save the figure to file
+    # plt.close(fig)    # close th
+    # print(f'SUGGESTION IS :', lr_finder.suggestion())
+    # exit()
+    trainer.fit(module, datamodule=datamodule)
     
     # write in score    
     report = open('report.txt', 'a')
