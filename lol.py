@@ -14,7 +14,8 @@ def main():
     
     i = 0
     for batch in dataloader:
-        print(f"number : {i}")
+        print(f"number : {i} / {len(dataloader)}")
+        i += 1
     
 
 if __name__ == "__main__":
