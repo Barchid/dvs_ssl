@@ -26,9 +26,9 @@ class RandomTimeReversal:
         events = events.copy()
         assert "t" and "p" in events.dtype.names
         if np.random.rand() < self.p:
-            print(events['p'])
             events["t"] = np.max(events["t"]) - events["t"]
-            events["p"] *= -1
+            # events["p"] *= -1
+            events['p'] = np.logical_not(events['p']) # apply to boolean (inverse)
         return events
 
 @dataclass(frozen=True)
@@ -45,11 +45,10 @@ class RandomFlipPolarity:
     def __call__(self, events):
         events = events.copy()
         assert "p" in events.dtype.names
-        flips = np.ones(len(events))
+        # flips = np.ones(len(events))
         probs = np.random.rand(len(events))
-        flips[probs < self.p] = -1
-        print(events['p'])
-        events["p"] = events["p"] * flips
+        mask = probs < self.p
+        events["p"][mask] = np.logical_not(events['p'][mask])
         return events
 
 
