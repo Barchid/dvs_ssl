@@ -4,6 +4,7 @@ from project.utils.barlow_transforms import BarlowTwinsTransform
 from project.ssl_module import SSLModule
 import torch
 import os
+from matplotlib import pyplot as plt
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 epochs = 200
@@ -45,7 +46,8 @@ def main(args):
     
     lr_finder = trainer.tuner.lr_find(module, datamodule=datamodule)
     fig = lr_finder.plot(suggest=True)
-    fig.show()
+    fig.savefig('lr.png')   # save the figure to file
+    plt.close(fig)    # close th
     print(f'SUGGESTION IS :', lr_finder.suggestion())
     exit()
     # trainer.fit(module, datamodule=datamodule)
