@@ -9,6 +9,28 @@ from tonic.transforms import functional
 
 
 @dataclass(frozen=True)
+class RandomFlipPolarity:
+    """Flips polarity of individual events with p.
+    Changes polarities 1 to -1 and polarities [-1, 0] to 1
+
+    Parameters:
+        p (float): probability of flipping individual event polarities
+    """
+
+    p: float = 0.5
+
+    def __call__(self, events):
+        events = events.copy()
+        assert "p" in events.dtype.names
+        flips = np.ones(len(events))
+        probs = np.random.rand(len(events))
+        flips[probs < self.p] = -1
+        print(events['p'])
+        events["p"] = events["p"] * flips
+        return events
+
+
+@dataclass(frozen=True)
 class RandomFlipLR:
     """Flips events in x. Pixels map as:
 

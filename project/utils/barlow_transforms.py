@@ -14,7 +14,7 @@ import numpy as np
 import random
 from snntorch.spikegen import delta
 
-from project.utils.transform_dvs import BackgroundActivityNoise, RandomFlipLR, ToFrame
+from project.utils.transform_dvs import BackgroundActivityNoise, RandomFlipLR, RandomFlipPolarity, ToFrame
 
 
 class BarlowTwinsTransform:
@@ -45,8 +45,8 @@ class BarlowTwinsTransform:
             trans_b.append(TF.RandomTimeReversal(p=0.2))  # only for transformation A (not B)
 
         if 'flip_polarity' in transforms_list:
-            trans_a.append(TF.RandomFlipPolarity(p=0.35))
-            trans_b.append(TF.RandomFlipPolarity(p=0.35))
+            trans_a.append(RandomFlipPolarity(p=0.35))
+            trans_b.append(RandomFlipPolarity(p=0.35))
 
         if 'time_jitter' in transforms_list:
             trans_a.append(TF.TimeJitter(clip_negative=True))
