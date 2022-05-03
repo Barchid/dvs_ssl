@@ -7,6 +7,8 @@ import os
 from matplotlib import pyplot as plt
 
 def main():
+    pl.seed_everything(1234)
+    
     datamodule = DVSDataModule(32, 'cifar10-dvs', 32, data_dir='data', barlow_transf=[])
     datamodule.prepare_data()
     datamodule.setup()
