@@ -72,7 +72,6 @@ class CIFAR10DVS(Dataset):
         Returns:
             a tuple of (events, target) where target is the index of the target class.
         """
-        print(self.data[index])
         events = read_aedat4(self.data[index])
         events.dtype.names = ['t', 'x', 'y', 'p']  # for correctly reading the data
         target = self.targets[index]
