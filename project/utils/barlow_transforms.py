@@ -14,7 +14,7 @@ import numpy as np
 import random
 from snntorch.spikegen import delta
 
-from project.utils.transform_dvs import BackgroundActivityNoise, RandomFlipLR, RandomFlipPolarity, RandomTimeReversal, ToFrame
+from project.utils.transform_dvs import BackgroundActivityNoise, ConcatTimeChannels, RandomFlipLR, RandomFlipPolarity, RandomTimeReversal, ToFrame, get_frame_representation
 
 
 class BarlowTwinsTransform:
@@ -90,19 +90,16 @@ class BarlowTwinsTransform:
         # finish by concatenating polarity and timesteps
         if concat_time_channels:
             trans_a.append(
-                transforms.Lambda(lambda x: rearrange(
-                    x, 'frames polarity height width -> (frames polarity) height width'))
+                ConcatTimeChannels()
             )
             trans_b.append(
-                transforms.Lambda(lambda x: rearrange(
-                    x, 'frames polarity height width -> (frames polarity) height width'))
+                ConcatTimeChannels()
             )
 
             self.transform = transforms.Compose([
                 representation,
                 transforms.Resize((224, 224), interpolation=transforms.InterpolationMode.NEAREST),
-                transforms.Lambda(lambda x: rearrange(
-                    x, 'frames polarity height width -> (frames polarity) height width'))
+                ConcatTimeChannels()
             ])
         else:
             self.transform = transforms.Compose([
@@ -165,14 +162,6 @@ class DynamicTranslation:
             current_ty += step_ty
 
         return result
-
-
-def get_frame_representation(sensor_size, timesteps):
-    return transforms.Compose([
-        ToFrame(sensor_size=sensor_size, n_time_bins=timesteps),
-        transforms.Lambda(lambda x: (x > 0).astype(np.float32)),
-        transforms.Lambda(lambda x: torch.from_numpy(x))
-    ])
 
 
 @dataclass(frozen=True)

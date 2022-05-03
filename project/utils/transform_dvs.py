@@ -1,11 +1,14 @@
 from dataclasses import dataclass
 from typing import Optional, Tuple
+from einops import rearrange
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import numpy as np
 from tonic.transforms import functional
+from torchvision import transforms
+
 
 @dataclass(frozen=True)
 class RandomTimeReversal:
@@ -28,8 +31,9 @@ class RandomTimeReversal:
         if np.random.rand() < self.p:
             events["t"] = np.max(events["t"]) - events["t"]
             # events["p"] *= -1
-            events['p'] = np.logical_not(events['p']) # apply to boolean (inverse)
+            events['p'] = np.logical_not(events['p'])  # apply to boolean (inverse)
         return events
+
 
 @dataclass(frozen=True)
 class RandomFlipPolarity:
@@ -175,3 +179,27 @@ class BackgroundActivityNoise:
             )
         events = np.concatenate((events, noise_events))
         return events[np.argsort(events["t"])]
+
+
+def get_frame_representation(sensor_size, timesteps):
+    return transforms.Compose([
+        ToFrame(sensor_size=sensor_size, n_time_bins=timesteps),
+        # transforms.Lambda(lambda x: (x > 0).astype(np.float32)),
+        # transforms.Lambda(lambda x: torch.from_numpy(x))
+        BinarizeFrame()
+    ])
+
+
+@dataclass(frozen=True)
+class BinarizeFrame:
+    def __call__(self, x):
+        x = (x > 0).astype(np.float32)
+        x = torch.from_numpy(x)
+        return x
+
+
+@dataclass(frozen=True)
+class ConcatTimeChannels:
+    def __call__(self, x):
+        x = rearrange(x, 'frames polarity height width -> (frames polarity) height width')
+        return x
