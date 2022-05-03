@@ -14,7 +14,7 @@ def main():
     
     i = 0
     for batch in dataloader:
-        print(f"number : {i} / {len(dataloader)}")
+        print(f"number : {i} / {len(dataloader)}\n")
         i += 1
     
 
