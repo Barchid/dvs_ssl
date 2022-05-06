@@ -33,7 +33,7 @@ class OnlineFineTuner(Callback):
     def extract_online_finetuning_view(
         self, batch: Sequence, device: Union[str, torch.device]
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        (_, _, finetune_view), y = batch
+        (finetune_view, _, _), y = batch
         finetune_view = finetune_view.to(device)
         y = y.to(device)
 
