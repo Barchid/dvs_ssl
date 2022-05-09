@@ -44,9 +44,4 @@ class VICRegLoss(nn.Module):
 
         loss = weighted_inv + weighted_var + weighted_cov
 
-        return {
-            "loss": loss,
-            "loss_invariance": weighted_inv,
-            "loss_variance": weighted_var,
-            "loss_covariance": weighted_cov,
-        }
+        return loss
