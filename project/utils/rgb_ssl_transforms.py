@@ -6,13 +6,12 @@ from torchvision import transforms
 
 
 class BarlowTwinsTransform:
-    def __init__(self, train=True, input_height=224, gaussian_blur=True, jitter_strength=1.0, normalize=None):
+    def __init__(self, input_height=224, gaussian_blur=True, jitter_strength=1.0, normalize=None):
 
         self.input_height = input_height
         self.gaussian_blur = gaussian_blur
         self.jitter_strength = jitter_strength
         self.normalize = normalize
-        self.train = train
 
         color_jitter = transforms.ColorJitter(
             0.8 * self.jitter_strength,
@@ -47,16 +46,22 @@ class BarlowTwinsTransform:
         )
 
         self.finetune_transform = None
-        if self.train:
-            self.finetune_transform = transforms.Compose(
-                [
-                    transforms.RandomCrop(32, padding=4, padding_mode="reflect"),
-                    transforms.RandomHorizontalFlip(),
-                    transforms.ToTensor(),
-                ]
-            )
-        else:
-            self.finetune_transform = transforms.ToTensor()
+        self.finetune_transform = transforms.Compose(
+            [
+                transforms.Resize((224, 224)),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+            ]
+        )
+        # else:
+        #     self.finetune_transform = transforms.ToTensor()
 
     def __call__(self, sample):
-        return self.transform(sample), self.transform(sample), self.finetune_transform(sample)
+        return self.finetune_transform(sample), self.transform(sample), self.transform(sample)
+
+
+def cifar10_normalization():
+    normalize = transforms.Normalize(
+        mean=[x / 255.0 for x in [125.3, 123.0, 113.9]], std=[x / 255.0 for x in [63.0, 62.1, 66.7]]
+    )
+    return normalize
