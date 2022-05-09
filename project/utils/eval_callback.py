@@ -1,4 +1,3 @@
-from ctypes import Union
 from typing import Sequence, Tuple
 from pytorch_lightning import Callback, LightningModule, Trainer
 import pytorch_lightning as pl
@@ -31,7 +30,7 @@ class OnlineFineTuner(Callback):
         self.optimizer = torch.optim.Adam(pl_module.online_finetuner.parameters(), lr=1e-4)
 
     def extract_online_finetuning_view(
-        self, batch: Sequence, device: Union[str, torch.device]
+        self, batch: Sequence
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         (finetune_view, _, _), y = batch
         finetune_view = finetune_view.to(device)
