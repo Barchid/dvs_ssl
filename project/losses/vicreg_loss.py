@@ -22,8 +22,8 @@ class VICRegLoss(nn.Module):
         loss_inv = F.mse_loss(Z_a, Z_b)
 
         # variance loss
-        std_Z_a = torch.sqrt(Z_a.var(dim=0) + self.hparams.variance_loss_epsilon)
-        std_Z_b = torch.sqrt(Z_b.var(dim=0) + self.hparams.variance_loss_epsilon)
+        std_Z_a = torch.sqrt(Z_a.var(dim=0) + 1e-04)
+        std_Z_b = torch.sqrt(Z_b.var(dim=0) + 1e-04)
         loss_v_a = torch.mean(F.relu(1 - std_Z_a))
         loss_v_b = torch.mean(F.relu(1 - std_Z_b))
         loss_var = loss_v_a + loss_v_b
