@@ -27,11 +27,11 @@ def main():
 
     train_trans = BarlowTwinsTransform(normalize=cifar10_normalization())
     train_set = CIFAR10(root="data/", train=True, download=True, transform=train_trans)
-    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=10, drop_last=True)
+    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=8, drop_last=True)
 
     val_trans = BarlowTwinsTransform(normalize=cifar10_normalization())
     val_set = CIFAR10(root="data/", train=False, download=True, transform=val_trans)
-    val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False, num_workers=10)
+    val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False, num_workers=8)
 
     module = SSLModule(
         n_classes=10,
