@@ -41,9 +41,7 @@ def main():
         timesteps=timesteps
     )
 
-    name = ""
-    for tr in args['transforms']:
-        name += f"_{tr}"
+    name = f"rgb_{ssl_loss}"
 
     online_finetuner = OnlineFineTuner(encoder_output_dim=512 * 3, num_classes=10)
 
