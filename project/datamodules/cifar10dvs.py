@@ -53,8 +53,8 @@ class CIFAR10DVS(Dataset):
         classes = {'airplane': 0, 'automobile': 1, 'bird': 2, 'cat': 3, 'deer': 4, 'dog': 5, 'frog': 6, 'horse': 7,
                    'ship': 8, 'truck': 9}
 
-        # if not self._check_exists():
-        #     self.download()
+        if not self._check_exists():
+            self.download()
         #     for filename in self.data_filename:
         #         extract_archive(os.path.join(self.location_on_system, filename))
 
