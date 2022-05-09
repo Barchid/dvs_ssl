@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 epochs = 200
-learning_rate = 2e-4
+learning_rate = 1e-3
 timesteps = 1.5
 batch_size = 128
 dataset = 'cifar10-dvs'
@@ -53,13 +53,13 @@ def main():
         default_root_dir=f"experiments/{name}"
     )
 
-    lr_finder = trainer.tuner.lr_find(module, train_loader, val_loader)
-    fig = lr_finder.plot(suggest=True)
-    fig.savefig('lr.png')   # save the figure to file
-    plt.close(fig)    # close th
-    print(f'SUGGESTION IS :', lr_finder.suggestion())
-    exit()
-    # trainer.fit(module, train_loader, val_loader)
+    # lr_finder = trainer.tuner.lr_find(module, train_loader, val_loader)
+    # fig = lr_finder.plot(suggest=True)
+    # fig.savefig('lr.png')   # save the figure to file
+    # plt.close(fig)    # close th
+    # print(f'SUGGESTION IS :', lr_finder.suggestion())
+    # exit()
+    trainer.fit(module, train_loader, val_loader)
 
     # write in score
     report = open('report.txt', 'a')
