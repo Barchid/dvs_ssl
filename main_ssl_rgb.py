@@ -1,22 +1,23 @@
 import pytorch_lightning as pl
-from project.utils.rgb_ssl_transforms import BarlowTwinsTransform
+from project.utils.rgb_ssl_transforms import BarlowTwinsTransform, cifar10_normalization
 from project.ssl_module import SSLModule
 import torch
 import os
 from matplotlib import pyplot as plt
-
+from torchvision.datasets import CIFAR10
 from project.utils.eval_callback import OnlineFineTuner
+from torch.utils.data import DataLoader
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 epochs = 200
 learning_rate = 2e-4
-timesteps = 32
-batch_size = 32
+timesteps = 1.5
+batch_size = 128
 dataset = 'cifar10-dvs'
 ssl_loss = 'barlow_twins'
 
 
-def main(args):
+def main():
     checkpoint_callback = pl.callbacks.ModelCheckpoint(
         monitor="val_eval_acc",  # TODO: select the logged metric to monitor the checkpoint saving
         filename="model-{epoch:03d}-{val_eval_acc:.4f}",
@@ -24,10 +25,16 @@ def main(args):
         mode="max",
     )
 
-    datamodule = DVSDataModule(batch_size, dataset, timesteps, data_dir='data', barlow_transf=args['transforms'])
+    train_trans = BarlowTwinsTransform(normalize=cifar10_normalization())
+    train_set = CIFAR10(root="data/", train=True, download=True, transform=train_trans)
+    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=4, drop_last=True)
+
+    val_trans = BarlowTwinsTransform(normalize=cifar10_normalization())
+    val_set = CIFAR10(root="data/", train=False, download=True, transform=val_trans)
+    val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False, num_workers=4)
 
     module = SSLModule(
-        n_classes=datamodule.num_classes,
+        n_classes=10,
         learning_rate=learning_rate,
         epochs=epochs,
         ssl_loss=ssl_loss,
@@ -48,13 +55,13 @@ def main(args):
         default_root_dir=f"experiments/{name}"
     )
 
-    # lr_finder = trainer.tuner.lr_find(module, datamodule=datamodule)
-    # fig = lr_finder.plot(suggest=True)
-    # fig.savefig('lr.png')   # save the figure to file
-    # plt.close(fig)    # close th
-    # print(f'SUGGESTION IS :', lr_finder.suggestion())
-    # exit()
-    trainer.fit(module, datamodule=datamodule)
+    lr_finder = trainer.tuner.lr_find(module, train_loader, val_loader)
+    fig = lr_finder.plot(suggest=True)
+    fig.savefig('lr.png')   # save the figure to file
+    plt.close(fig)    # close th
+    print(f'SUGGESTION IS :', lr_finder.suggestion())
+    exit()
+    # trainer.fit(module, train_loader, val_loader)
 
     # write in score
     report = open('report.txt', 'a')
@@ -66,39 +73,5 @@ def main(args):
 if __name__ == "__main__":
     pl.seed_everything(1234)
 
-    static_trans = ['flip', 'background_activity', 'reverse', 'flip_polarity',
-                    'crop', 'static_rotation', 'static_translation', 'cutout']
-    dyn_trans = ['flip', 'background_activity', 'reverse', 'flip_polarity',
-                 'crop', 'dynamic_rotation', 'dynamic_translation', 'moving_occlusion']
-
     # static
-    main({
-        'transforms': static_trans
-    })
-
-    # for tr in static_trans:
-    #     if tr == 'crop':
-    #         continue
-
-    #     new_tran = static_trans.copy()
-    #     new_tran.remove(tr)
-    #     main({
-    #         'transforms': new_tran
-    #     })
-
-    # dynamic
-    # main({
-    #     'transforms': dyn_trans
-    # })
-
-    # for tr in dyn_trans:
-    #     if tr == 'crop':
-    #         continue
-
-    #     new_tran = dyn_trans.copy()
-    #     new_tran.remove(tr)
-    #     main({
-    #         'transforms': new_tran
-    #     })
-
-    # test
+    main()
