@@ -19,8 +19,8 @@ ssl_loss = 'vicreg'
 
 def main():
     checkpoint_callback = pl.callbacks.ModelCheckpoint(
-        monitor="val_eval_acc",  # TODO: select the logged metric to monitor the checkpoint saving
-        filename="model-{epoch:03d}-{val_eval_acc:.4f}",
+        monitor="online_val_acc",  # TODO: select the logged metric to monitor the checkpoint saving
+        filename="model-{epoch:03d}-{online_val_acc:.4f}",
         save_top_k=1,
         mode="max",
     )
