@@ -43,7 +43,7 @@ def main():
 
     name = f"rgb_{ssl_loss}"
 
-    online_finetuner = OnlineFineTuner(encoder_output_dim=512 * 3, num_classes=10)
+    online_finetuner = OnlineFineTuner(encoder_output_dim=512, num_classes=10)
 
     trainer = pl.Trainer(
         max_epochs=epochs,
