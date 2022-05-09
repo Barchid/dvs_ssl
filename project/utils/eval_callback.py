@@ -47,7 +47,7 @@ class OnlineFineTuner(Callback):
         batch_idx: int,
         dataloader_idx: int,
     ) -> None:
-        x, y = self.extract_online_finetuning_view(batch, pl_module.device)
+        x, y = self.extract_online_finetuning_view(batch)
 
         with torch.no_grad():
             feats = pl_module(x)
@@ -73,7 +73,7 @@ class OnlineFineTuner(Callback):
         batch_idx: int,
         dataloader_idx: int,
     ) -> None:
-        x, y = self.extract_online_finetuning_view(batch, pl_module.device)
+        x, y = self.extract_online_finetuning_view(batch)
 
         with torch.no_grad():
             feats = pl_module(x)
