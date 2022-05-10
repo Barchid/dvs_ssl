@@ -10,9 +10,9 @@ from project.utils.eval_callback import OnlineFineTuner
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 epochs = 200
-learning_rate = 2e-4
+learning_rate = 1e-3
 timesteps = 32
-batch_size = 32
+batch_size = 128
 dataset = 'cifar10-dvs'
 ssl_loss = 'barlow_twins'
 

@@ -45,8 +45,8 @@ class BarlowTwinsTransform:
             trans_b.append(RandomTimeReversal(p=0.2))  # only for transformation A (not B)
 
         if 'flip_polarity' in transforms_list:
-            trans_a.append(RandomFlipPolarity(p=0.35))
-            trans_b.append(RandomFlipPolarity(p=0.35))
+            trans_a.append(RandomFlipPolarity(p=0.2))
+            trans_b.append(RandomFlipPolarity(p=0.2))
 
         if 'time_jitter' in transforms_list:
             trans_a.append(TF.TimeJitter(clip_negative=True))
@@ -80,12 +80,12 @@ class BarlowTwinsTransform:
             trans_b.append(transforms.RandomApply([DynamicTranslation()], p=0.5))
 
         if 'moving_occlusion' in transforms_list:
-            trans_a.append(transforms.RandomApply([MovingOcclusion()], p=0.5))
-            trans_b.append(transforms.RandomApply([MovingOcclusion()], p=0.5))
+            trans_a.append(transforms.RandomApply([MovingOcclusion()], p=0.3))
+            trans_b.append(transforms.RandomApply([MovingOcclusion()], p=0.3))
 
         if 'cutout' in transforms_list:
-            trans_a.append(transforms.RandomApply([Cutout()], p=0.5))
-            trans_b.append(transforms.RandomApply([Cutout()], p=0.5))
+            trans_a.append(transforms.RandomApply([Cutout()], p=0.3))
+            trans_b.append(transforms.RandomApply([Cutout()], p=0.3))
 
         # finish by concatenating polarity and timesteps
         if concat_time_channels:
@@ -166,14 +166,15 @@ class DynamicTranslation:
 
 @dataclass(frozen=True)
 class Cutout:
-    size: Tuple[float] = (0.05, 0.25)
-    nb_holes: int = 4
+    size: Tuple[float] = (0.1, 0.25)
+    nb_holes: int = 3
 
     def __call__(self, frames: torch.Tensor):  # shape (T, C, H, W)
         timesteps, H, W = frames.shape[0], frames.shape[-2], frames.shape[-1]
 
         mask = torch.ones_like(frames)
-        for i in range(self.nb_holes):
+        n_holes = random.randint(1, self.nb_holes)
+        for i in range(n_holes):
             # compute size of the
             size = random.uniform(self.size[0], self.size[1])
             size_h = int(H * size)
@@ -190,8 +191,8 @@ class Cutout:
 
 @dataclass(frozen=True)
 class MovingOcclusion:
-    size: Tuple[float] = (0.05, 0.25)
-    nb_holes: int = 4
+    size: Tuple[float] = (0.1, 0.25)
+    nb_holes: int = 3
     translate: Tuple[float] = (0.3, 0.3)
 
     def _hole_translation(self, mask: torch.Tensor, H, W, timesteps):
@@ -229,7 +230,8 @@ class MovingOcclusion:
         timesteps, H, W = frames.shape[0], frames.shape[-2], frames.shape[-1]
 
         # each hole creates a mask and is translated randomly, then it is added to the frames result
-        for i in range(self.nb_holes):
+        n_holes = random.randint(1, self.nb_holes)
+        for i in range(n_holes):
             # create hole
             mask = torch.ones((H, W))  # shape=(H,W)
             size = random.uniform(self.size[0], self.size[1])
