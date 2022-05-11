@@ -64,12 +64,16 @@ class BarlowTwinsTransform:
 
         # AFTER TENSOR TRANSFORMATION
         if 'static_rotation' in transforms_list:
-            trans_a.append(transforms.RandomRotation(20))  # Random rotation of [-10, 10] degrees)
-            trans_b.append(transforms.RandomRotation(20))
+            trans_a.append(transforms.RandomApply([transforms.RandomRotation(20)], p=0.5))# Random rotation of [-20, 20] degrees)
+            trans_b.append(transforms.RandomApply([transforms.RandomRotation(20)], p=0.5))# Random rotation of [-20, 20] degrees)
 
         if 'static_translation' in transforms_list:
-            trans_a.append(transforms.RandomAffine(0, translate=(0.2, 0.2)))  # translation in Y and X axes
-            trans_b.append(transforms.RandomAffine(0, translate=(0.2, 0.2)))  # translation in Y and X axes
+            trans_a.append(
+                transforms.RandomApply([transforms.RandomAffine(0, translate=(0.2, 0.2))], p=0.5)
+            )  # translation in Y and X axes
+            trans_b.append(
+                transforms.RandomApply([transforms.RandomAffine(0, translate=(0.2, 0.2))], p=0.5)
+            )  # translation in Y and X axes
 
         if 'dynamic_rotation' in transforms_list:
             trans_a.append(transforms.RandomApply([DynamicRotation()], p=0.5))

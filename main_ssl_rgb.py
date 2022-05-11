@@ -14,7 +14,7 @@ learning_rate = 1e-3
 timesteps = 1.5
 batch_size = 128
 dataset = 'cifar10-dvs'
-ssl_loss = 'vicreg'
+ssl_loss = 'barlow_twins'
 
 
 def main():
