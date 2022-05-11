@@ -69,25 +69,25 @@ if __name__ == "__main__":
 
     # exp 1
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity']
-    main({'trans': trans})
+    main({'transforms': trans})
 
     # exp 2
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'static_translation', 'static_rotation']
-    main({'trans': trans})
+    main({'transforms': trans})
 
     # exp 3
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity',
              'static_translation', 'static_rotation', 'cutout']
-    main({'trans': trans})
+    main({'transforms': trans})
 
     # exp 4
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'dynamic_translation', 'dynamic_rotation']
-    main({'trans': trans})
+    main({'transforms': trans})
 
     # exp 5
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity',
              'dynamic_translation', 'dynamic_rotation', 'moving_occlusion']
-    main({'trans': trans})
+    main({'transforms': trans})
 
     # static_trans = ['flip', 'background_activity', 'reverse',
     #                 'flip_polarity', 'static_rotation', 'static_translation', 'cutout']
