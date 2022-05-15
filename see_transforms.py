@@ -50,7 +50,7 @@ def main():
     plt.close(fig)
     
     anim = camera1.animate(interval=50)
-    anim.save('trans.avi')
+    anim.save('trans.webm')
         
     fig, ax = plt.subplots()
     plt.axis("off")
@@ -63,7 +63,7 @@ def main():
         camera2.snap()
         
     anim = camera2.animate(interval=50)
-    anim.save('norm.avi')
+    anim.save('norm.webm')
     plt.close(fig)
     print(label)
 
