@@ -16,15 +16,16 @@ def main():
     pl.seed_everything(4)
 
     tr = [
+        'flip'
         # 'static_rotation',
-        'static_translation',
+        # 'static_translation',
         # 'dynamic_rotation',
         # 'dynamic_translation',
         # 'cutout',
         # 'moving_occlusion'
     ]
 
-    datamodule = DVSDataModule(1, 'cifar10-dvs', 100, data_dir='data', barlow_transf=tr, mode="snn")
+    datamodule = DVSDataModule(1, 'cifar10-dvs', 300, data_dir='data', barlow_transf=tr, mode="snn")
     datamodule.prepare_data()
     datamodule.setup()
 
@@ -39,7 +40,7 @@ def main():
     plt.axis("off")
     camera1 = Camera(fig)
     
-    for t in range(100):
+    for t in range(300):
         frame = np.zeros((224, 224, 3))
         data = Y_a[t].numpy().transpose(1, 2, 0)  # (C,H,W) -> (H, W, C)
         frame[:, :, 0:2] = data
