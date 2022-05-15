@@ -25,7 +25,7 @@ def main():
         # 'moving_occlusion'
     ]
 
-    datamodule = DVSDataModule(1, 'cifar10-dvs', 300, data_dir='data', barlow_transf=tr, mode="snn")
+    datamodule = DVSDataModule(1, 'cifar10-dvs', 300, num_workers=0, data_dir='data', barlow_transf=tr, mode="snn")
     datamodule.prepare_data()
     datamodule.setup()
 
