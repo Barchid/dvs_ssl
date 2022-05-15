@@ -50,7 +50,7 @@ def main():
     plt.close(fig)
     
     anim = camera1.animate(interval=50)
-    anim.save('trans.mp4')
+    anim.save('trans.mkv')
         
     fig, ax = plt.subplots()
     plt.axis("off")
