@@ -26,13 +26,13 @@ class BarlowTwinsTransform:
 
         # BEFORE TENSOR TRANSFORMATION
         if 'flip' in transforms_list:
-            trans_a.append(RandomFlipLR(sensor_size=sensor_size))
+            trans_a.append(RandomFlipLR(sensor_size=sensor_size, p=1.))
             trans_b.append(RandomFlipLR(sensor_size=sensor_size))
 
         if 'background_activity' in transforms_list:
             trans_a.append(transforms.RandomApply([
                 BackgroundActivityNoise(severity=4, sensor_size=sensor_size)
-            ], p=0.5))
+            ], p=1.))
             trans_b.append(transforms.RandomApply([
                 BackgroundActivityNoise(severity=4, sensor_size=sensor_size)
             ], p=0.5))
@@ -41,11 +41,11 @@ class BarlowTwinsTransform:
             pass
 
         if 'reverse' in transforms_list:
-            trans_a.append(RandomTimeReversal(p=0.2))  # only for transformation A (not B)
+            trans_a.append(RandomTimeReversal(p=1.))  # only for transformation A (not B)
             trans_b.append(RandomTimeReversal(p=0.2))  # only for transformation A (not B)
 
         if 'flip_polarity' in transforms_list:
-            trans_a.append(RandomFlipPolarity(p=0.2))
+            trans_a.append(RandomFlipPolarity(p=1.))
             trans_b.append(RandomFlipPolarity(p=0.2))
 
         if 'time_jitter' in transforms_list:
@@ -64,31 +64,31 @@ class BarlowTwinsTransform:
 
         # AFTER TENSOR TRANSFORMATION
         if 'static_rotation' in transforms_list:
-            trans_a.append(transforms.RandomApply([transforms.RandomRotation(20)], p=0.5))# Random rotation of [-20, 20] degrees)
+            trans_a.append(transforms.RandomApply([transforms.RandomRotation(20)], p=1.))# Random rotation of [-20, 20] degrees)
             trans_b.append(transforms.RandomApply([transforms.RandomRotation(20)], p=0.5))# Random rotation of [-20, 20] degrees)
 
         if 'static_translation' in transforms_list:
             trans_a.append(
-                transforms.RandomApply([transforms.RandomAffine(0, translate=(0.2, 0.2))], p=0.5)
+                transforms.RandomApply([transforms.RandomAffine(0, translate=(0.2, 0.2))], p=1.)
             )  # translation in Y and X axes
             trans_b.append(
                 transforms.RandomApply([transforms.RandomAffine(0, translate=(0.2, 0.2))], p=0.5)
             )  # translation in Y and X axes
 
         if 'dynamic_rotation' in transforms_list:
-            trans_a.append(transforms.RandomApply([DynamicRotation()], p=0.5))
+            trans_a.append(transforms.RandomApply([DynamicRotation()], p=1.))
             trans_b.append(transforms.RandomApply([DynamicRotation()], p=0.5))
 
         if 'dynamic_translation' in transforms_list:
-            trans_a.append(transforms.RandomApply([DynamicTranslation()], p=0.5))
+            trans_a.append(transforms.RandomApply([DynamicTranslation()], p=1.))
             trans_b.append(transforms.RandomApply([DynamicTranslation()], p=0.5))
 
         if 'moving_occlusion' in transforms_list:
-            trans_a.append(transforms.RandomApply([MovingOcclusion()], p=0.3))
+            trans_a.append(transforms.RandomApply([MovingOcclusion()], p=1.))
             trans_b.append(transforms.RandomApply([MovingOcclusion()], p=0.3))
 
         if 'cutout' in transforms_list:
-            trans_a.append(transforms.RandomApply([Cutout()], p=0.3))
+            trans_a.append(transforms.RandomApply([Cutout()], p=1.))
             trans_b.append(transforms.RandomApply([Cutout()], p=0.3))
 
         # finish by concatenating polarity and timesteps
