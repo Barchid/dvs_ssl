@@ -46,7 +46,7 @@ def show_smth(tr):
     fig, ax = plt.subplots()
     plt.axis("off")
     camera2 = Camera(fig)
-    for t in range(100):
+    for t in range(300):
         frame = np.zeros((224, 224, 3))
         data = X[t].numpy().transpose(1, 2, 0)  # (C,H,W) -> (H, W, C)
         frame[:, :, 0:2] = data
@@ -64,16 +64,16 @@ def main():
     pl.seed_everything(4)
 
     all_tr = [
-        # 'flip',
-        # 'background_activity',
-        # 'flip_polarity',
+        'flip',
+        'background_activity',
+        'flip_polarity',
         'reverse',
-        # 'static_rotation',
-        # 'static_translation',
-        # 'dynamic_rotation',
-        # 'dynamic_translation',
-        # 'cutout',
-        # 'moving_occlusion'
+        'static_rotation',
+        'static_translation',
+        'dynamic_rotation',
+        'dynamic_translation',
+        'cutout',
+        'moving_occlusion'
     ]
 
     for tran in all_tr:

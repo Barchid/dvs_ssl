@@ -29,19 +29,11 @@ class RandomTimeReversal:
         events = events.copy()
         assert "t" and "p" in events.dtype.names
         if np.random.rand() < self.p:
-            print(np.unique(events['p']))
             events["t"] = np.max(events["t"]) - events["t"]
-            print(np.unique(events['p']))
             # events = events[np.argsort(events["t"])]
-            print('flip')
-            print(events['t'])
             events = np.flip(events)
-            print(events['t'])
-            print(np.unique(events['p']))
             # events["p"] *= -1
-            print(np.unique(events['p']))
             events['p'] = np.logical_not(events['p'])  # apply to boolean (inverse)
-            print(np.unique(events['p']))
         return events
 
 
