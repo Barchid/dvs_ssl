@@ -39,7 +39,7 @@ def show_smth(tr):
         camera1.snap()
 
     plt.close(fig)
-
+    print('save fig transform')
     anim = camera1.animate(interval=50)
     anim.save(f'{tr[0]}.mp4')
 
@@ -54,6 +54,7 @@ def show_smth(tr):
         camera2.snap()
 
     anim = camera2.animate(interval=50)
+    print('save fig transform')
     anim.save('norm.mp4')
     plt.close(fig)
     print(label)
