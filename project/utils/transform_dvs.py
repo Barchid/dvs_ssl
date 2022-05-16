@@ -29,6 +29,7 @@ class RandomTimeReversal:
         events = events.copy()
         assert "t" and "p" in events.dtype.names
         if np.random.rand() < self.p:
+            print(events['t'])
             events["t"] = np.max(events["t"]) - events["t"]
             print(events['t'])
             exit()
