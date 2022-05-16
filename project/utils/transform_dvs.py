@@ -186,9 +186,11 @@ class BackgroundActivityNoise:
         events = np.concatenate((events, noise_events))
         print(np.unique(events['p']))
         print(len(events))
-        events = events[np.argsort(events["t"])]
-        print(len(events))
-        print(np.unique(events['p']))
+        new_events = events[np.argsort(events["t"])]
+        new_events['p'] = events['p']
+        
+        print(len(new_events))
+        print(np.unique(new_events['p']))
         exit()
         return events
 
