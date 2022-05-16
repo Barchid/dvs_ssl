@@ -31,8 +31,7 @@ class RandomTimeReversal:
         if np.random.rand() < self.p:
             print(events['t'])
             events["t"] = np.max(events["t"]) - events["t"]
-            print(events['t'])
-            exit()
+            events = events[np.argsort(events["t"])]
             # events["p"] *= -1
             events['p'] = np.logical_not(events['p'])  # apply to boolean (inverse)
         return events
