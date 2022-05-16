@@ -64,16 +64,16 @@ def main():
     pl.seed_everything(4)
 
     all_tr = [
-        'flip',
-        'background_activity',
-        'flip_polarity',
+        # 'flip',
+        # 'background_activity',
+        # 'flip_polarity',
         'reverse',
-        'static_rotation',
-        'static_translation',
-        'dynamic_rotation',
-        'dynamic_translation',
-        'cutout',
-        'moving_occlusion'
+        # 'static_rotation',
+        # 'static_translation',
+        # 'dynamic_rotation',
+        # 'dynamic_translation',
+        # 'cutout',
+        # 'moving_occlusion'
     ]
 
     for tran in all_tr:

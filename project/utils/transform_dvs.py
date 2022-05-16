@@ -31,6 +31,8 @@ class RandomTimeReversal:
         if np.random.rand() < self.p:
             events["t"] = np.max(events["t"]) - events["t"]
             # events["p"] *= -1
+            print(type(events['p']))
+            exit()
             events['p'] = np.logical_not(events['p'])  # apply to boolean (inverse)
         return events
 
@@ -174,9 +176,13 @@ class BackgroundActivityNoise:
                 low, high = 0, sensor_size[2]
             if channel == "t":
                 low, high = events["t"].min(), events["t"].max()
-            noise_events[channel] = np.random.uniform(
-                low=low, high=high, size=n_noise_events
-            )
+
+            if channel == "p":
+                noise_events[channel] = np.random.randint(low=low, high=high, size=n_noise_events)
+            else:
+                noise_events[channel] = np.random.uniform(
+                    low=low, high=high, size=n_noise_events
+                )
         events = np.concatenate((events, noise_events))
         return events[np.argsort(events["t"])]
 
