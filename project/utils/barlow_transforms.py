@@ -124,7 +124,7 @@ class BarlowTwinsTransform:
 
 @dataclass(frozen=True)
 class DynamicRotation:
-    degrees: Tuple[float] = (-20, 20)
+    degrees: Tuple[float] = (-30, 30)
 
     def __call__(self, frames: torch.Tensor):  # shape (..., H, W)
         timesteps = frames.shape[0]
@@ -142,7 +142,7 @@ class DynamicRotation:
 
 @dataclass(frozen=True)
 class DynamicTranslation:
-    translate: Tuple[float] = (0.2, 0.2)
+    translate: Tuple[float] = (0.3, 0.3)
 
     def __call__(self, frames: torch.Tensor):  # shape (T, C, H, W)
         timesteps, H, W = frames.shape[0], frames.shape[-2], frames.shape[-1]
@@ -171,7 +171,7 @@ class DynamicTranslation:
 
 @dataclass(frozen=True)
 class Cutout:
-    size: Tuple[float] = (0.1, 0.25)
+    size: Tuple[float] = (0.2, 0.4)
     nb_holes: int = 3
 
     def __call__(self, frames: torch.Tensor):  # shape (T, C, H, W)
@@ -196,7 +196,7 @@ class Cutout:
 
 @dataclass(frozen=True)
 class MovingOcclusion:
-    size: Tuple[float] = (0.1, 0.25)
+    size: Tuple[float] = (0.2, 0.4)
     nb_holes: int = 3
     translate: Tuple[float] = (0.3, 0.3)
 

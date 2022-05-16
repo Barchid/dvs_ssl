@@ -159,7 +159,7 @@ class BackgroundActivityNoise:
     sensor_size: Tuple[int, int, int] = None
 
     def __call__(self, events):
-        c = [.005, 0.01, 0.03, .10, .15][self.severity - 1]  # percentage of events to add in noise
+        c = [.005, 0.01, 0.03, .10, .2][self.severity - 1]  # percentage of events to add in noise
         if self.sensor_size is None:
             sensor_size = get_sensor_size(events)
         else:
