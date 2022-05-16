@@ -30,6 +30,8 @@ class RandomTimeReversal:
         assert "t" and "p" in events.dtype.names
         if np.random.rand() < self.p:
             events["t"] = np.max(events["t"]) - events["t"]
+            print(events['t'])
+            exit()
             # events["p"] *= -1
             events['p'] = np.logical_not(events['p'])  # apply to boolean (inverse)
         return events
