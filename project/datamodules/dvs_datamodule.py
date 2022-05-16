@@ -70,13 +70,13 @@ class DVSDataModule(pl.LightningDataModule):
             self.train_set = tonic.datasets.NMNIST(
                 save_to=self.data_dir, transform=self.train_transform, target_transform=None, train=True)
             self.val_set = tonic.datasets.NMNIST(
-                save_to=self.data_dir, transform=self.val_transform, target_transform=None, train=False)
+                save_to=self.data_dir, transform=self.train_transform, target_transform=None, train=False)
 
         elif self.dataset == "cifar10-dvs":
             dataset_train = CIFAR10DVS(save_to=self.data_dir, transform=self.train_transform, target_transform=None)
-            dataset_val = CIFAR10DVS(save_to=self.data_dir, transform=self.val_transform, target_transform=None)
+            dataset_val = CIFAR10DVS(save_to=self.data_dir, transform=self.train_transform, target_transform=None)
             full_len = len(dataset_train)
-            train_len = int(0.85 * full_len)
+            train_len = int(0.80 * full_len)
             val_len = full_len - train_len
             print(full_len, train_len, val_len)
             self.train_set, _ = random_split(dataset_train, lengths=[train_len, val_len])
@@ -86,7 +86,7 @@ class DVSDataModule(pl.LightningDataModule):
             self.train_set = tonic.datasets.DVSGesture(
                 save_to=self.data_dir, transform=self.train_transform, target_transform=None, train=True)
             self.val_set = tonic.datasets.DVSGesture(
-                save_to=self.data_dir, transform=self.val_transform, target_transform=None, train=False)
+                save_to=self.data_dir, transform=self.train_transform, target_transform=None, train=False)
 
         elif self.dataset == "n-caltech101":
             tonic.datasets.NCALTECH101(save_to=self.data_dir)
@@ -96,11 +96,11 @@ class DVSDataModule(pl.LightningDataModule):
             full_length = len(dataset)
             print(full_length, 0.8 * full_length)
             self.train_set, _ = random_split(dataset, [0.8 * full_length, full_length - (0.8 * full_length)])
-            dataset = tonic.datasets.ASLDVS(save_to=self.data_dir, transform=self.val_transform)
+            dataset = tonic.datasets.ASLDVS(save_to=self.data_dir, transform=self.train_transform)
             _, self.val_set = random_split(dataset, [0.8 * full_length, full_length - (0.8 * full_length)])
         elif self.dataset == 'ncars':
             self.train_set = NCARS(self.data_dir, train=True, transform=self.train_transform)
-            self.val_set = NCARS(self.data_dir, train=False, transform=self.val_transform)
+            self.val_set = NCARS(self.data_dir, train=False, transform=self.train_transform)
             print(len(self.train_set), len(self.val_set))
 
         print(len(self.train_set), len(self.val_set))
