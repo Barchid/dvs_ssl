@@ -31,10 +31,10 @@ class BarlowTwinsTransform:
 
         if 'background_activity' in transforms_list:
             trans_a.append(transforms.RandomApply([
-                BackgroundActivityNoise(severity=4, sensor_size=sensor_size)
+                BackgroundActivityNoise(severity=5, sensor_size=sensor_size)
             ], p=1.))
             trans_b.append(transforms.RandomApply([
-                BackgroundActivityNoise(severity=4, sensor_size=sensor_size)
+                BackgroundActivityNoise(severity=5, sensor_size=sensor_size)
             ], p=0.5))
 
         if 'hot_pixels' in transforms_list:

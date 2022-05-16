@@ -178,7 +178,7 @@ class BackgroundActivityNoise:
                 low, high = events["t"].min(), events["t"].max()
 
             if channel == "p":
-                noise_events[channel] = np.random.randint(low=low, high=high, size=n_noise_events)
+                noise_events[channel] = np.random.choice([True, False], size=n_noise_events)
             else:
                 noise_events[channel] = np.random.uniform(
                     low=low, high=high, size=n_noise_events
