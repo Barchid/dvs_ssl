@@ -33,6 +33,10 @@ class RandomTimeReversal:
             events["t"] = np.max(events["t"]) - events["t"]
             print(np.unique(events['p']))
             events = events[np.argsort(events["t"])]
+            print('flip')
+            print(events['t'])
+            events = np.flip(events)
+            print(events['t'])
             print(np.unique(events['p']))
             # events["p"] *= -1
             print(np.unique(events['p']))
