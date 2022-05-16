@@ -184,7 +184,11 @@ class BackgroundActivityNoise:
                     low=low, high=high, size=n_noise_events
                 )
         events = np.concatenate((events, noise_events))
-        return events[np.argsort(events["t"])]
+        print(np.unique(events['p']))
+        events = events[np.argsort(events["t"])]
+        print(np.unique(events['p']))
+        exit()
+        return events
 
 
 def get_frame_representation(sensor_size, timesteps):
