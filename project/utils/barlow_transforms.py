@@ -57,7 +57,8 @@ class BarlowTwinsTransform:
         trans_b.append(representation)
 
         # if 'crop' in transforms_list:
-        trans_a.append(transforms.RandomResizedCrop((224, 224), interpolation=transforms.InterpolationMode.NEAREST))
+        # trans_a.append(transforms.RandomResizedCrop((224, 224), interpolation=transforms.InterpolationMode.NEAREST))
+        trans_a.append(transforms.Resize((224, 224), interpolation=transforms.InterpolationMode.NEAREST))
         # trans_a.append(transforms.Resize((224, 224), interpolation=transforms.InterpolationMode.NEAREST)) # debug
         trans_b.append(transforms.RandomResizedCrop((224, 224), interpolation=transforms.InterpolationMode.NEAREST))
         # trans_b.append(transforms.Resize((224, 224), interpolation=transforms.InterpolationMode.NEAREST)) # debug
