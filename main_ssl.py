@@ -13,7 +13,7 @@ epochs = 200
 learning_rate = 1e-3
 timesteps = 32
 batch_size = 128
-dataset = 'cifar10-dvs'
+dataset = 'n-mnist'
 ssl_loss = 'barlow_twins'
 
 
@@ -35,7 +35,7 @@ def main(args):
         timesteps=timesteps
     )
 
-    name = ""
+    name = f"{dataset}"
     for tr in args['transforms']:
         name += f"_{tr}"
 
