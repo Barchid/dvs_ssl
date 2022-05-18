@@ -32,7 +32,7 @@ class DVSDataModule(pl.LightningDataModule):
         # transform
         self.sensor_size, self.num_classes = self._get_dataset_info()
         self.train_transform = BarlowTwinsTransform(
-            self.sensor_size, timesteps=timesteps, transforms_list=barlow_transf, concat_time_channels=mode=="ann")
+            self.sensor_size, timesteps=timesteps, transforms_list=barlow_transf, concat_time_channels=mode == "ann")
         self.val_transform = BarlowTwinsTransform(self.sensor_size, timesteps=timesteps, transforms_list=barlow_transf)
 
     def _get_dataset_info(self):
@@ -43,7 +43,7 @@ class DVSDataModule(pl.LightningDataModule):
         elif self.dataset == "dvsgesture":
             return tonic.datasets.DVSGesture.sensor_size, len(tonic.datasets.DVSGesture.classes)
         elif self.dataset == "n-caltech101":
-            return None, 101 # variable sensor_size for NCaltech
+            return None, 101  # variable sensor_size for NCaltech
         elif self.dataset == "asl-dvs":
             return tonic.datasets.ASLDVS.sensor_size, len(tonic.datasets.ASLDVS.classes)
         elif self.dataset == 'ncars':
@@ -89,7 +89,9 @@ class DVSDataModule(pl.LightningDataModule):
                 save_to=self.data_dir, transform=self.train_transform, target_transform=None, train=False)
 
         elif self.dataset == "n-caltech101":
-            tonic.datasets.NCALTECH101(save_to=self.data_dir)
+            dataset = tonic.datasets.NCALTECH101(save_to=self.data_dir, transform=self.train_transform)
+            full_length = len(dataset)
+            self.train_set, self.val_set = random_split(dataset, [0.8 * full_length, full_length - (0.8 * full_length)])
 
         elif self.dataset == "asl-dvs":
             dataset = tonic.datasets.ASLDVS(save_to=self.data_dir, transform=self.train_transform)

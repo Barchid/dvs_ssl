@@ -13,7 +13,7 @@ epochs = 200
 learning_rate = 1e-3
 timesteps = 32
 batch_size = 128
-dataset = 'n-mnist'
+dataset = 'n-caltech101'
 ssl_loss = 'barlow_twins'
 
 

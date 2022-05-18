@@ -18,8 +18,8 @@ from celluloid import Camera
 
 def show_smth(tr):
     train_transform = BarlowTwinsTransform(
-        tonic.datasets.NMNIST.sensor_size, timesteps=300, transforms_list=tr, concat_time_channels=False)
-    dataset_train = tonic.datasets.NMNIST(save_to='data', train=True, transform=train_transform, target_transform=None)
+        tonic.datasets.NCALTECH101.sensor_size, timesteps=300, transforms_list=tr, concat_time_channels=False)
+    dataset_train = tonic.datasets.NCALTECH101(save_to='data', transform=train_transform, target_transform=None)
     dataloader = DataLoader(dataset_train, batch_size=1, num_workers=0, shuffle=False)
 
     it = iter(dataloader)
