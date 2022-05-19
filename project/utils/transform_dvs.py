@@ -150,7 +150,7 @@ class ToFrame:
 
 
 def get_sensor_size(events: np.ndarray):
-    return events["y"].max(), events["x"].max(), 2  # H,W,2
+    return events["y"].max() + 1, events["x"].max() + 1, 2  # H,W,2
 
 
 @dataclass(frozen=True)
