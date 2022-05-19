@@ -34,6 +34,7 @@ class OnlineFineTuner(Callback):
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         (finetune_view, _, _), y = batch
         finetune_view = finetune_view.to(device)
+        print(y)
         y = y.to(device)
 
         return finetune_view, y
