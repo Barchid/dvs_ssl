@@ -48,10 +48,13 @@ class NCALTECH101(Dataset):
         file_path = os.path.join(self.location_on_system, self.folder_name)
         for path, dirs, files in os.walk(file_path):
             dirs.sort()
+            print(dirs)
             for file in files:
                 if file.endswith("bin"):
                     self.data.append(path + "/" + file)
                     label_number = os.path.basename(path)
+                    print('\n\n', label_number)
+                    exit()
                     self.targets.append(label_number)
 
     def __getitem__(self, index):
