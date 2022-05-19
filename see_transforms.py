@@ -18,7 +18,7 @@ from celluloid import Camera
 
 def show_smth(tr):
     train_transform = BarlowTwinsTransform(
-        tonic.datasets.NCALTECH101.sensor_size, timesteps=300, transforms_list=tr, concat_time_channels=False)
+        tonic.datasets.NCALTECH101.sensor_size, timesteps=100, transforms_list=tr, concat_time_channels=False)
     dataset_train = tonic.datasets.NCALTECH101(save_to='data', transform=train_transform, target_transform=None)
     dataloader = DataLoader(dataset_train, batch_size=1, num_workers=0, shuffle=False)
 
@@ -32,7 +32,7 @@ def show_smth(tr):
     plt.axis("off")
     camera1 = Camera(fig)
 
-    for t in range(300):
+    for t in range(100):
         frame = np.zeros((224, 224, 3))
         data = Y_a[t].numpy().transpose(1, 2, 0)  # (C,H,W) -> (H, W, C)
         frame[:, :, 0:2] = data
@@ -41,20 +41,20 @@ def show_smth(tr):
 
     plt.close(fig)
     print('save fig transform')
-    anim = camera1.animate(interval=50)
+    anim = camera1.animate(interval=40)
     anim.save(f'{tr[0]}.mp4')
 
     fig, ax = plt.subplots()
     plt.axis("off")
     camera2 = Camera(fig)
-    for t in range(300):
+    for t in range(100):
         frame = np.zeros((224, 224, 3))
         data = X[t].numpy().transpose(1, 2, 0)  # (C,H,W) -> (H, W, C)
         frame[:, :, 0:2] = data
         ax.imshow(frame)
         camera2.snap()
 
-    anim = camera2.animate(interval=50)
+    anim = camera2.animate(interval=40)
     print('save fig transform')
     anim.save('norm.mp4')
     plt.close(fig)
