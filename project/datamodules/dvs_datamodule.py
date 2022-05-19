@@ -92,8 +92,8 @@ class DVSDataModule(pl.LightningDataModule):
         elif self.dataset == "n-caltech101":
             dataset = NCALTECH101(save_to=self.data_dir, transform=self.train_transform)
             full_length = len(dataset)
-            train_len = int(0.80 * full_len)
-            val_len = full_len - train_len
+            train_len = int(0.80 * full_length)
+            val_len = full_length - train_len
             self.train_set, self.val_set = random_split(dataset, [train_len, val_len])
 
         elif self.dataset == "asl-dvs":
