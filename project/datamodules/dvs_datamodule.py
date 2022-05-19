@@ -11,6 +11,7 @@ import os
 import numpy as np
 
 from project.datamodules.cifar10dvs import CIFAR10DVS
+from project.datamodules.ncaltech101 import NCALTECH101
 from project.datamodules.ncars import NCARS
 from project.utils.barlow_transforms import BarlowTwinsTransform
 
@@ -59,7 +60,7 @@ class DVSDataModule(pl.LightningDataModule):
         elif self.dataset == "dvsgesture":
             tonic.datasets.DVSGesture(save_to=self.data_dir)
         elif self.dataset == "n-caltech101":
-            tonic.datasets.NCALTECH101(save_to=self.data_dir)
+            NCALTECH101(save_to=self.data_dir)
         elif self.dataset == "asl-dvs":
             tonic.datasets.ASLDVS(save_to=self.data_dir)
         elif self.dataset == 'ncars':
@@ -89,7 +90,7 @@ class DVSDataModule(pl.LightningDataModule):
                 save_to=self.data_dir, transform=self.train_transform, target_transform=None, train=False)
 
         elif self.dataset == "n-caltech101":
-            dataset = tonic.datasets.NCALTECH101(save_to=self.data_dir, transform=self.train_transform)
+            dataset = NCALTECH101(save_to=self.data_dir, transform=self.train_transform)
             full_length = len(dataset)
             self.train_set, self.val_set = random_split(dataset, [0.8 * full_length, full_length - (0.8 * full_length)])
 
