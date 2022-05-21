@@ -39,7 +39,7 @@ def main(args):
     for tr in args['transforms']:
         name += f"_{tr}"
 
-    online_finetuner = OnlineFineTuner(encoder_output_dim=512, num_classes=10)
+    online_finetuner = OnlineFineTuner(encoder_output_dim=512, num_classes=datamodule.num_classes)
 
     trainer = pl.Trainer(
         max_epochs=epochs,
