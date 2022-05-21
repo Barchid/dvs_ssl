@@ -52,7 +52,7 @@ class NCALTECH101(Dataset):
             for file in files:
                 if file.endswith("bin"):
                     self.data.append(path + "/" + file)
-                    label_number = os.path.basename(path)
+                    label_number = dirs.index(os.path.basename(path))
                     print('\n\n', label_number)
                     exit()
                     self.targets.append(label_number)
