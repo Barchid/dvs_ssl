@@ -46,13 +46,13 @@ class NCALTECH101(Dataset):
             extract_archive(os.path.join(self.location_on_system, self.data_filename))
 
         file_path = os.path.join(self.location_on_system, self.folder_name)
+        classes_list = os.listdir(os.path.joint(self.location_on_system, self.folder_name))
+        classes_list.sort()
         for path, dirs, files in os.walk(file_path):
-            dirs.sort()
-            print(dirs)
             for file in files:
                 if file.endswith("bin"):
                     self.data.append(path + "/" + file)
-                    label_number = dirs.index(os.path.basename(path))
+                    label_number = classes_list.index(os.path.basename(path))
                     print('\n\n', label_number)
                     exit()
                     self.targets.append(label_number)
