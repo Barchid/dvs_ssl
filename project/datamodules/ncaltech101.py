@@ -46,7 +46,7 @@ class NCALTECH101(Dataset):
             extract_archive(os.path.join(self.location_on_system, self.data_filename))
 
         file_path = os.path.join(self.location_on_system, self.folder_name)
-        classes_list = os.listdir(os.path.joint(self.location_on_system, self.folder_name))
+        classes_list = os.listdir(os.path.join(self.location_on_system, self.folder_name))
         classes_list.sort()
         for path, dirs, files in os.walk(file_path):
             for file in files:
