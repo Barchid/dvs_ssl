@@ -27,16 +27,14 @@ def show_smth(tr):
     batch = next(it)
     (X, Y_a, Y_b), label = batch
     
-    print(X.shape)
-    exit()
-
     Y_a = Y_a[0, :, :, :, :]  # shape=(100,2,224,224) = (T,C,H,W)
+    T = Y_a.shape[0]
     X = X[0, :, :, :, :]
     fig, ax = plt.subplots()
     plt.axis("off")
     camera1 = Camera(fig)
 
-    for t in range(100):
+    for t in range(T):
         frame = np.zeros((224, 224, 3))
         data = Y_a[t].numpy().transpose(1, 2, 0)  # (C,H,W) -> (H, W, C)
         frame[:, :, 0:2] = data
@@ -51,7 +49,7 @@ def show_smth(tr):
     fig, ax = plt.subplots()
     plt.axis("off")
     camera2 = Camera(fig)
-    for t in range(100):
+    for t in range(T):
         frame = np.zeros((224, 224, 3))
         data = X[t].numpy().transpose(1, 2, 0)  # (C,H,W) -> (H, W, C)
         frame[:, :, 0:2] = data
