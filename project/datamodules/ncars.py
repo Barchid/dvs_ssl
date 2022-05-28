@@ -7,7 +7,7 @@ from torchvision.datasets.utils import (
     extract_archive,
 )
 from numpy.lib.recfunctions import structured_to_unstructured
-# import loris
+import loris
 
 class NCARS(Dataset):
     """N-Cars <https://www.prophesee.ai/dataset-n-cars-download/> data set.
