@@ -65,7 +65,7 @@ def show_smth(tr):
 
 
 def main():
-    # pl.seed_everything(1234)
+    pl.seed_everything(1234)
 
     all_tr = [
         'flip',
