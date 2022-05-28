@@ -196,13 +196,15 @@ def get_frame_representation(sensor_size, timesteps):
         ToFrame(sensor_size=sensor_size, event_count=5000),
         # transforms.Lambda(lambda x: (x > 0).astype(np.float32)),
         # transforms.Lambda(lambda x: torch.from_numpy(x))
-        # BinarizeFrame()
+        BinarizeFrame()
     ])
 
 
 @dataclass(frozen=True)
 class BinarizeFrame:
     def __call__(self, x):
+        print(x.shape)
+        exit()
         x = (x > 0).astype(np.float32)
         x = torch.from_numpy(x)
         return x
