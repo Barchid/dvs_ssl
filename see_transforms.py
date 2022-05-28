@@ -80,8 +80,8 @@ def main():
         'moving_occlusion'
     ]
     
-    show_smth([])
-    exit()
+    # show_smth([])
+    # exit()
     for tran in all_tr:
         show_smth([tran])
 
