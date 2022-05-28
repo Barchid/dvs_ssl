@@ -208,8 +208,6 @@ class TakeFrames:
         current_t = x.shape[0]
         gap = int((current_t - self.timesteps) / 2)
         x = x[gap:gap+self.timesteps]
-        print(x.shape, gap, current_t)
-        exit()
         return x
 
 @dataclass(frozen=True)
