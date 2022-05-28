@@ -26,7 +26,7 @@ def show_smth(tr):
     it = iter(dataloader)
     batch = next(it)
     (X, Y_a, Y_b), label = batch
-    
+    print(X.shape)
     Y_a = Y_a[0, :, :, :, :]  # shape=(100,2,224,224) = (T,C,H,W)
     T = Y_a.shape[0]
     X = X[0, :, :, :, :]
