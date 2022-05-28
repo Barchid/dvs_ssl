@@ -206,6 +206,7 @@ class TakeFrames:
     
     def __call__(self, x):
         current_t = x.shape[0]
+        print(current_t)
         gap = int((current_t - self.timesteps) / 2)
         x = x[gap:gap+self.timesteps]
         return x
