@@ -26,6 +26,9 @@ def show_smth(tr):
     it = iter(dataloader)
     batch = next(it)
     (X, Y_a, Y_b), label = batch
+    
+    print(X.shape)
+    exit()
 
     Y_a = Y_a[0, :, :, :, :]  # shape=(100,2,224,224) = (T,C,H,W)
     X = X[0, :, :, :, :]
@@ -77,7 +80,9 @@ def main():
         'cutout',
         'moving_occlusion'
     ]
-
+    
+    show_smth([])
+    exit()
     for tran in all_tr:
         show_smth([tran])
 

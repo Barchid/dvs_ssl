@@ -192,10 +192,11 @@ class BackgroundActivityNoise:
 
 def get_frame_representation(sensor_size, timesteps):
     return transforms.Compose([
-        ToFrame(sensor_size=sensor_size, n_time_bins=timesteps),
+        # ToFrame(sensor_size=sensor_size, n_time_bins=timesteps),
+        ToFrame(sensor_size=sensor_size, event_count=5000),
         # transforms.Lambda(lambda x: (x > 0).astype(np.float32)),
         # transforms.Lambda(lambda x: torch.from_numpy(x))
-        BinarizeFrame()
+        # BinarizeFrame()
     ])
 
 
