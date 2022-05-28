@@ -11,6 +11,7 @@ from torch.utils.data import random_split, DataLoader
 import os
 import random
 import tonic
+from tonic.datasets import DVSGesture
 import matplotlib.pyplot as plt
 import numpy as np
 import pytorch_lightning as pl
@@ -19,8 +20,8 @@ from celluloid import Camera
 
 def show_smth(tr):
     train_transform = BarlowTwinsTransform(
-        CIFAR10DVS.sensor_size, timesteps=12, transforms_list=tr, concat_time_channels=False)
-    dataset_train = CIFAR10DVS(save_to='data', transform=train_transform, target_transform=None)
+        DVSGesture.sensor_size, timesteps=12, transforms_list=tr, concat_time_channels=False)
+    dataset_train = DVSGesture(save_to='data', transform=train_transform, target_transform=None)
     dataloader = DataLoader(dataset_train, batch_size=1, num_workers=0, shuffle=True)
 
     it = iter(dataloader)
