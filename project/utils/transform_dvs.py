@@ -203,7 +203,7 @@ def get_frame_representation(sensor_size, timesteps):
 @dataclass(frozen=True)
 class BinarizeFrame:
     def __call__(self, x):
-        print(x.shape)
+        print(x.shape, np.unique(x), x.dtype)
         exit()
         x = (x > 0).astype(np.float32)
         x = torch.from_numpy(x)
