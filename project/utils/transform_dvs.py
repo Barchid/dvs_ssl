@@ -194,11 +194,23 @@ def get_frame_representation(sensor_size, timesteps):
     return transforms.Compose([
         # ToFrame(sensor_size=sensor_size, n_time_bins=timesteps),
         ToFrame(sensor_size=sensor_size, event_count=5000),
+        TakeFrames(timesteps=timesteps),
         # transforms.Lambda(lambda x: (x > 0).astype(np.float32)),
         # transforms.Lambda(lambda x: torch.from_numpy(x))
         BinarizeFrame()
     ])
 
+@dataclass(frozen=True)
+class TakeFrames:
+    timesteps:int
+    
+    def __call__(self, x):
+        current_t = x.shape[0]
+        gap = int((current_t - self.timesteps) / 2)
+        x = x[gap:gap+self.timesteps]
+        print(x.shape, gap, current_t)
+        exit()
+        return x
 
 @dataclass(frozen=True)
 class BinarizeFrame:
