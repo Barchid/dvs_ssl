@@ -19,7 +19,7 @@ from celluloid import Camera
 
 def show_smth(tr):
     train_transform = BarlowTwinsTransform(
-        NCALTECH101.sensor_size, timesteps=100, transforms_list=tr, concat_time_channels=False)
+        NCALTECH101.sensor_size, timesteps=12, transforms_list=tr, concat_time_channels=False)
     dataset_train = NCALTECH101(save_to='data', transform=train_transform, target_transform=None)
     dataloader = DataLoader(dataset_train, batch_size=1, num_workers=0, shuffle=True)
 
