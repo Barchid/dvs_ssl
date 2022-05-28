@@ -2,6 +2,7 @@ from tkinter import N
 from project.datamodules.cifar10dvs import CIFAR10DVS
 from project.datamodules.dvs_datamodule import DVSDataModule
 from project.datamodules.ncaltech101 import NCALTECH101
+from project.datamodules.ncars import NCARS
 from project.utils.barlow_transforms import BarlowTwinsTransform
 import torch
 import torch.nn as nn
@@ -20,8 +21,8 @@ from celluloid import Camera
 
 def show_smth(tr):
     train_transform = BarlowTwinsTransform(
-        DVSGesture.sensor_size, timesteps=12, transforms_list=tr, concat_time_channels=False)
-    dataset_train = DVSGesture(save_to='data', transform=train_transform, target_transform=None)
+        NCARS.sensor_size, timesteps=12, transforms_list=tr, concat_time_channels=False)
+    dataset_train = NCARS(save_to='data', transform=train_transform, target_transform=None)
     dataloader = DataLoader(dataset_train, batch_size=1, num_workers=0, shuffle=False)
 
     it = iter(dataloader)
