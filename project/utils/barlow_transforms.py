@@ -114,6 +114,8 @@ class BarlowTwinsTransform:
 
         self.transform_a = transforms.Compose(trans_a)
         self.transform_b = transforms.Compose(trans_b)
+        
+        print(self.transform_a)
 
     def __call__(self, X):
         Y_a = self.transform_a(X)
