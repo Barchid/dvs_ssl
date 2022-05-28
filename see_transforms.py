@@ -44,7 +44,7 @@ def show_smth(tr):
     plt.close(fig)
     print('save fig transform')
     anim = camera1.animate(interval=40)
-    anim.save(f'{tr[0]}.mp4')
+    anim.save(f'tran.mp4')#{tr[0]}.mp4')
 
     fig, ax = plt.subplots()
     plt.axis("off")
