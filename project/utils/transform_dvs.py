@@ -244,7 +244,9 @@ class CutMixEvents:
             sensor_size = self.sensor_size
 
         for _ in range(self.num_mix):
-            mix = random.choice(self.generator)
+            mix, _ = random.choice(self.generator)
+            print(mix)
+            exit()
 
             bbx1, bby1, bbx2, bby2 = self._bbox(sensor_size[1], sensor_size[0])
 
