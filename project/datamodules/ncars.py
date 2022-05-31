@@ -45,7 +45,7 @@ class NCARS(Dataset):
         )
 
         self.location_on_system = os.path.join(save_to, self.__class__.__name__)
-        self.samples = []
+        self.data = []
         self.targets = []
 
         if download:
@@ -78,11 +78,11 @@ class NCARS(Dataset):
             dirs.sort()
             for file in files:
                 if file.endswith("dat"):
-                    self.samples.append(path + "/" + file)
+                    self.data.append(path + "/" + file)
                     self.targets.append(self.class_dict[os.path.basename(path)])
 
     def __getitem__(self, index):
-        events = loris.read_file(self.samples[index])["events"]
+        events = loris.read_file(self.data[index])["events"]
         events.dtype.names = ['t', 'x', 'y', 'p']  # for correctly reading the data
         # print(events, events.dtype, events[0])
         # exit()
@@ -97,7 +97,7 @@ class NCARS(Dataset):
         return events, target
 
     def __len__(self):
-        return len(self.samples)
+        return len(self.data)
 
     def download(self):
         if not os.path.exists(self.location_on_system):

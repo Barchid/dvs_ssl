@@ -11,21 +11,21 @@ import os
 import numpy as np
 
 from project.datamodules.cifar10dvs import CIFAR10DVS
+from project.datamodules.dvs_memory import DvsMemory
 from project.datamodules.ncaltech101 import NCALTECH101
 from project.datamodules.ncars import NCARS
 from project.utils.barlow_transforms import BarlowTwinsTransform
 
 
 class DVSDataModule(pl.LightningDataModule):
-    def __init__(self, batch_size: int, dataset: str, timesteps: int = 10, data_dir: str = "data/", noise: str = None, severity=1, num_workers: int = 3, barlow_transf=None, mode="ann", **kwargs):
+    def __init__(self, batch_size: int, dataset: str, timesteps: int = 10, data_dir: str = "data/", num_workers: int = 3, barlow_transf=None, mode="ann", in_memory: bool = True, **kwargs):
         super().__init__()
         self.batch_size = batch_size
         self.data_dir = data_dir
         self.dataset = dataset  # name of the dataset
         self.timesteps = timesteps
-        self.noise = noise
-        self.severity = severity
         self.num_workers = num_workers
+        self.in_memory = in_memory
 
         # create the directory if not exist
         os.makedirs(data_dir, exist_ok=True)
@@ -34,7 +34,8 @@ class DVSDataModule(pl.LightningDataModule):
         self.sensor_size, self.num_classes = self._get_dataset_info()
         self.train_transform = BarlowTwinsTransform(
             self.sensor_size, timesteps=timesteps, transforms_list=barlow_transf, concat_time_channels=mode == "ann")
-        self.val_transform = BarlowTwinsTransform(self.sensor_size, timesteps=timesteps, transforms_list=barlow_transf)
+        self.val_transform = BarlowTwinsTransform(
+            self.sensor_size, timesteps=timesteps, transforms_list=barlow_transf, concat_time_channels=mode == "ann")
 
     def _get_dataset_info(self):
         if self.dataset == "n-mnist":
@@ -79,7 +80,6 @@ class DVSDataModule(pl.LightningDataModule):
             full_len = len(dataset_train)
             train_len = int(0.80 * full_len)
             val_len = full_len - train_len
-            print(full_len, train_len, val_len)
             self.train_set, _ = random_split(dataset_train, lengths=[train_len, val_len])
             _, self.val_set = random_split(dataset_val, lengths=[train_len, val_len])
 
@@ -99,16 +99,21 @@ class DVSDataModule(pl.LightningDataModule):
         elif self.dataset == "asl-dvs":
             dataset = tonic.datasets.ASLDVS(save_to=self.data_dir, transform=self.train_transform)
             full_length = len(dataset)
-            print(full_length, 0.8 * full_length)
             self.train_set, _ = random_split(dataset, [0.8 * full_length, full_length - (0.8 * full_length)])
             dataset = tonic.datasets.ASLDVS(save_to=self.data_dir, transform=self.train_transform)
             _, self.val_set = random_split(dataset, [0.8 * full_length, full_length - (0.8 * full_length)])
         elif self.dataset == 'ncars':
             self.train_set = NCARS(self.data_dir, train=True, transform=self.train_transform)
             self.val_set = NCARS(self.data_dir, train=False, transform=self.train_transform)
-            print(len(self.train_set), len(self.val_set))
 
         print(len(self.train_set), len(self.val_set))
+
+        if self.in_memory:
+            self.train_set.transform = None
+            self.train_set = DvsMemory(self.train_set, transform=self.train_transform)
+
+            self.val_set.transform = None
+            self.val_set = DvsMemory(self.val_set, transform=self.val_transform)
 
     def train_dataloader(self):
         return DataLoader(self.train_set, batch_size=self.batch_size, num_workers=self.num_workers, shuffle=True)
