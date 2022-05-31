@@ -18,7 +18,7 @@ from project.utils.barlow_transforms import BarlowTwinsTransform
 
 
 class DVSDataModule(pl.LightningDataModule):
-    def __init__(self, batch_size: int, dataset: str, timesteps: int = 10, data_dir: str = "data/", num_workers: int = 3, barlow_transf=None, mode="ann", in_memory: bool = True, **kwargs):
+    def __init__(self, batch_size: int, dataset: str, timesteps: int = 10, data_dir: str = "data/", num_workers: int = 3, barlow_transf=None, mode="ann", in_memory: bool = False, **kwargs):
         super().__init__()
         self.batch_size = batch_size
         self.data_dir = data_dir
