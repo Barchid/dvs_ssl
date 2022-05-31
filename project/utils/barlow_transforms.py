@@ -65,8 +65,8 @@ class BarlowTwinsTransform:
 
         # AFTER TENSOR TRANSFORMATION
         if 'static_rotation' in transforms_list:
-            trans_a.append(transforms.RandomApply([transforms.RandomRotation(20)], p=0.5))# Random rotation of [-20, 20] degrees)
-            trans_b.append(transforms.RandomApply([transforms.RandomRotation(20)], p=0.5))# Random rotation of [-20, 20] degrees)
+            trans_a.append(transforms.RandomApply([transforms.RandomRotation(75)], p=0.5))# Random rotation of [-20, 20] degrees)
+            trans_b.append(transforms.RandomApply([transforms.RandomRotation(75)], p=0.5))# Random rotation of [-20, 20] degrees)
 
         if 'static_translation' in transforms_list:
             trans_a.append(
@@ -114,8 +114,6 @@ class BarlowTwinsTransform:
 
         self.transform_a = transforms.Compose(trans_a)
         self.transform_b = transforms.Compose(trans_b)
-        
-        print(self.transform_a)
 
     def __call__(self, X):
         Y_a = self.transform_a(X)
@@ -126,7 +124,7 @@ class BarlowTwinsTransform:
 
 @dataclass(frozen=True)
 class DynamicRotation:
-    degrees: Tuple[float] = (-30, 30)
+    degrees: Tuple[float] = (-75, 75)
 
     def __call__(self, frames: torch.Tensor):  # shape (..., H, W)
         timesteps = frames.shape[0]
@@ -173,7 +171,7 @@ class DynamicTranslation:
 
 @dataclass(frozen=True)
 class Cutout:
-    size: Tuple[float] = (0.2, 0.4)
+    size: Tuple[float] = (0.3, 0.6)
     nb_holes: int = 3
 
     def __call__(self, frames: torch.Tensor):  # shape (T, C, H, W)
@@ -198,7 +196,7 @@ class Cutout:
 
 @dataclass(frozen=True)
 class MovingOcclusion:
-    size: Tuple[float] = (0.2, 0.4)
+    size: Tuple[float] = (0.3, 0.6)
     nb_holes: int = 3
     translate: Tuple[float] = (0.3, 0.3)
 

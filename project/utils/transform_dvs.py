@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, Tuple
+from typing import Iterable, List, Optional, Tuple
 from einops import rearrange
 import torch
 import torch.nn as nn
@@ -8,6 +8,7 @@ import torch.optim as optim
 import numpy as np
 from tonic.transforms import functional
 from torchvision import transforms
+import random
 
 
 @dataclass(frozen=True)
@@ -186,30 +187,32 @@ class BackgroundActivityNoise:
         events = np.concatenate((events, noise_events))
         new_events = events[np.argsort(events["t"])]
         new_events['p'] = events['p']
-        
+
         return new_events
 
 
 def get_frame_representation(sensor_size, timesteps):
     return transforms.Compose([
-        # ToFrame(sensor_size=sensor_size, n_time_bins=timesteps),
-        ToFrame(sensor_size=sensor_size, event_count=2500),
-        TakeFrames(timesteps=timesteps),
+        ToFrame(sensor_size=sensor_size, n_time_bins=timesteps),
+        # ToFrame(sensor_size=sensor_size, event_count=2500),
+        # TakeFrames(timesteps=timesteps),
         # transforms.Lambda(lambda x: (x > 0).astype(np.float32)),
         # transforms.Lambda(lambda x: torch.from_numpy(x))
         BinarizeFrame()
     ])
 
+
 @dataclass(frozen=True)
 class TakeFrames:
-    timesteps:int
-    
+    timesteps: int
+
     def __call__(self, x):
         current_t = x.shape[0]
-        print(current_t)
+        # print(current_t)
         gap = int((current_t - self.timesteps) / 2)
-        x = x[gap:gap+self.timesteps]
+        x = x[gap:gap + self.timesteps]
         return x
+
 
 @dataclass(frozen=True)
 class BinarizeFrame:
@@ -224,3 +227,56 @@ class ConcatTimeChannels:
     def __call__(self, x):
         x = rearrange(x, 'frames polarity height width -> (frames polarity) height width')
         return x
+
+
+# CutMix
+@dataclass(frozen=True)
+class CutMixEvents:
+    generator: List
+    num_mix: int = 2
+    ratio: Tuple[float, float] = (0.2, 0.5)
+    sensor_size: Tuple[int, int, int] = None
+
+    def __call__(self, events):
+        if self.sensor_size is None:
+            sensor_size = get_sensor_size(events)
+        else:
+            sensor_size = self.sensor_size
+
+        for _ in range(self.num_mix):
+            mix = random.choice(self.generator)
+
+            bbx1, bby1, bbx2, bby2 = self._bbox(sensor_size[1], sensor_size[0])
+
+            # filter image
+            mask_events = (events['x'] >= bbx1) & (events['y'] >= bby1) & (events['x'] <= bbx2) & (events['y'] <= bby2)
+
+            mask_mix = (mix['x'] >= bbx1) & (mix['y'] >= bby1) & (mix['x'] <= bbx2) & (mix['y'] <= bby2)
+
+            # delete events of bbox
+            events = np.delete(events, mask_events)  # remove events
+
+            # add mix events in bbox
+            events = np.concatenate((events, mix[mask_mix]))
+            new_events = events[np.argsort(events["t"])]
+            new_events['p'] = events['p']
+            events = new_events
+
+        return events
+
+    def _bbox(self, H, W):
+        ratio = random.uniform(self.ratio[0], self.ratio[1])
+
+        cut_w = int(W * ratio)
+        cut_h = int(H * ratio)
+
+        # uniform
+        cx = np.random.randint(W)
+        cy = np.random.randint(H)
+
+        bbx1 = np.clip(cx - cut_w // 2, 0, W)
+        bby1 = np.clip(cy - cut_h // 2, 0, H)
+        bbx2 = np.clip(cx + cut_w // 2, 0, W)
+        bby2 = np.clip(cy + cut_h // 2, 0, H)
+
+        return bbx1, bby1, bbx2, bby2
