@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 from project.utils.eval_callback import OnlineFineTuner
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-epochs = 300
+epochs = 500
 learning_rate = 1e-3
 timesteps = 12
 batch_size = 128
