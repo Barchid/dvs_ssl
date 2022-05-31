@@ -23,6 +23,7 @@ class DvsMemory(Dataset):
         i = 0
         for events, target in dataset:
             print('Loading sample: ', i)
+            i += 1
             self.data.append(events)
             self.targets.append(target)
         
