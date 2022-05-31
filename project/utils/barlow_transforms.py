@@ -21,7 +21,7 @@ from project.utils.transform_dvs import BackgroundActivityNoise, ConcatTimeChann
 
 
 class BarlowTwinsTransform:
-    def __init__(self, sensor_size=None, timesteps: int = 10, transforms_list=[], concat_time_channels=True, dataset=None):
+    def __init__(self, sensor_size=None, timesteps: int = 10, transforms_list=[], concat_time_channels=True, dataset=None, data_dir=None):
         trans_a = []
         trans_b = []
 
@@ -58,17 +58,17 @@ class BarlowTwinsTransform:
         if 'cutmix' in transforms_list:
             # NOTE: since we use the library named "Tonic", all the download process is handled, we just have to make an instanciation
             if dataset == "n-mnist":
-                dataset = tonic.datasets.NMNIST(save_to=self.data_dir)
+                dataset = tonic.datasets.NMNIST(save_to=data_dir)
             elif dataset == "cifar10-dvs":
-                dataset = CIFAR10DVS(save_to=self.data_dir)
+                dataset = CIFAR10DVS(save_to=data_dir)
             elif dataset == "dvsgesture":
-                dataset = tonic.datasets.DVSGesture(save_to=self.data_dir)
+                dataset = tonic.datasets.DVSGesture(save_to=data_dir)
             elif dataset == "n-caltech101":
-                dataset = NCALTECH101(save_to=self.data_dir)
+                dataset = NCALTECH101(save_to=data_dir)
             elif dataset == "asl-dvs":
-                tonic.datasets.ASLDVS(save_to=self.data_dir)
+                tonic.datasets.ASLDVS(save_to=data_dir)
             elif dataset == 'ncars':
-                dataset = NCARS(save_to=self.data_dir, download=True)
+                dataset = NCARS(save_to=data_dir, download=True)
                 
             trans_a.append(transforms.RandomApply([CutMixEvents(dataset, sensor_size=sensor_size)], p=0.5))
             trans_b.append(transforms.RandomApply([CutMixEvents(dataset, sensor_size=sensor_size)], p=0.5))
@@ -76,17 +76,17 @@ class BarlowTwinsTransform:
         if 'eventmix' in transforms_list:
             # NOTE: since we use the library named "Tonic", all the download process is handled, we just have to make an instanciation
             if dataset == "n-mnist":
-                dataset = tonic.datasets.NMNIST(save_to=self.data_dir)
+                dataset = tonic.datasets.NMNIST(save_to=data_dir)
             elif dataset == "cifar10-dvs":
-                dataset = CIFAR10DVS(save_to=self.data_dir)
+                dataset = CIFAR10DVS(save_to=data_dir)
             elif dataset == "dvsgesture":
-                dataset = tonic.datasets.DVSGesture(save_to=self.data_dir)
+                dataset = tonic.datasets.DVSGesture(save_to=data_dir)
             elif dataset == "n-caltech101":
-                dataset = NCALTECH101(save_to=self.data_dir)
+                dataset = NCALTECH101(save_to=data_dir)
             elif dataset == "asl-dvs":
-                tonic.datasets.ASLDVS(save_to=self.data_dir)
+                tonic.datasets.ASLDVS(save_to=data_dir)
             elif dataset == 'ncars':
-                dataset = NCARS(save_to=self.data_dir, download=True)
+                dataset = NCARS(save_to=data_dir, download=True)
                 
             trans_a.append(transforms.RandomApply([CutMixEvents(dataset, sensor_size=sensor_size)], p=0.5))
             trans_b.append(transforms.RandomApply([CutMixEvents(dataset, sensor_size=sensor_size)], p=0.5))
