@@ -13,7 +13,7 @@ epochs = 300
 learning_rate = 1e-3
 timesteps = 12
 batch_size = 128
-dataset = 'cifar10-dvs'
+dataset = 'dvsgesture'
 ssl_loss = 'barlow_twins'
 
 
@@ -68,7 +68,7 @@ if __name__ == "__main__":
     pl.seed_everything(1234)
 
     # exp 1
-    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity']
+    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'cutmix']
     main({'transforms': trans})
 
     # exp 2

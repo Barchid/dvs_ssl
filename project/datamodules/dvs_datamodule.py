@@ -33,9 +33,9 @@ class DVSDataModule(pl.LightningDataModule):
         # transform
         self.sensor_size, self.num_classes = self._get_dataset_info()
         self.train_transform = BarlowTwinsTransform(
-            self.sensor_size, timesteps=timesteps, transforms_list=barlow_transf, concat_time_channels=mode == "ann")
+            self.sensor_size, timesteps=timesteps, transforms_list=barlow_transf, concat_time_channels=mode == "ann", dataset = dataset)
         self.val_transform = BarlowTwinsTransform(
-            self.sensor_size, timesteps=timesteps, transforms_list=barlow_transf, concat_time_channels=mode == "ann")
+            self.sensor_size, timesteps=timesteps, transforms_list=barlow_transf, concat_time_channels=mode == "ann", dataset = dataset)
 
     def _get_dataset_info(self):
         if self.dataset == "n-mnist":

@@ -13,12 +13,15 @@ from tonic import transforms as TF
 import numpy as np
 import random
 from snntorch.spikegen import delta
-
-from project.utils.transform_dvs import BackgroundActivityNoise, ConcatTimeChannels, RandomFlipLR, RandomFlipPolarity, RandomTimeReversal, ToFrame, get_frame_representation
+import tonic
+from project.datamodules.cifar10dvs import CIFAR10DVS
+from project.datamodules.ncaltech101 import NCALTECH101
+from project.datamodules.ncars import NCARS
+from project.utils.transform_dvs import BackgroundActivityNoise, ConcatTimeChannels, CutMixEvents, RandomFlipLR, RandomFlipPolarity, RandomTimeReversal, ToFrame, get_frame_representation
 
 
 class BarlowTwinsTransform:
-    def __init__(self, sensor_size=None, timesteps: int = 10, transforms_list=[], concat_time_channels=True):
+    def __init__(self, sensor_size=None, timesteps: int = 10, transforms_list=[], concat_time_channels=True, dataset=None):
         trans_a = []
         trans_b = []
 
@@ -52,21 +55,59 @@ class BarlowTwinsTransform:
             trans_a.append(TF.TimeJitter(clip_negative=True))
             trans_b.append(TF.TimeJitter(clip_negative=True))
 
+        if 'cutmix' in transforms_list:
+            # NOTE: since we use the library named "Tonic", all the download process is handled, we just have to make an instanciation
+            if dataset == "n-mnist":
+                dataset = tonic.datasets.NMNIST(save_to=self.data_dir)
+            elif dataset == "cifar10-dvs":
+                dataset = CIFAR10DVS(save_to=self.data_dir)
+            elif dataset == "dvsgesture":
+                dataset = tonic.datasets.DVSGesture(save_to=self.data_dir)
+            elif dataset == "n-caltech101":
+                dataset = NCALTECH101(save_to=self.data_dir)
+            elif dataset == "asl-dvs":
+                tonic.datasets.ASLDVS(save_to=self.data_dir)
+            elif dataset == 'ncars':
+                dataset = NCARS(save_to=self.data_dir, download=True)
+                
+            trans_a.append(transforms.RandomApply([CutMixEvents(dataset, sensor_size=sensor_size)], p=0.5))
+            trans_b.append(transforms.RandomApply([CutMixEvents(dataset, sensor_size=sensor_size)], p=0.5))
+        
+        if 'eventmix' in transforms_list:
+            # NOTE: since we use the library named "Tonic", all the download process is handled, we just have to make an instanciation
+            if dataset == "n-mnist":
+                dataset = tonic.datasets.NMNIST(save_to=self.data_dir)
+            elif dataset == "cifar10-dvs":
+                dataset = CIFAR10DVS(save_to=self.data_dir)
+            elif dataset == "dvsgesture":
+                dataset = tonic.datasets.DVSGesture(save_to=self.data_dir)
+            elif dataset == "n-caltech101":
+                dataset = NCALTECH101(save_to=self.data_dir)
+            elif dataset == "asl-dvs":
+                tonic.datasets.ASLDVS(save_to=self.data_dir)
+            elif dataset == 'ncars':
+                dataset = NCARS(save_to=self.data_dir, download=True)
+                
+            trans_a.append(transforms.RandomApply([CutMixEvents(dataset, sensor_size=sensor_size)], p=0.5))
+            trans_b.append(transforms.RandomApply([CutMixEvents(dataset, sensor_size=sensor_size)], p=0.5))
+
         # TENSOR TRANSFORMATION
         trans_a.append(representation)
         trans_b.append(representation)
 
         # if 'crop' in transforms_list:
-        # trans_a.append(transforms.RandomResizedCrop((224, 224), interpolation=transforms.InterpolationMode.NEAREST))
-        trans_a.append(transforms.Resize((224, 224), interpolation=transforms.InterpolationMode.NEAREST))
+        trans_a.append(transforms.RandomResizedCrop((224, 224), interpolation=transforms.InterpolationMode.NEAREST))
+        # trans_a.append(transforms.Resize((224, 224), interpolation=transforms.InterpolationMode.NEAREST))
         # trans_a.append(transforms.Resize((224, 224), interpolation=transforms.InterpolationMode.NEAREST)) # debug
         trans_b.append(transforms.RandomResizedCrop((224, 224), interpolation=transforms.InterpolationMode.NEAREST))
         # trans_b.append(transforms.Resize((224, 224), interpolation=transforms.InterpolationMode.NEAREST)) # debug
 
         # AFTER TENSOR TRANSFORMATION
         if 'static_rotation' in transforms_list:
-            trans_a.append(transforms.RandomApply([transforms.RandomRotation(75)], p=0.5))# Random rotation of [-20, 20] degrees)
-            trans_b.append(transforms.RandomApply([transforms.RandomRotation(75)], p=0.5))# Random rotation of [-20, 20] degrees)
+            # Random rotation of [-20, 20] degrees)
+            trans_a.append(transforms.RandomApply([transforms.RandomRotation(75)], p=0.5))
+            # Random rotation of [-20, 20] degrees)
+            trans_b.append(transforms.RandomApply([transforms.RandomRotation(75)], p=0.5))
 
         if 'static_translation' in transforms_list:
             trans_a.append(
