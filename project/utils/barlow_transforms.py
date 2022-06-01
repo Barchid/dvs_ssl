@@ -17,7 +17,7 @@ import tonic
 from project.datamodules.cifar10dvs import CIFAR10DVS
 from project.datamodules.ncaltech101 import NCALTECH101
 from project.datamodules.ncars import NCARS
-from project.utils.transform_dvs import BackgroundActivityNoise, ConcatTimeChannels, CutMixEvents, RandomFlipLR, RandomFlipPolarity, RandomTimeReversal, ToFrame, get_frame_representation
+from project.utils.transform_dvs import BackgroundActivityNoise, ConcatTimeChannels, CutMixEvents, CutPasteEvent, RandomFlipLR, RandomFlipPolarity, RandomTimeReversal, ToFrame, get_frame_representation
 
 
 class BarlowTwinsTransform:
@@ -90,6 +90,10 @@ class BarlowTwinsTransform:
                 
             trans_a.append(transforms.RandomApply([CutMixEvents(dataset, sensor_size=sensor_size)], p=0.5))
             trans_b.append(transforms.RandomApply([CutMixEvents(dataset, sensor_size=sensor_size)], p=0.5))
+            
+        if 'cutpaste' in transforms_list:
+            trans_a.append(transforms.RandomApply([CutPasteEvent(sensor_size=sensor_size)], p=0.5))
+            trans_b.append(transforms.RandomApply([CutPasteEvent(sensor_size=sensor_size)], p=0.5))
 
         # TENSOR TRANSFORMATION
         trans_a.append(representation)

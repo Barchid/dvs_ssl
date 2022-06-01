@@ -329,7 +329,7 @@ class CutMixEvents:
 # CutPasteDVS
 @dataclass(frozen=True)
 class CutPasteEvent:
-    num_paste: int = 2
+    num_paste: int = 1
     ratio: Tuple[float, float] = (0.2, 0.5)
     sensor_size: Tuple[int, int, int] = None
 
