@@ -27,7 +27,7 @@ def show_smth(tr):
     print(ev.shape)
     # exit()
     dataset_train = NCARS(save_to='data', transform=train_transform, target_transform=None)
-    dataloader = DataLoader(dataset_train, batch_size=1, num_workers=0, shuffle=False)
+    dataloader = DataLoader(dataset_train, batch_size=1, num_workers=0, shuffle=True)
 
     it = iter(dataloader)
     batch = next(it)
