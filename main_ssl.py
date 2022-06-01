@@ -76,23 +76,27 @@ if __name__ == "__main__":
     pl.seed_everything(1234)
 
     # exp 1
-    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'cutmix']
+    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity']
+    main({'transforms': trans})
+    
+    # exp 2 (+crop)
+    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'crop']
     main({'transforms': trans})
 
-    # exp 2
+    # exp 3 (+static rot/trans)
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'static_translation', 'static_rotation']
     main({'transforms': trans})
 
-    # exp 3
+    # exp 4 (+cutout)
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity',
              'static_translation', 'static_rotation', 'cutout']
     main({'transforms': trans})
 
-    # exp 4
+    # exp 5 (+dyn - cutout)
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'dynamic_translation', 'dynamic_rotation']
     main({'transforms': trans})
 
-    # exp 5
+    # exp 6 (+ dyn + movinOcc)
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity',
              'dynamic_translation', 'dynamic_rotation', 'moving_occlusion']
     main({'transforms': trans})
