@@ -229,6 +229,7 @@ class CustomToFrame:
             sensor_size = self.sensor_size
 
         if len(events) // self.event_count >= self.timesteps:
+            print('Longer', len(events), len(events) // self.event_count)
             x = functional.to_frame_numpy(
                 events=events,
                 sensor_size=sensor_size,
@@ -241,11 +242,14 @@ class CustomToFrame:
             )
 
             if x.shape[0] > self.timesteps:
+                print('GAP', x.shape[0])
                 gap = int((x.shape[0] - self.timesteps) / 2)
                 return x[gap:gap + self.timesteps]
             else:
+                print('NO GAP')
                 return x
         else:
+            print('Shorter', len(events), len(events) // self.event_count)
             return functional.to_frame_numpy(
                 events=events,
                 sensor_size=sensor_size,
