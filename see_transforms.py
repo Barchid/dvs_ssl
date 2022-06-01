@@ -21,7 +21,7 @@ from celluloid import Camera
 
 def show_smth(tr):
     train_transform = BarlowTwinsTransform(
-        NCARS.sensor_size, timesteps=100, transforms_list=tr, concat_time_channels=False)
+        NCARS.sensor_size, timesteps=50, transforms_list=tr, concat_time_channels=False)
     dataset_train = NCARS(save_to='data', transform=None, target_transform=None)
     ev, _ = random.choice(dataset_train)
     print(ev.shape)
