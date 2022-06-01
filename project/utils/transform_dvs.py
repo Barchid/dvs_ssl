@@ -194,8 +194,9 @@ class BackgroundActivityNoise:
 def get_frame_representation(sensor_size, timesteps):
     return transforms.Compose([
         # ToFrame(sensor_size=sensor_size, n_time_bins=timesteps),
-        ToFrame(sensor_size=sensor_size, event_count=2000),
-        TakeFrames(timesteps=timesteps),
+        # ToFrame(sensor_size=sensor_size, event_count=2500),
+        # TakeFrames(timesteps=timesteps),
+        CustomToFrame(timesteps=timesteps, sensor_size=sensor_size),
         # transforms.Lambda(lambda x: (x > 0).astype(np.float32)),
         # transforms.Lambda(lambda x: torch.from_numpy(x))
         BinarizeFrame()
@@ -209,9 +210,52 @@ class TakeFrames:
     def __call__(self, x):
         current_t = x.shape[0]
         # print(current_t)
+
         gap = int((current_t - self.timesteps) / 2)
         x = x[gap:gap + self.timesteps]
         return x
+
+
+@dataclass(frozen=True)
+class CustomToFrame:
+    timesteps: int
+    sensor_size: Tuple[int, int, int] = None
+    event_count: int = 2500
+
+    def __call__(self, events):
+        if self.sensor_size is None:
+            sensor_size = get_sensor_size(events)
+        else:
+            sensor_size = self.sensor_size
+
+        if len(events) // self.event_count >= self.timesteps:
+            x = functional.to_frame_numpy(
+                events=events,
+                sensor_size=sensor_size,
+                time_window=None,
+                event_count=self.event_count,
+                n_time_bins=None,
+                n_event_bins=None,
+                overlap=0.0,
+                include_incomplete=False,
+            )
+
+            if x.shape[0] > self.timesteps:
+                gap = int((x.shape[0] - self.timesteps) / 2)
+                return x[gap:gap + self.timesteps]
+            else:
+                return x
+        else:
+            return functional.to_frame_numpy(
+                events=events,
+                sensor_size=sensor_size,
+                time_window=None,
+                event_count=None,
+                n_time_bins=None,
+                n_event_bins=self.timesteps,
+                overlap=0.0,
+                include_incomplete=False,
+            )
 
 
 @dataclass(frozen=True)
