@@ -25,7 +25,7 @@ def main(args):
         mode="max",
     )
 
-    datamodule = DVSDataModule(batch_size, dataset, timesteps, data_dir='data', barlow_transf=args['transforms'])
+    datamodule = DVSDataModule(batch_size, dataset, timesteps, data_dir='data', barlow_transf=args['transforms'], in_memory=dataset=='dvsgesture')
 
     module = SSLModule(
         n_classes=datamodule.num_classes,
