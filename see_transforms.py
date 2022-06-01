@@ -52,6 +52,7 @@ def show_smth(tr):
     anim = camera1.animate(interval=40)
     anim.save(f'{tr[0]}.mp4')
 
+    print('norm now')
     fig, ax = plt.subplots()
     plt.axis("off")
     camera2 = Camera(fig)
