@@ -31,8 +31,8 @@ def main(args):
         timesteps,
         data_dir='data',
         barlow_transf=args['transforms'],
-        in_memory=dataset=='dvsgesture',
-        num_workers=3 if dataset != 'dvsgesture' else 0
+        in_memory=False,
+        num_workers=3
     )
 
     module = SSLModule(

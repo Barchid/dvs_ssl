@@ -116,10 +116,10 @@ class DVSDataModule(pl.LightningDataModule):
             self.val_set = DvsMemory(self.val_set, transform=self.val_transform)
 
     def train_dataloader(self):
-        return DataLoader(self.train_set, batch_size=self.batch_size, num_workers=self.num_workers, shuffle=True)
+        return DataLoader(self.train_set, batch_size=self.batch_size, num_workers=8, shuffle=True)
 
     def val_dataloader(self):
-        return DataLoader(self.val_set, batch_size=self.batch_size, num_workers=self.num_workers, shuffle=False)
+        return DataLoader(self.val_set, batch_size=self.batch_size, num_workers=2, shuffle=False) #self.num_workers
 
     def test_dataloader(self):
         return DataLoader(self.val_set, batch_size=self.batch_size, num_workers=self.num_workers, shuffle=False)
