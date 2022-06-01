@@ -25,7 +25,7 @@ def show_smth(tr):
     dataset_train = NCARS(save_to='data', transform=None, target_transform=None)
     ev, _ = random.choice(dataset_train)
     print(ev.shape)
-    exit()
+    # exit()
     dataset_train = NCARS(save_to='data', transform=train_transform, target_transform=None)
     dataloader = DataLoader(dataset_train, batch_size=1, num_workers=0, shuffle=False)
 
