@@ -246,7 +246,6 @@ class CustomToFrame:
             else:
                 return x
         else:
-            print('Shorter', len(events), len(events) // self.event_count)
             return functional.to_frame_numpy(
                 events=events,
                 sensor_size=sensor_size,
@@ -323,5 +322,63 @@ class CutMixEvents:
         bby1 = np.clip(cy - cut_h // 2, 0, H)
         bbx2 = np.clip(cx + cut_w // 2, 0, W)
         bby2 = np.clip(cy + cut_h // 2, 0, H)
+
+        return bbx1, bby1, bbx2, bby2
+
+
+# CutPasteDVS
+@dataclass(frozen=True)
+class CutPasteEvent:
+    num_paste: int = 2
+    ratio: Tuple[float, float] = (0.2, 0.5)
+    sensor_size: Tuple[int, int, int] = None
+
+    def __call__(self, events):
+        if self.sensor_size is None:
+            sensor_size = get_sensor_size(events)
+        else:
+            sensor_size = self.sensor_size
+
+        for _ in range(self.num_paste):
+            paste = events.copy()
+
+            bbx1, bby1, bbx2, bby2 = self._bbox(sensor_size[1], sensor_size[0])
+            dx = random.randint(0, sensor_size[0] - bbx2 - 1)
+            dy = random.randint(0, sensor_size[1] - bby2 - 1)
+
+            # print(dx, dy, bbx1, bby1, bbx2, bby2)
+            print('\ndx = ', dx, 'lx = ', (sensor_size[0] - bbx2))
+            print('\ndy = ', dy, 'ly = ', (sensor_size[1] - bby2))
+
+            # filter image
+            mask_events = (events['x'] >= bbx1 + dx) & (events['y'] >= bby1 +
+                                                        dy) & (events['x'] <= bbx2 + dx) & (events['y'] <= bby2 + dy)
+
+            # delete events of bbox
+            events = np.delete(events, mask_events)  # remove events
+            mask_events = (events['x'] >= bbx1) & (events['y'] >= bby1) & (events['x'] <= bbx2) & (events['y'] <= bby2)
+            paste = events[mask_events].copy()
+            paste['x'] = paste['x'] + dx
+            paste['y'] = paste['y'] + dy
+
+            # add mix events in bbox
+            events = np.concatenate((events, paste))
+            new_events = events[np.argsort(events["t"])]
+            new_events['p'] = events['p']
+            events = new_events
+
+        return events
+
+    def _bbox(self, H, W):
+        ratio = random.uniform(self.ratio[0], self.ratio[1])
+
+        cut_w = int(W * ratio)
+        cut_h = int(H * ratio)
+
+        # uniform
+        bbx1 = random.randint(0, (W - cut_w))
+        bby1 = random.randint(0, (H - cut_h))
+        bbx2 = bbx1 + cut_w
+        bby2 = bby1 + cut_h
 
         return bbx1, bby1, bbx2, bby2
