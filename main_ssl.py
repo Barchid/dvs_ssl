@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 from project.utils.eval_callback import OnlineFineTuner
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-epochs = 500
+epochs = 1000
 learning_rate = 1e-3
 timesteps = 12
 batch_size = 128
@@ -34,6 +34,11 @@ def main(args):
         in_memory=False,
         num_workers=3
     )
+    
+    if 'ssl_loss' in args:
+        ssl = args['ssl_loss']
+    else:
+        ssl = ssl_loss
 
     module = SSLModule(
         n_classes=datamodule.num_classes,
@@ -43,7 +48,7 @@ def main(args):
         timesteps=timesteps
     )
 
-    name = f"{dataset}"
+    name = f"{dataset}_{ssl}"
     for tr in args['transforms']:
         name += f"_{tr}"
 
@@ -75,9 +80,15 @@ def main(args):
 if __name__ == "__main__":
     pl.seed_everything(1234)
 
-    # exp 1
+    # exp - barlow
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity']
-    main({'transforms': trans})
+    main({'transforms': trans, 'ssl_loss': 'barlow_twins'})
+    
+    # exp - vicreg
+    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity']
+    main({'transforms': trans, 'ssl_loss': 'vicreg'})
+    
+    exit()
     
     # exp 2 (+crop)
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'crop']
