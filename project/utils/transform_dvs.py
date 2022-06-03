@@ -186,7 +186,7 @@ class BackgroundActivityNoise:
                 )
         events = np.concatenate((events, noise_events))
         new_events = events[np.argsort(events["t"])]
-        new_events['p'] = events['p']
+        # new_events['p'] = events['p']
 
         return new_events
 
@@ -303,7 +303,7 @@ class CutMixEvents:
             # add mix events in bbox
             events = np.concatenate((events, mix[mask_mix]))
             new_events = events[np.argsort(events["t"])]
-            new_events['p'] = events['p']
+            # new_events['p'] = events['p']
             events = new_events
 
         return events
@@ -347,8 +347,8 @@ class CutPasteEvent:
             dy = random.randint(0, sensor_size[1] - bby2 - 1)
 
             # print(dx, dy, bbx1, bby1, bbx2, bby2)
-            print('\ndx = ', dx, 'lx = ', (sensor_size[0] - bbx2))
-            print('\ndy = ', dy, 'ly = ', (sensor_size[1] - bby2))
+            # print('\ndx = ', dx, 'lx = ', (sensor_size[0] - bbx2))
+            # print('\ndy = ', dy, 'ly = ', (sensor_size[1] - bby2))
 
             # filter image
             mask_events = (events['x'] >= bbx1 + dx) & (events['y'] >= bby1 +
@@ -364,7 +364,7 @@ class CutPasteEvent:
             # add mix events in bbox
             events = np.concatenate((events, paste))
             new_events = events[np.argsort(events["t"])]
-            new_events['p'] = events['p']
+            # new_events['p'] = events['p']
             events = new_events
 
         return events
