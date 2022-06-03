@@ -21,13 +21,15 @@ from celluloid import Camera
 lolil = 0
 
 def show_smth(tr):
+    global lolil
+    
     train_transform = BarlowTwinsTransform(
-        DVSGesture.sensor_size, timesteps=100, transforms_list=tr, concat_time_channels=False)
+        tonic.datasets.NMNIST.sensor_size, timesteps=100, transforms_list=tr, concat_time_channels=False)
     # dataset_train = NCARS(save_to='data', transform=None, target_transform=None)
     # ev, _ = random.choice(dataset_train)
     # print(ev.shape)
     # exit()
-    dataset_train = DVSGesture(save_to='data', transform=train_transform, target_transform=None)
+    dataset_train = tonic.datasets.NMNIST(save_to='data', transform=train_transform, target_transform=None)
     dataloader = DataLoader(dataset_train, batch_size=1, num_workers=0, shuffle=True)
 
     it = iter(dataloader)
@@ -54,22 +56,23 @@ def show_smth(tr):
     anim.save(f'examples/{lolil}.mp4')
     lolil += 1
 
-    # print('norm now')
-    # fig, ax = plt.subplots()
-    # plt.axis("off")
-    # camera2 = Camera(fig)
-    # for t in range(T):
-    #     frame = np.zeros((224, 224, 3))
-    #     data = X[t].numpy().transpose(1, 2, 0)  # (C,H,W) -> (H, W, C)
-    #     frame[:, :, 0:2] = data
-    #     ax.imshow(frame)
-    #     camera2.snap()
+    if lolil == 1:
+        print('norm now')
+        fig, ax = plt.subplots()
+        plt.axis("off")
+        camera2 = Camera(fig)
+        for t in range(T):
+            frame = np.zeros((224, 224, 3))
+            data = X[t].numpy().transpose(1, 2, 0)  # (C,H,W) -> (H, W, C)
+            frame[:, :, 0:2] = data
+            ax.imshow(frame)
+            camera2.snap()
 
-    # anim = camera2.animate(interval=40)
-    # print('save fig transform')
-    # anim.save('norm.mp4')
-    # plt.close(fig)
-    # print(label)
+        anim = camera2.animate(interval=40)
+        print('save fig transform')
+        anim.save('norm.mp4')
+        plt.close(fig)
+        print(label)
 
 
 def main():
@@ -80,17 +83,19 @@ def main():
         'background_activity',
         'flip_polarity',
         'reverse',
-        'static_rotation',
-        'static_translation',
-        # 'dynamic_rotation',
-        # 'dynamic_translation',
-        'cutout',
-        # 'moving_occlusion'
+        # 'static_rotation',
+        # 'static_translation',
+        'dynamic_rotation',
+        'dynamic_translation',
+        # 'cutout',
+        # 'crop',
+        'cutpaste',
+        'moving_occlusion'
     ]
     
     # show_smth([])
     # exit()
-    for _ in range(50):
+    for _ in range(1):
         show_smth(all_tr)
         print('next')
 
