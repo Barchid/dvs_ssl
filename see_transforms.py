@@ -18,6 +18,7 @@ import numpy as np
 import pytorch_lightning as pl
 from celluloid import Camera
 
+lolil = 0
 
 def show_smth(tr):
     train_transform = BarlowTwinsTransform(
@@ -50,29 +51,30 @@ def show_smth(tr):
     plt.close(fig)
     print('save fig transform', tr)
     anim = camera1.animate(interval=40)
-    anim.save(f'{tr[0]}.mp4')
+    anim.save(f'examples/{lolil}.mp4')
+    lolil += 1
 
-    print('norm now')
-    fig, ax = plt.subplots()
-    plt.axis("off")
-    camera2 = Camera(fig)
-    for t in range(T):
-        frame = np.zeros((224, 224, 3))
-        data = X[t].numpy().transpose(1, 2, 0)  # (C,H,W) -> (H, W, C)
-        frame[:, :, 0:2] = data
-        ax.imshow(frame)
-        camera2.snap()
+    # print('norm now')
+    # fig, ax = plt.subplots()
+    # plt.axis("off")
+    # camera2 = Camera(fig)
+    # for t in range(T):
+    #     frame = np.zeros((224, 224, 3))
+    #     data = X[t].numpy().transpose(1, 2, 0)  # (C,H,W) -> (H, W, C)
+    #     frame[:, :, 0:2] = data
+    #     ax.imshow(frame)
+    #     camera2.snap()
 
-    anim = camera2.animate(interval=40)
-    print('save fig transform')
-    anim.save('norm.mp4')
-    plt.close(fig)
-    print(label)
+    # anim = camera2.animate(interval=40)
+    # print('save fig transform')
+    # anim.save('norm.mp4')
+    # plt.close(fig)
+    # print(label)
 
 
 def main():
     # pl.seed_everything(4)
-
+    os.makedirs('examples', exist_ok=True)
     all_tr = [
         'flip',
         'background_activity',
@@ -80,16 +82,16 @@ def main():
         'reverse',
         'static_rotation',
         'static_translation',
-        'dynamic_rotation',
-        'dynamic_translation',
+        # 'dynamic_rotation',
+        # 'dynamic_translation',
         'cutout',
-        'moving_occlusion'
+        # 'moving_occlusion'
     ]
     
     # show_smth([])
     # exit()
-    for tran in all_tr:
-        show_smth([tran])
+    for _ in range(50):
+        show_smth(all_tr)
         print('next')
 
 
