@@ -44,7 +44,7 @@ def main(args):
         n_classes=datamodule.num_classes,
         learning_rate=learning_rate,
         epochs=epochs,
-        ssl_loss=ssl_loss,
+        ssl_loss=ssl,
         timesteps=timesteps
     )
 
