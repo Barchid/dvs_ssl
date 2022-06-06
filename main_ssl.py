@@ -80,9 +80,9 @@ def main(args):
 if __name__ == "__main__":
     pl.seed_everything(1234)
 
-    # exp - barlow
-    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity']
-    main({'transforms': trans, 'ssl_loss': 'barlow_twins'})
+    # # exp - barlow
+    # trans = ['flip', 'background_activity', 'reverse', 'flip_polarity']
+    # main({'transforms': trans, 'ssl_loss': 'barlow_twins'})
     
     # exp - vicreg
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity']
