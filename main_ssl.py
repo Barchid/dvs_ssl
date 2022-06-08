@@ -31,21 +31,28 @@ def main(args):
         timesteps,
         data_dir='data',
         barlow_transf=args['transforms'],
-        in_memory=False,
-        num_workers=3
+        in_memory=True,
+        num_workers=0
     )
-    
+
     if 'ssl_loss' in args:
         ssl = args['ssl_loss']
     else:
         ssl = ssl_loss
+
+    if 'mode' in args:
+        mode = args['mode']
+    else:
+        mode = 'cnn'
 
     module = SSLModule(
         n_classes=datamodule.num_classes,
         learning_rate=learning_rate,
         epochs=epochs,
         ssl_loss=ssl,
-        timesteps=timesteps
+        timesteps=timesteps,
+        enc1=mode,
+        enc2=mode
     )
 
     name = f"{dataset}_{ssl}"
@@ -83,13 +90,16 @@ if __name__ == "__main__":
     # # exp - barlow
     # trans = ['flip', 'background_activity', 'reverse', 'flip_polarity']
     # main({'transforms': trans, 'ssl_loss': 'barlow_twins'})
-    
-    # exp - vicreg
+
+    # # exp - vicreg
+    # trans = ['flip', 'background_activity', 'reverse', 'flip_polarity']
+    # main({'transforms': trans, 'ssl_loss': 'vicreg'})
+
+    # exp - try snn
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity']
-    main({'transforms': trans, 'ssl_loss': 'vicreg'})
-    
+    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode': 'snn'})
     exit()
-    
+
     # exp 2 (+crop)
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'crop']
     main({'transforms': trans})
