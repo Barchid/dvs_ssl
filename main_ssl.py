@@ -12,7 +12,7 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 epochs = 1000
 learning_rate = 1e-3
 timesteps = 12
-batch_size = 128
+batch_size = 64
 dataset = 'dvsgesture'
 ssl_loss = 'barlow_twins'
 
@@ -36,7 +36,7 @@ def main(args):
         timesteps,
         data_dir='data',
         barlow_transf=args['transforms'],
-        in_memory=True,
+        in_memory=False,
         num_workers=0,
         mode=mode
     )
