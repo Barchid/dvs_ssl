@@ -50,7 +50,7 @@ class OnlineFineTuner(Callback):
         x, y = self.extract_online_finetuning_view(batch)
 
         with torch.no_grad():
-            feats = pl_module(x)
+            feats = pl_module(x, mode=pl_module.enc1)
 
         feats = feats.detach()
         preds = pl_module.online_finetuner(feats)
@@ -76,7 +76,7 @@ class OnlineFineTuner(Callback):
         x, y = self.extract_online_finetuning_view(batch)
 
         with torch.no_grad():
-            feats = pl_module(x)
+            feats = pl_module(x, mode=pl_module.enc1)
 
         feats = feats.detach()
         preds = pl_module.online_finetuner(feats)
