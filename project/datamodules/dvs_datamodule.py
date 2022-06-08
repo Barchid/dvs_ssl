@@ -18,7 +18,7 @@ from project.utils.barlow_transforms import BarlowTwinsTransform
 
 
 class DVSDataModule(pl.LightningDataModule):
-    def __init__(self, batch_size: int, dataset: str, timesteps: int = 10, data_dir: str = "data/", num_workers: int = 3, barlow_transf=None, mode="ann", in_memory: bool = False, **kwargs):
+    def __init__(self, batch_size: int, dataset: str, timesteps: int = 10, data_dir: str = "data/", num_workers: int = 3, barlow_transf=None, mode="cnn", in_memory: bool = False, **kwargs):
         super().__init__()
         self.batch_size = batch_size
         self.data_dir = data_dir
@@ -33,9 +33,9 @@ class DVSDataModule(pl.LightningDataModule):
         # transform
         self.sensor_size, self.num_classes = self._get_dataset_info()
         self.train_transform = BarlowTwinsTransform(
-            self.sensor_size, timesteps=timesteps, transforms_list=barlow_transf, concat_time_channels=mode == "ann", dataset = dataset, data_dir = data_dir)
+            self.sensor_size, timesteps=timesteps, transforms_list=barlow_transf, concat_time_channels=mode == "cnn", dataset = dataset, data_dir = data_dir)
         self.val_transform = BarlowTwinsTransform(
-            self.sensor_size, timesteps=timesteps, transforms_list=barlow_transf, concat_time_channels=mode == "ann", dataset = dataset, data_dir = data_dir)
+            self.sensor_size, timesteps=timesteps, transforms_list=barlow_transf, concat_time_channels=mode == "cnn", dataset = dataset, data_dir = data_dir)
 
     def _get_dataset_info(self):
         if self.dataset == "n-mnist":

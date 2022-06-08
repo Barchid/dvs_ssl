@@ -29,9 +29,6 @@ def main(args):
         mode = args['mode']
     else:
         mode = 'cnn'
-        
-    if mode == 'snn':
-        args['transforms'].append('concat_time_channels')
 
     datamodule = DVSDataModule(
         batch_size,
@@ -40,7 +37,8 @@ def main(args):
         data_dir='data',
         barlow_transf=args['transforms'],
         in_memory=True,
-        num_workers=0
+        num_workers=0,
+        mode=mode
     )
 
     if 'ssl_loss' in args:
