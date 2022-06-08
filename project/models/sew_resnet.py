@@ -356,10 +356,9 @@ class MultiStepSEWResNet(nn.Module):
         # )
 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        # self.fc = nn.Linear(512 * block.expansion, num_classes)
-        # self.final_neurons = MultiStepLIAFNode(
-        #     torch.nn.SELU(), threshold_related=False, detach_reset=True, surrogate_function=surrogate.ATan()
-        # )
+        self.fc = nn.Linear(512 * block.expansion, 512 * block.expansion)
+        self.final_neurons = MultiStepIFNode(
+            v_threshold=float('inf'), v_reset=0.0, detach_reset=True, surrogate_function=surrogate.ATan())
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -433,13 +432,15 @@ class MultiStepSEWResNet(nn.Module):
 
         x_seq = torch.flatten(x_seq, 2)
         # x_seq = self.fc(x_seq.mean(0))
-        # x_seq = functional.seq_to_ann_forward(x_seq, self.fc)
-        # x_seq = self.final_neurons(x_seq)  # analogous spikes here
+        x_seq = functional.seq_to_ann_forward(x_seq, self.fc)
+        x_seq = self.final_neurons(x_seq) 
 
         if self.output_all:
             return x_seq
         else:
-            return torch.mean(x_seq, dim=0)  # mean value of all analog spikes (at each time-step)
+            # self.final_neurons(x_seq)
+            return self.final_neurons.v_seq[-1]
+            # return torch.mean(x_seq, dim=0)  # mean value of all analog spikes (at each time-step)
 
     def forward(self, x):
         """
