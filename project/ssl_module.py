@@ -53,6 +53,7 @@ class SSLModule(pl.LightningModule):
     def forward(self, Y, enc=None, mode="cnn"):
         if mode == "snn":
             Y = Y.permute(1, 0, 2, 3, 4)# from (B,T,C,H,W) to (T, B, C, H, W)
+            print(Y.shape)
             
             if enc is None:
                 functional.reset_net(self.encoder)
