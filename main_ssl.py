@@ -12,7 +12,7 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 epochs = 1000
 learning_rate = 1e-3
 timesteps = 12
-batch_size = 64
+batch_size = 32
 dataset = 'dvsgesture'
 ssl_loss = 'barlow_twins'
 
