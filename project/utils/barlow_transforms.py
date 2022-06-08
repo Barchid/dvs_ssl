@@ -21,7 +21,7 @@ from project.utils.transform_dvs import BackgroundActivityNoise, ConcatTimeChann
 
 
 class BarlowTwinsTransform:
-    def __init__(self, sensor_size=None, timesteps: int = 10, transforms_list=[], concat_time_channels=True, dataset=None, data_dir=None):
+    def __init__(self, sensor_size=None, timesteps: int = 10, transforms_list=[], dataset=None, data_dir=None):
         trans_a = []
         trans_b = []
 
@@ -139,7 +139,7 @@ class BarlowTwinsTransform:
             trans_b.append(transforms.RandomApply([Cutout()], p=0.3))
 
         # finish by concatenating polarity and timesteps
-        if concat_time_channels:
+        if 'concat_time_channels' in transforms_list:
             trans_a.append(
                 ConcatTimeChannels()
             )

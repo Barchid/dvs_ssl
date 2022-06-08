@@ -24,6 +24,14 @@ def main(args):
         save_top_k=1,
         mode="max",
     )
+    
+    if 'mode' in args:
+        mode = args['mode']
+    else:
+        mode = 'cnn'
+        
+    if mode == 'snn':
+        args['transforms'].append('concat_time_channels')
 
     datamodule = DVSDataModule(
         batch_size,
@@ -39,11 +47,6 @@ def main(args):
         ssl = args['ssl_loss']
     else:
         ssl = ssl_loss
-
-    if 'mode' in args:
-        mode = args['mode']
-    else:
-        mode = 'cnn'
 
     module = SSLModule(
         n_classes=datamodule.num_classes,
