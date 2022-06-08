@@ -42,7 +42,7 @@ class SSLModule(pl.LightningModule):
             if enc2 == 'cnn':
                 self.encoder2 = get_encoder(in_channels=2 * timesteps)
             elif enc2 == 'snn':
-                self.encoder2 = get_encoder_snn(2, timesteps, output_all=proj2 != 'ann')
+                self.encoder2 = get_encoder_snn(2, timesteps, output_all=False)
             
         # either barlow twins or VICReg
         if ssl_loss == 'barlow_twins':
@@ -50,7 +50,7 @@ class SSLModule(pl.LightningModule):
         else:
             self.criterion = VICRegLoss()        
 
-    def forward(self, Y, enc=None, mode="ann"):
+    def forward(self, Y, enc=None, mode="cnn"):
         if mode == "snn":
             Y = Y.permute(1, 0, 2, 3, 4)# from (B,T,C,H,W) to (T, B, C, H, W)
             
