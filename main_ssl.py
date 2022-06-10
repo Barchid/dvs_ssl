@@ -67,7 +67,8 @@ def main(args):
         gpus=torch.cuda.device_count(),
         callbacks=[online_finetuner, checkpoint_callback],
         logger=pl.loggers.TensorBoardLogger("experiments", name=name),
-        default_root_dir=f"experiments/{name}"
+        default_root_dir=f"experiments/{name}",
+        precision=16,
     )
 
     # lr_finder = trainer.tuner.lr_find(module, datamodule=datamodule)
