@@ -83,5 +83,5 @@ class OnlineFineTuner(Callback):
         loss = F.cross_entropy(preds, y)
 
         acc = accuracy(F.softmax(preds, dim=1), y)
-        pl_module.log("online_val_acc", acc, on_step=False, on_epoch=True, sync_dist=True)
+        pl_module.log("online_val_acc", acc, on_step=False, on_epoch=True, sync_dist=True, prog_bar=True)
         pl_module.log("online_val_loss", loss, on_step=False, on_epoch=True, sync_dist=True)

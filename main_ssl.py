@@ -68,15 +68,15 @@ def main(args):
         callbacks=[online_finetuner, checkpoint_callback],
         logger=pl.loggers.TensorBoardLogger("experiments", name=name),
         default_root_dir=f"experiments/{name}",
-        precision=16,
+        precision=16
     )
 
-    # lr_finder = trainer.tuner.lr_find(module, datamodule=datamodule)
-    # fig = lr_finder.plot(suggest=True)
-    # fig.savefig('lr.png')   # save the figure to file
-    # plt.close(fig)    # close th
-    # print(f'SUGGESTION IS :', lr_finder.suggestion())
-    # exit()
+    lr_finder = trainer.tuner.lr_find(module, datamodule=datamodule)
+    fig = lr_finder.plot(suggest=True)
+    fig.savefig('lr.png')   # save the figure to file
+    plt.close(fig)    # close th
+    print(f'SUGGESTION IS :', lr_finder.suggestion())
+    exit()
     trainer.fit(module, datamodule=datamodule)
 
     # write in score
@@ -89,9 +89,33 @@ def main(args):
 if __name__ == "__main__":
     pl.seed_everything(1234)
 
-    # # exp - barlow
+    # # exp - barlow - snn
     # trans = ['flip', 'background_activity', 'reverse', 'flip_polarity']
     # main({'transforms': trans, 'ssl_loss': 'barlow_twins'})
+    
+    # BARLOW
+    trans = ['flip', 'background_activity', 'reverse']
+    main({'transforms': trans, 'ssl_loss': 'barlow_twins'})
+    
+    trans = ['flip', 'background_activity', 'reverse']
+    main({'transforms': trans, 'ssl_loss': 'vicreg'})
+    
+    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity']
+    main({'transforms': trans, 'ssl_loss': 'barlow_twins'})
+    
+    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'crop']
+    main({'transforms': trans, 'ssl_loss': 'barlow_twins'})
+    
+    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'crop', 'cutout']
+    main({'transforms': trans, 'ssl_loss': 'barlow_twins'})
+    
+    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'crop', 'static_rotation', 'static_translation']
+    main({'transforms': trans, 'ssl_loss': 'barlow_twins'})
+    
+    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'crop', 'dynamic_rotation', 'dynamic_translation']
+    main({'transforms': trans, 'ssl_loss': 'barlow_twins'})
+    
+    # VIC
 
     # # exp - vicreg
     # trans = ['flip', 'background_activity', 'reverse', 'flip_polarity']
