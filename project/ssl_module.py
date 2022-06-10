@@ -106,6 +106,9 @@ class SSLModule(pl.LightningModule):
         
         return [optimizer], [scheduler]
     
+    def optimizer_zero_grad(self, epoch, batch_idx, optimizer, optimizer_idx):
+        optimizer.zero_grad(set_to_none=True) # better perf
+    
     
     # def on_train_batch_end(self, outputs, batch, batch_idx, dataloader_idx):
     #     (X, Y_a, Y_b), label = batch
