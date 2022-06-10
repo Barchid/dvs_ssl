@@ -12,7 +12,7 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 epochs = 1000
 learning_rate = 1e-3
 timesteps = 12
-batch_size = 32
+batch_size = 128
 dataset = 'dvsgesture'
 ssl_loss = 'barlow_twins'
 
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     
     # BARLOW
     trans = ['flip', 'background_activity', 'reverse']
-    main({'transforms': trans, 'ssl_loss': 'barlow_twins'})
+    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode': 'snn'})
     
     trans = ['flip', 'background_activity', 'reverse']
     main({'transforms': trans, 'ssl_loss': 'vicreg'})
