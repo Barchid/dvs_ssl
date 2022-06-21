@@ -10,7 +10,7 @@ from project.utils.eval_callback import OnlineFineTuner
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 epochs = 1000
-learning_rate = 1e-3 # barlowsnn=0.1, vicregsnn=0.01, dvs=1e-3
+learning_rate = 1e-2 # barlowsnn=0.1, vicregsnn=0.01, dvs=1e-3
 timesteps = 12
 batch_size = 128
 dataset = 'dvsgesture'
@@ -82,7 +82,13 @@ def main(args):
     # plt.close(fig)    # close th
     # print(f'SUGGESTION IS :', lr_finder.suggestion())
     # exit()
-    trainer.fit(module, datamodule=datamodule)
+    try:
+        trainer.fit(module, datamodule=datamodule)
+    except:
+        report = open('errors.txt', 'a')
+        report.write(f"{name} ===> error ! \n")
+        report.flush()
+        report.close()
 
     # write in score
     report = open('report.txt', 'a')
@@ -99,64 +105,64 @@ if __name__ == "__main__":
     # main({'transforms': trans, 'ssl_loss': 'barlow_twins'})
     
     trans = ['flip', 'background_activity', 'reverse']
-    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'cnn'})
+    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'snn'})
     
     trans = ['flip', 'background_activity', 'reverse']
-    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'cnn'})
+    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'snn'})
     
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity']
-    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'cnn'})
+    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'snn'})
     
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity']
-    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'cnn'})
+    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'snn'})
     
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'crop']
-    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'cnn'})
+    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'snn'})
     
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'crop']
-    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'cnn'})
+    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'snn'})
     
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'cutout']
-    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'cnn'})
+    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'snn'})
     
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'cutout']
-    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'cnn'})
+    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'snn'})
     
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'moving_occlusion']
-    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'cnn'})
+    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'snn'})
     
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'moving_occlusion']
-    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'cnn'})
+    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'snn'})
     
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'cutpaste']
-    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'cnn'})
+    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'snn'})
     
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'cutpaste']
-    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'cnn'})
+    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'snn'})
     
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'static_rotation', 'static_translation']
-    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'cnn'})
+    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'snn'})
     
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'static_rotation', 'static_translation']
-    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'cnn'})
+    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'snn'})
     
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'dynamic_rotation', 'dynamic_translation']
-    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'cnn'})
+    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'snn'})
     
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'dynamic_rotation', 'dynamic_translation']
-    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'cnn'})
+    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'snn'})
     
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'crop', 'dynamic_rotation', 'dynamic_translation', 'moving_occlusion']
-    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'cnn'})
+    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'snn'})
     
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'crop', 'dynamic_rotation', 'dynamic_translation', 'moving_occlusion']
-    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'cnn'})
+    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'snn'})
     
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'crop', 'dynamic_rotation', 'dynamic_translation', 'cutpaste']
-    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'cnn'})
+    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'snn'})
     
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'crop', 'dynamic_rotation', 'dynamic_translation', 'cutpaste']
-    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'cnn'})
+    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'snn'})
     exit()
     
     # VIC
