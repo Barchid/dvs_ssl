@@ -7,14 +7,14 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torchmetrics.functional import accuracy
 
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+from project.models.utils import MeanSpike
+
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 class OnlineFineTuner(Callback):
     def __init__(
-        self,
-        encoder_output_dim: int,
-        num_classes: int,
+        self, encoder_output_dim: int, num_classes: int, output_all: bool = False
     ) -> None:
         super().__init__()
 
@@ -22,12 +22,25 @@ class OnlineFineTuner(Callback):
 
         self.encoder_output_dim = encoder_output_dim
         self.num_classes = num_classes
+        self.output_all = output_all
 
-    def on_pretrain_routine_start(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
+    def on_pretrain_routine_start(
+        self, trainer: pl.Trainer, pl_module: pl.LightningModule
+    ) -> None:
 
         # add linear_eval layer and optimizer
-        pl_module.online_finetuner = nn.Linear(self.encoder_output_dim, self.num_classes).to(pl_module.device)
-        self.optimizer = torch.optim.Adam(pl_module.online_finetuner.parameters(), lr=1e-4)
+        if self.output_all is False:
+            pl_module.online_finetuner = nn.Linear(
+                self.encoder_output_dim, self.num_classes
+            ).to(pl_module.device)
+        else:
+            pl_module.online_finetuner = nn.Sequential(
+                MeanSpike(), nn.Linear(self.encoder_output_dim, self.num_classes)
+            ).to(pl_module.device)
+
+        self.optimizer = torch.optim.Adam(
+            pl_module.online_finetuner.parameters(), lr=1e-4
+        )
 
     def extract_online_finetuning_view(
         self, batch: Sequence
@@ -83,5 +96,14 @@ class OnlineFineTuner(Callback):
         loss = F.cross_entropy(preds, y)
 
         acc = accuracy(F.softmax(preds, dim=1), y)
-        pl_module.log("online_val_acc", acc, on_step=False, on_epoch=True, sync_dist=True, prog_bar=True)
-        pl_module.log("online_val_loss", loss, on_step=False, on_epoch=True, sync_dist=True)
+        pl_module.log(
+            "online_val_acc",
+            acc,
+            on_step=False,
+            on_epoch=True,
+            sync_dist=True,
+            prog_bar=True,
+        )
+        pl_module.log(
+            "online_val_loss", loss, on_step=False, on_epoch=True, sync_dist=True
+        )
