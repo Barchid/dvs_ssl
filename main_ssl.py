@@ -15,6 +15,7 @@ timesteps = 12
 batch_size = 128
 dataset = 'dvsgesture'
 ssl_loss = 'barlow_twins'
+output_all = False
 
 
 def main(args):
@@ -58,7 +59,8 @@ def main(args):
         ssl_loss=ssl,
         timesteps=timesteps,
         enc1=mode,
-        enc2=mode
+        enc2=mode,
+        output_all=output_all
     )
 
     name = f"{dataset}_{ssl}"

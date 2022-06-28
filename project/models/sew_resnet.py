@@ -6,44 +6,67 @@ from torch.hub import load_state_dict_from_url
 
 from project.models.utils import MultiStepLIAFNode
 
-__all__ = ['SEWResNet', 'sew_resnet18', 'sew_resnet34', 'sew_resnet50', 'sew_resnet101',
-           'sew_resnet152', 'sew_resnext50_32x4d', 'sew_resnext101_32x8d',
-           'sew_wide_resnet50_2', 'sew_wide_resnet101_2',
-
-           'MultiStepSEWResNet', 'multi_step_sew_resnet18', 'multi_step_sew_resnet34', 'multi_step_sew_resnet50', 'multi_step_sew_resnet101',
-           'multi_step_sew_resnet152', 'multi_step_sew_resnext50_32x4d', 'multi_step_sew_resnext101_32x8d',
-           'multi_step_sew_wide_resnet50_2', 'multi_step_sew_wide_resnet101_2']
+__all__ = [
+    "SEWResNet",
+    "sew_resnet18",
+    "sew_resnet34",
+    "sew_resnet50",
+    "sew_resnet101",
+    "sew_resnet152",
+    "sew_resnext50_32x4d",
+    "sew_resnext101_32x8d",
+    "sew_wide_resnet50_2",
+    "sew_wide_resnet101_2",
+    "MultiStepSEWResNet",
+    "multi_step_sew_resnet18",
+    "multi_step_sew_resnet34",
+    "multi_step_sew_resnet50",
+    "multi_step_sew_resnet101",
+    "multi_step_sew_resnet152",
+    "multi_step_sew_resnext50_32x4d",
+    "multi_step_sew_resnext101_32x8d",
+    "multi_step_sew_wide_resnet50_2",
+    "multi_step_sew_wide_resnet101_2",
+]
 
 model_urls = {
-    'resnet18': 'https://download.pytorch.org/models/resnet18-5c106cde.pth',
-    'resnet34': 'https://download.pytorch.org/models/resnet34-333f7ec4.pth',
-    'resnet50': 'https://download.pytorch.org/models/resnet50-19c8e357.pth',
-    'resnet101': 'https://download.pytorch.org/models/resnet101-5d3b4d8f.pth',
-    'resnet152': 'https://download.pytorch.org/models/resnet152-b121ed2d.pth',
-    'resnext50_32x4d': 'https://download.pytorch.org/models/resnext50_32x4d-7cdf4587.pth',
-    'resnext101_32x8d': 'https://download.pytorch.org/models/resnext101_32x8d-8ba56ff5.pth',
-    'wide_resnet50_2': 'https://download.pytorch.org/models/wide_resnet50_2-95faca4d.pth',
-    'wide_resnet101_2': 'https://download.pytorch.org/models/wide_resnet101_2-32ee1156.pth',
+    "resnet18": "https://download.pytorch.org/models/resnet18-5c106cde.pth",
+    "resnet34": "https://download.pytorch.org/models/resnet34-333f7ec4.pth",
+    "resnet50": "https://download.pytorch.org/models/resnet50-19c8e357.pth",
+    "resnet101": "https://download.pytorch.org/models/resnet101-5d3b4d8f.pth",
+    "resnet152": "https://download.pytorch.org/models/resnet152-b121ed2d.pth",
+    "resnext50_32x4d": "https://download.pytorch.org/models/resnext50_32x4d-7cdf4587.pth",
+    "resnext101_32x8d": "https://download.pytorch.org/models/resnext101_32x8d-8ba56ff5.pth",
+    "wide_resnet50_2": "https://download.pytorch.org/models/wide_resnet50_2-95faca4d.pth",
+    "wide_resnet101_2": "https://download.pytorch.org/models/wide_resnet101_2-32ee1156.pth",
 }
 
 # modified by https://github.com/pytorch/vision/blob/main/torchvision/models/resnet.py
 
 
 def sew_function(x: torch.Tensor, y: torch.Tensor, cnf: str):
-    if cnf == 'ADD':
+    if cnf == "ADD":
         return x + y
-    elif cnf == 'AND':
+    elif cnf == "AND":
         return x * y
-    elif cnf == 'IAND':
-        return x * (1. - y)
+    elif cnf == "IAND":
+        return x * (1.0 - y)
     else:
         raise NotImplementedError
 
 
 def conv3x3(in_planes, out_planes, stride=1, groups=1, dilation=1):
     """3x3 convolution with padding"""
-    return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
-                     padding=dilation, groups=groups, bias=False, dilation=dilation)
+    return nn.Conv2d(
+        in_planes,
+        out_planes,
+        kernel_size=3,
+        stride=stride,
+        padding=dilation,
+        groups=groups,
+        bias=False,
+        dilation=dilation,
+    )
 
 
 def conv1x1(in_planes, out_planes, stride=1):
@@ -54,17 +77,27 @@ def conv1x1(in_planes, out_planes, stride=1):
 class BasicBlock(nn.Module):
     expansion = 1
 
-    def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
-                 base_width=64, dilation=1, norm_layer=None, cnf: str = None, single_step_neuron: callable = None, **kwargs):
+    def __init__(
+        self,
+        inplanes,
+        planes,
+        stride=1,
+        downsample=None,
+        groups=1,
+        base_width=64,
+        dilation=1,
+        norm_layer=None,
+        cnf: str = None,
+        single_step_neuron: callable = None,
+        **kwargs,
+    ):
         super(BasicBlock, self).__init__()
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
         if groups != 1 or base_width != 64:
-            raise ValueError(
-                'BasicBlock only supports groups=1 and base_width=64')
+            raise ValueError("BasicBlock only supports groups=1 and base_width=64")
         if dilation > 1:
-            raise NotImplementedError(
-                "Dilation > 1 not supported in BasicBlock")
+            raise NotImplementedError("Dilation > 1 not supported in BasicBlock")
         # Both self.conv1 and self.downsample layers downsample the input when stride != 1
         self.conv1 = conv3x3(inplanes, planes, stride)
         self.bn1 = norm_layer(planes)
@@ -97,14 +130,37 @@ class BasicBlock(nn.Module):
         return out
 
     def extra_repr(self) -> str:
-        return super().extra_repr() + f'cnf={self.cnf}'
+        return super().extra_repr() + f"cnf={self.cnf}"
 
 
 class MultiStepBasicBlock(BasicBlock):
-    def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
-                 base_width=64, dilation=1, norm_layer=None, cnf: str = None, multi_step_neuron: callable = None, **kwargs):
-        super().__init__(inplanes, planes, stride, downsample, groups,
-                         base_width, dilation, norm_layer, cnf, multi_step_neuron, **kwargs)
+    def __init__(
+        self,
+        inplanes,
+        planes,
+        stride=1,
+        downsample=None,
+        groups=1,
+        base_width=64,
+        dilation=1,
+        norm_layer=None,
+        cnf: str = None,
+        multi_step_neuron: callable = None,
+        **kwargs,
+    ):
+        super().__init__(
+            inplanes,
+            planes,
+            stride,
+            downsample,
+            groups,
+            base_width,
+            dilation,
+            norm_layer,
+            cnf,
+            multi_step_neuron,
+            **kwargs,
+        )
 
     def forward(self, x_seq):
         identity = x_seq
@@ -117,7 +173,8 @@ class MultiStepBasicBlock(BasicBlock):
 
         if self.downsample is not None:
             identity = self.downsample_sn(
-                functional.seq_to_ann_forward(x_seq, self.downsample))
+                functional.seq_to_ann_forward(x_seq, self.downsample)
+            )
 
         out = sew_function(identity, out, self.cnf)
 
@@ -133,12 +190,24 @@ class Bottleneck(nn.Module):
 
     expansion = 4
 
-    def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
-                 base_width=64, dilation=1, norm_layer=None, cnf: str = None, single_step_neuron: callable = None, **kwargs):
+    def __init__(
+        self,
+        inplanes,
+        planes,
+        stride=1,
+        downsample=None,
+        groups=1,
+        base_width=64,
+        dilation=1,
+        norm_layer=None,
+        cnf: str = None,
+        single_step_neuron: callable = None,
+        **kwargs,
+    ):
         super(Bottleneck, self).__init__()
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
-        width = int(planes * (base_width / 64.)) * groups
+        width = int(planes * (base_width / 64.0)) * groups
         # Both self.conv2 and self.downsample layers downsample the input when stride != 1
         self.conv1 = conv1x1(inplanes, width)
         self.bn1 = norm_layer(width)
@@ -178,14 +247,37 @@ class Bottleneck(nn.Module):
         return out
 
     def extra_repr(self) -> str:
-        return super().extra_repr() + f'cnf={self.cnf}'
+        return super().extra_repr() + f"cnf={self.cnf}"
 
 
 class MultiStepBottleneck(Bottleneck):
-    def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
-                 base_width=64, dilation=1, norm_layer=None, cnf: str = None, multi_step_neuron: callable = None, **kwargs):
-        super(MultiStepBottleneck, self).__init__(inplanes, planes, stride, downsample,
-                                                  groups, base_width, dilation, norm_layer, cnf, multi_step_neuron, **kwargs)
+    def __init__(
+        self,
+        inplanes,
+        planes,
+        stride=1,
+        downsample=None,
+        groups=1,
+        base_width=64,
+        dilation=1,
+        norm_layer=None,
+        cnf: str = None,
+        multi_step_neuron: callable = None,
+        **kwargs,
+    ):
+        super(MultiStepBottleneck, self).__init__(
+            inplanes,
+            planes,
+            stride,
+            downsample,
+            groups,
+            base_width,
+            dilation,
+            norm_layer,
+            cnf,
+            multi_step_neuron,
+            **kwargs,
+        )
 
     def forward(self, x_seq):
         identity = x_seq
@@ -201,7 +293,8 @@ class MultiStepBottleneck(Bottleneck):
 
         if self.downsample is not None:
             identity = self.downsample_sn(
-                functional.seq_to_ann_forward(x_seq, self.downsample))
+                functional.seq_to_ann_forward(x_seq, self.downsample)
+            )
 
         out = sew_function(identity, out, self.cnf)
 
@@ -209,9 +302,20 @@ class MultiStepBottleneck(Bottleneck):
 
 
 class SEWResNet(nn.Module):
-    def __init__(self, block, layers, num_classes=1000, zero_init_residual=False,
-                 groups=1, width_per_group=64, replace_stride_with_dilation=None,
-                 norm_layer=None, cnf: str = None, single_step_neuron: callable = None, **kwargs):
+    def __init__(
+        self,
+        block,
+        layers,
+        num_classes=1000,
+        zero_init_residual=False,
+        groups=1,
+        width_per_group=64,
+        replace_stride_with_dilation=None,
+        norm_layer=None,
+        cnf: str = None,
+        single_step_neuron: callable = None,
+        **kwargs,
+    ):
         super().__init__()
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
@@ -224,30 +328,62 @@ class SEWResNet(nn.Module):
             # the 2x2 stride with a dilated convolution instead
             replace_stride_with_dilation = [False, False, False]
         if len(replace_stride_with_dilation) != 3:
-            raise ValueError("replace_stride_with_dilation should be None "
-                             "or a 3-element tuple, got {}".format(replace_stride_with_dilation))
+            raise ValueError(
+                "replace_stride_with_dilation should be None "
+                "or a 3-element tuple, got {}".format(replace_stride_with_dilation)
+            )
         self.groups = groups
         self.base_width = width_per_group
-        self.conv1 = nn.Conv2d(3, self.inplanes, kernel_size=7, stride=2, padding=3,
-                               bias=False)
+        self.conv1 = nn.Conv2d(
+            3, self.inplanes, kernel_size=7, stride=2, padding=3, bias=False
+        )
         self.bn1 = norm_layer(self.inplanes)
         self.sn1 = single_step_neuron(**kwargs)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         self.layer1 = self._make_layer(
-            block, 64, layers[0], cnf=cnf, single_step_neuron=single_step_neuron, **kwargs)
-        self.layer2 = self._make_layer(block, 128, layers[1], stride=2,
-                                       dilate=replace_stride_with_dilation[0], cnf=cnf, single_step_neuron=single_step_neuron, **kwargs)
-        self.layer3 = self._make_layer(block, 256, layers[2], stride=2,
-                                       dilate=replace_stride_with_dilation[1], cnf=cnf, single_step_neuron=single_step_neuron, **kwargs)
-        self.layer4 = self._make_layer(block, 512, layers[3], stride=2,
-                                       dilate=replace_stride_with_dilation[2], cnf=cnf, single_step_neuron=single_step_neuron, **kwargs)
+            block,
+            64,
+            layers[0],
+            cnf=cnf,
+            single_step_neuron=single_step_neuron,
+            **kwargs,
+        )
+        self.layer2 = self._make_layer(
+            block,
+            128,
+            layers[1],
+            stride=2,
+            dilate=replace_stride_with_dilation[0],
+            cnf=cnf,
+            single_step_neuron=single_step_neuron,
+            **kwargs,
+        )
+        self.layer3 = self._make_layer(
+            block,
+            256,
+            layers[2],
+            stride=2,
+            dilate=replace_stride_with_dilation[1],
+            cnf=cnf,
+            single_step_neuron=single_step_neuron,
+            **kwargs,
+        )
+        self.layer4 = self._make_layer(
+            block,
+            512,
+            layers[3],
+            stride=2,
+            dilate=replace_stride_with_dilation[2],
+            cnf=cnf,
+            single_step_neuron=single_step_neuron,
+            **kwargs,
+        )
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(512 * block.expansion, num_classes)
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
-                nn.init.kaiming_normal_(
-                    m.weight, mode='fan_out', nonlinearity='relu')
+                nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity="relu")
             elif isinstance(m, (nn.BatchNorm2d, nn.GroupNorm)):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
@@ -262,7 +398,17 @@ class SEWResNet(nn.Module):
                 elif isinstance(m, BasicBlock):
                     nn.init.constant_(m.bn2.weight, 0)
 
-    def _make_layer(self, block, planes, blocks, stride=1, dilate=False, cnf: str = None, single_step_neuron: callable = None, **kwargs):
+    def _make_layer(
+        self,
+        block,
+        planes,
+        blocks,
+        stride=1,
+        dilate=False,
+        cnf: str = None,
+        single_step_neuron: callable = None,
+        **kwargs,
+    ):
         norm_layer = self._norm_layer
         downsample = None
         previous_dilation = self.dilation
@@ -276,13 +422,36 @@ class SEWResNet(nn.Module):
             )
 
         layers = []
-        layers.append(block(self.inplanes, planes, stride, downsample, self.groups,
-                            self.base_width, previous_dilation, norm_layer, cnf, single_step_neuron, **kwargs))
+        layers.append(
+            block(
+                self.inplanes,
+                planes,
+                stride,
+                downsample,
+                self.groups,
+                self.base_width,
+                previous_dilation,
+                norm_layer,
+                cnf,
+                single_step_neuron,
+                **kwargs,
+            )
+        )
         self.inplanes = planes * block.expansion
         for _ in range(1, blocks):
-            layers.append(block(self.inplanes, planes, groups=self.groups,
-                                base_width=self.base_width, dilation=self.dilation,
-                                norm_layer=norm_layer, cnf=cnf, single_step_neuron=single_step_neuron, **kwargs))
+            layers.append(
+                block(
+                    self.inplanes,
+                    planes,
+                    groups=self.groups,
+                    base_width=self.base_width,
+                    dilation=self.dilation,
+                    norm_layer=norm_layer,
+                    cnf=cnf,
+                    single_step_neuron=single_step_neuron,
+                    **kwargs,
+                )
+            )
 
         return nn.Sequential(*layers)
 
@@ -309,9 +478,22 @@ class SEWResNet(nn.Module):
 
 
 class MultiStepSEWResNet(nn.Module):
-    def __init__(self, block, layers, num_classes=1000, zero_init_residual=False,
-                 groups=1, width_per_group=64, replace_stride_with_dilation=None, output_all: bool = False,
-                 norm_layer=None, T: int = None, cnf: str = None, multi_step_neuron: callable = None, **kwargs):
+    def __init__(
+        self,
+        block,
+        layers,
+        num_classes=1000,
+        zero_init_residual=False,
+        groups=1,
+        width_per_group=64,
+        replace_stride_with_dilation=None,
+        output_all: bool = False,
+        norm_layer=None,
+        T: int = None,
+        cnf: str = None,
+        multi_step_neuron: callable = None,
+        **kwargs,
+    ):
         super().__init__()
         self.output_all = output_all
         self.T = T
@@ -325,31 +507,52 @@ class MultiStepSEWResNet(nn.Module):
             # the 2x2 stride with a dilated convolution instead
             replace_stride_with_dilation = [False, False, False]
         if len(replace_stride_with_dilation) != 3:
-            raise ValueError("replace_stride_with_dilation should be None "
-                             "or a 3-element tuple, got {}".format(replace_stride_with_dilation))
+            raise ValueError(
+                "replace_stride_with_dilation should be None "
+                "or a 3-element tuple, got {}".format(replace_stride_with_dilation)
+            )
         self.groups = groups
         self.base_width = width_per_group
-        self.conv1 = nn.Conv2d(3, self.inplanes, kernel_size=7, stride=2, padding=3,
-                               bias=False)
+        self.conv1 = nn.Conv2d(
+            3, self.inplanes, kernel_size=7, stride=2, padding=3, bias=False
+        )
         self.bn1 = norm_layer(self.inplanes)
         self.sn1 = multi_step_neuron(**kwargs)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         self.layer1 = self._make_layer(
-            block, 64, layers[0], cnf=cnf, multi_step_neuron=multi_step_neuron, **kwargs)
-        self.layer2 = self._make_layer(block, 128, layers[1], stride=2,
-                                       dilate=replace_stride_with_dilation[
-                                           0], cnf=cnf, multi_step_neuron=multi_step_neuron,
-                                       **kwargs)
-        self.layer3 = self._make_layer(block, 256, layers[2], stride=2,
-                                       dilate=replace_stride_with_dilation[
-                                           1], cnf=cnf, multi_step_neuron=multi_step_neuron,
-                                       **kwargs)
-        self.layer4 = self._make_layer(block, 512, layers[3], stride=2,
-                                       dilate=replace_stride_with_dilation[
-                                           2], cnf=cnf, multi_step_neuron=multi_step_neuron,
-                                       **kwargs)
-        
-        
+            block, 64, layers[0], cnf=cnf, multi_step_neuron=multi_step_neuron, **kwargs
+        )
+        self.layer2 = self._make_layer(
+            block,
+            128,
+            layers[1],
+            stride=2,
+            dilate=replace_stride_with_dilation[0],
+            cnf=cnf,
+            multi_step_neuron=multi_step_neuron,
+            **kwargs,
+        )
+        self.layer3 = self._make_layer(
+            block,
+            256,
+            layers[2],
+            stride=2,
+            dilate=replace_stride_with_dilation[1],
+            cnf=cnf,
+            multi_step_neuron=multi_step_neuron,
+            **kwargs,
+        )
+        self.layer4 = self._make_layer(
+            block,
+            512,
+            layers[3],
+            stride=2,
+            dilate=replace_stride_with_dilation[2],
+            cnf=cnf,
+            multi_step_neuron=multi_step_neuron,
+            **kwargs,
+        )
+
         # TODO: edit layer4 to have a LIAF layer at the end
         # self.layer4[-1].sn2 = MultiStepLIAFNode(
         #     torch.nn.ReLU(), threshold_related=False, detach_reset=True, surrogate_function=surrogate.ATan()
@@ -358,12 +561,15 @@ class MultiStepSEWResNet(nn.Module):
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(512 * block.expansion, 512 * block.expansion)
         self.final_neurons = MultiStepIFNode(
-            v_threshold=float('inf'), v_reset=0.0, detach_reset=True, surrogate_function=surrogate.ATan())
+            v_threshold=1.0 if output_all else float("inf"),
+            v_reset=0.0,
+            detach_reset=True,
+            surrogate_function=surrogate.ATan(),
+        )
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
-                nn.init.kaiming_normal_(
-                    m.weight, mode='fan_out', nonlinearity='relu')
+                nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity="relu")
             elif isinstance(m, (nn.BatchNorm2d, nn.GroupNorm)):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
@@ -378,7 +584,17 @@ class MultiStepSEWResNet(nn.Module):
                 elif isinstance(m, BasicBlock):
                     nn.init.constant_(m.bn2.weight, 0)
 
-    def _make_layer(self, block, planes, blocks, stride=1, dilate=False, cnf: str = None, multi_step_neuron: callable = None, **kwargs):
+    def _make_layer(
+        self,
+        block,
+        planes,
+        blocks,
+        stride=1,
+        dilate=False,
+        cnf: str = None,
+        multi_step_neuron: callable = None,
+        **kwargs,
+    ):
         norm_layer = self._norm_layer
         downsample = None
         previous_dilation = self.dilation
@@ -392,13 +608,36 @@ class MultiStepSEWResNet(nn.Module):
             )
 
         layers = []
-        layers.append(block(self.inplanes, planes, stride, downsample, self.groups,
-                            self.base_width, previous_dilation, norm_layer, cnf, multi_step_neuron, **kwargs))
+        layers.append(
+            block(
+                self.inplanes,
+                planes,
+                stride,
+                downsample,
+                self.groups,
+                self.base_width,
+                previous_dilation,
+                norm_layer,
+                cnf,
+                multi_step_neuron,
+                **kwargs,
+            )
+        )
         self.inplanes = planes * block.expansion
         for _ in range(1, blocks):
-            layers.append(block(self.inplanes, planes, groups=self.groups,
-                                base_width=self.base_width, dilation=self.dilation,
-                                norm_layer=norm_layer, cnf=cnf, multi_step_neuron=multi_step_neuron, **kwargs))
+            layers.append(
+                block(
+                    self.inplanes,
+                    planes,
+                    groups=self.groups,
+                    base_width=self.base_width,
+                    dilation=self.dilation,
+                    norm_layer=norm_layer,
+                    cnf=cnf,
+                    multi_step_neuron=multi_step_neuron,
+                    **kwargs,
+                )
+            )
 
         return nn.Sequential(*layers)
 
@@ -409,7 +648,9 @@ class MultiStepSEWResNet(nn.Module):
             # x.shape = [T, N, C, H, W]
             x_seq = functional.seq_to_ann_forward(x, [self.conv1, self.bn1])
         else:
-            assert self.T is not None, 'When x.shape is [N, C, H, W], self.T can not be None.'
+            assert (
+                self.T is not None
+            ), "When x.shape is [N, C, H, W], self.T can not be None."
             # x.shape = [N, C, H, W]
             x = self.conv1(x)
             x = self.bn1(x)
@@ -433,7 +674,7 @@ class MultiStepSEWResNet(nn.Module):
         x_seq = torch.flatten(x_seq, 2)
         # x_seq = self.fc(x_seq.mean(0))
         x_seq = functional.seq_to_ann_forward(x_seq, self.fc)
-        x_seq = self.final_neurons(x_seq) 
+        x_seq = self.final_neurons(x_seq)
 
         if self.output_all:
             return x_seq
@@ -452,27 +693,37 @@ class MultiStepSEWResNet(nn.Module):
         return self._forward_impl(x)
 
 
-def _sew_resnet(arch, block, layers, pretrained, progress, cnf, single_step_neuron, **kwargs):
-    model = SEWResNet(block, layers, cnf=cnf,
-                      single_step_neuron=single_step_neuron, **kwargs)
+def _sew_resnet(
+    arch, block, layers, pretrained, progress, cnf, single_step_neuron, **kwargs
+):
+    model = SEWResNet(
+        block, layers, cnf=cnf, single_step_neuron=single_step_neuron, **kwargs
+    )
     if pretrained:
-        state_dict = load_state_dict_from_url(model_urls[arch],
-                                              progress=progress)
+        state_dict = load_state_dict_from_url(model_urls[arch], progress=progress)
         model.load_state_dict(state_dict)
     return model
 
 
-def _multi_step_sew_resnet(arch, block, layers, pretrained, progress, T, cnf, multi_step_neuron, **kwargs):
+def _multi_step_sew_resnet(
+    arch, block, layers, pretrained, progress, T, cnf, multi_step_neuron, **kwargs
+):
     model = MultiStepSEWResNet(
-        block, layers, T=T, cnf=cnf, multi_step_neuron=multi_step_neuron, **kwargs)
+        block, layers, T=T, cnf=cnf, multi_step_neuron=multi_step_neuron, **kwargs
+    )
     if pretrained:
-        state_dict = load_state_dict_from_url(model_urls[arch],
-                                              progress=progress)
+        state_dict = load_state_dict_from_url(model_urls[arch], progress=progress)
         model.load_state_dict(state_dict)
     return model
 
 
-def sew_resnet18(pretrained=False, progress=True, cnf: str = None, single_step_neuron: callable = None, **kwargs):
+def sew_resnet18(
+    pretrained=False,
+    progress=True,
+    cnf: str = None,
+    single_step_neuron: callable = None,
+    **kwargs,
+):
     """
     :param pretrained: If True, the SNN will load parameters from the ANN pre-trained on ImageNet
     :type pretrained: bool
@@ -490,10 +741,26 @@ def sew_resnet18(pretrained=False, progress=True, cnf: str = None, single_step_n
     The spike-element-wise ResNet-18 `"Deep Residual Learning in Spiking Neural Networks" <https://arxiv.org/abs/2102.04159>`_ modified by the ResNet-18 model from `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
     """
 
-    return _sew_resnet('resnet18', BasicBlock, [2, 2, 2, 2], pretrained, progress, cnf, single_step_neuron, **kwargs)
+    return _sew_resnet(
+        "resnet18",
+        BasicBlock,
+        [2, 2, 2, 2],
+        pretrained,
+        progress,
+        cnf,
+        single_step_neuron,
+        **kwargs,
+    )
 
 
-def multi_step_sew_resnet18(pretrained=False, progress=True, T: int = None, cnf: str = None, multi_step_neuron: callable = None, **kwargs):
+def multi_step_sew_resnet18(
+    pretrained=False,
+    progress=True,
+    T: int = None,
+    cnf: str = None,
+    multi_step_neuron: callable = None,
+    **kwargs,
+):
     """
     :param pretrained: If True, the SNN will load parameters from the ANN pre-trained on ImageNet
     :type pretrained: bool
@@ -514,10 +781,26 @@ def multi_step_sew_resnet18(pretrained=False, progress=True, T: int = None, cnf:
     modified by the ResNet-18 model from `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
     """
 
-    return _multi_step_sew_resnet('resnet18', MultiStepBasicBlock, [2, 2, 2, 2], pretrained, progress, T, cnf, multi_step_neuron, **kwargs)
+    return _multi_step_sew_resnet(
+        "resnet18",
+        MultiStepBasicBlock,
+        [2, 2, 2, 2],
+        pretrained,
+        progress,
+        T,
+        cnf,
+        multi_step_neuron,
+        **kwargs,
+    )
 
 
-def sew_resnet34(pretrained=False, progress=True, cnf: str = None, single_step_neuron: callable = None, **kwargs):
+def sew_resnet34(
+    pretrained=False,
+    progress=True,
+    cnf: str = None,
+    single_step_neuron: callable = None,
+    **kwargs,
+):
     """
     :param pretrained: If True, the SNN will load parameters from the ANN pre-trained on ImageNet
     :type pretrained: bool
@@ -535,10 +818,26 @@ def sew_resnet34(pretrained=False, progress=True, cnf: str = None, single_step_n
     The spike-element-wise ResNet-34 `"Deep Residual Learning in Spiking Neural Networks" <https://arxiv.org/abs/2102.04159>`_
     modified by the ResNet-34 model from `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
     """
-    return _sew_resnet('resnet34', BasicBlock, [3, 4, 6, 3], pretrained, progress, cnf, single_step_neuron, **kwargs)
+    return _sew_resnet(
+        "resnet34",
+        BasicBlock,
+        [3, 4, 6, 3],
+        pretrained,
+        progress,
+        cnf,
+        single_step_neuron,
+        **kwargs,
+    )
 
 
-def multi_step_sew_resnet34(pretrained=False, progress=True, T: int = None, cnf: str = None, multi_step_neuron: callable = None, **kwargs):
+def multi_step_sew_resnet34(
+    pretrained=False,
+    progress=True,
+    T: int = None,
+    cnf: str = None,
+    multi_step_neuron: callable = None,
+    **kwargs,
+):
     """
     :param pretrained: If True, the SNN will load parameters from the ANN pre-trained on ImageNet
     :type pretrained: bool
@@ -558,10 +857,26 @@ def multi_step_sew_resnet34(pretrained=False, progress=True, T: int = None, cnf:
     The multi-step spike-element-wise ResNet-34 `"Deep Residual Learning in Spiking Neural Networks" <https://arxiv.org/abs/2102.04159>`_
     modified by the ResNet-34 model from `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
     """
-    return _multi_step_sew_resnet('resnet34', MultiStepBasicBlock, [3, 4, 6, 3], pretrained, progress, T, cnf, multi_step_neuron, **kwargs)
+    return _multi_step_sew_resnet(
+        "resnet34",
+        MultiStepBasicBlock,
+        [3, 4, 6, 3],
+        pretrained,
+        progress,
+        T,
+        cnf,
+        multi_step_neuron,
+        **kwargs,
+    )
 
 
-def sew_resnet50(pretrained=False, progress=True, cnf: str = None, single_step_neuron: callable = None, **kwargs):
+def sew_resnet50(
+    pretrained=False,
+    progress=True,
+    cnf: str = None,
+    single_step_neuron: callable = None,
+    **kwargs,
+):
     """
     :param pretrained: If True, the SNN will load parameters from the ANN pre-trained on ImageNet
     :type pretrained: bool
@@ -579,10 +894,26 @@ def sew_resnet50(pretrained=False, progress=True, cnf: str = None, single_step_n
     The spike-element-wise ResNet-50 `"Deep Residual Learning in Spiking Neural Networks" <https://arxiv.org/abs/2102.04159>`_
     modified by the ResNet-50 model from `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
     """
-    return _sew_resnet('resnet50', Bottleneck, [3, 4, 6, 3], pretrained, progress, cnf, single_step_neuron, **kwargs)
+    return _sew_resnet(
+        "resnet50",
+        Bottleneck,
+        [3, 4, 6, 3],
+        pretrained,
+        progress,
+        cnf,
+        single_step_neuron,
+        **kwargs,
+    )
 
 
-def multi_step_sew_resnet50(pretrained=False, progress=True, T: int = None, cnf: str = None, multi_step_neuron: callable = None, **kwargs):
+def multi_step_sew_resnet50(
+    pretrained=False,
+    progress=True,
+    T: int = None,
+    cnf: str = None,
+    multi_step_neuron: callable = None,
+    **kwargs,
+):
     """
     :param pretrained: If True, the SNN will load parameters from the ANN pre-trained on ImageNet
     :type pretrained: bool
@@ -602,10 +933,26 @@ def multi_step_sew_resnet50(pretrained=False, progress=True, T: int = None, cnf:
     The multi-step spike-element-wise ResNet-50 `"Deep Residual Learning in Spiking Neural Networks" <https://arxiv.org/abs/2102.04159>`_
     modified by the ResNet-50 model from `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
     """
-    return _multi_step_sew_resnet('resnet50', MultiStepBottleneck, [3, 4, 6, 3], pretrained, progress, T, cnf, multi_step_neuron, **kwargs)
+    return _multi_step_sew_resnet(
+        "resnet50",
+        MultiStepBottleneck,
+        [3, 4, 6, 3],
+        pretrained,
+        progress,
+        T,
+        cnf,
+        multi_step_neuron,
+        **kwargs,
+    )
 
 
-def sew_resnet101(pretrained=False, progress=True, cnf: str = None, single_step_neuron: callable = None, **kwargs):
+def sew_resnet101(
+    pretrained=False,
+    progress=True,
+    cnf: str = None,
+    single_step_neuron: callable = None,
+    **kwargs,
+):
     """
     :param pretrained: If True, the SNN will load parameters from the ANN pre-trained on ImageNet
     :type pretrained: bool
@@ -623,10 +970,26 @@ def sew_resnet101(pretrained=False, progress=True, cnf: str = None, single_step_
     The spike-element-wise ResNet-101 `"Deep Residual Learning in Spiking Neural Networks" <https://arxiv.org/abs/2102.04159>`_
     modified by the ResNet-101 model from `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
     """
-    return _sew_resnet('resnet101', Bottleneck, [3, 4, 23, 3], pretrained, progress, cnf, single_step_neuron, **kwargs)
+    return _sew_resnet(
+        "resnet101",
+        Bottleneck,
+        [3, 4, 23, 3],
+        pretrained,
+        progress,
+        cnf,
+        single_step_neuron,
+        **kwargs,
+    )
 
 
-def multi_step_sew_resnet101(pretrained=False, progress=True, T: int = None, cnf: str = None, multi_step_neuron: callable = None, **kwargs):
+def multi_step_sew_resnet101(
+    pretrained=False,
+    progress=True,
+    T: int = None,
+    cnf: str = None,
+    multi_step_neuron: callable = None,
+    **kwargs,
+):
     """
     :param pretrained: If True, the SNN will load parameters from the ANN pre-trained on ImageNet
     :type pretrained: bool
@@ -646,10 +1009,26 @@ def multi_step_sew_resnet101(pretrained=False, progress=True, T: int = None, cnf
     The multi-step spike-element-wise ResNet-101 `"Deep Residual Learning in Spiking Neural Networks" <https://arxiv.org/abs/2102.04159>`_
     modified by the ResNet-101 model from `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
     """
-    return _multi_step_sew_resnet('resnet101', MultiStepBottleneck, [3, 4, 23, 3], pretrained, progress, T, cnf, multi_step_neuron, **kwargs)
+    return _multi_step_sew_resnet(
+        "resnet101",
+        MultiStepBottleneck,
+        [3, 4, 23, 3],
+        pretrained,
+        progress,
+        T,
+        cnf,
+        multi_step_neuron,
+        **kwargs,
+    )
 
 
-def sew_resnet152(pretrained=False, progress=True, cnf: str = None, single_step_neuron: callable = None, **kwargs):
+def sew_resnet152(
+    pretrained=False,
+    progress=True,
+    cnf: str = None,
+    single_step_neuron: callable = None,
+    **kwargs,
+):
     """
     :param pretrained: If True, the SNN will load parameters from the ANN pre-trained on ImageNet
     :type pretrained: bool
@@ -667,10 +1046,26 @@ def sew_resnet152(pretrained=False, progress=True, cnf: str = None, single_step_
     The spike-element-wise ResNet-152 `"Deep Residual Learning in Spiking Neural Networks" <https://arxiv.org/abs/2102.04159>`_
     modified by the ResNet-152 model from `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
     """
-    return _sew_resnet('resnet152', Bottleneck, [3, 8, 36, 3], pretrained, progress, cnf, single_step_neuron, **kwargs)
+    return _sew_resnet(
+        "resnet152",
+        Bottleneck,
+        [3, 8, 36, 3],
+        pretrained,
+        progress,
+        cnf,
+        single_step_neuron,
+        **kwargs,
+    )
 
 
-def multi_step_sew_resnet152(pretrained=False, progress=True, T: int = None, cnf: str = None, multi_step_neuron: callable = None, **kwargs):
+def multi_step_sew_resnet152(
+    pretrained=False,
+    progress=True,
+    T: int = None,
+    cnf: str = None,
+    multi_step_neuron: callable = None,
+    **kwargs,
+):
     """
     :param pretrained: If True, the SNN will load parameters from the ANN pre-trained on ImageNet
     :type pretrained: bool
@@ -690,10 +1085,26 @@ def multi_step_sew_resnet152(pretrained=False, progress=True, T: int = None, cnf
     The multi-step spike-element-wise ResNet-152 `"Deep Residual Learning in Spiking Neural Networks" <https://arxiv.org/abs/2102.04159>`_
     modified by the ResNet-152 model from `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
     """
-    return _multi_step_sew_resnet('resnet152', MultiStepBottleneck, [3, 8, 36, 3], pretrained, progress, T, cnf, multi_step_neuron, **kwargs)
+    return _multi_step_sew_resnet(
+        "resnet152",
+        MultiStepBottleneck,
+        [3, 8, 36, 3],
+        pretrained,
+        progress,
+        T,
+        cnf,
+        multi_step_neuron,
+        **kwargs,
+    )
 
 
-def sew_resnext50_32x4d(pretrained=False, progress=True, cnf: str = None, single_step_neuron: callable = None, **kwargs):
+def sew_resnext50_32x4d(
+    pretrained=False,
+    progress=True,
+    cnf: str = None,
+    single_step_neuron: callable = None,
+    **kwargs,
+):
     """
     :param pretrained: If True, the SNN will load parameters from the ANN pre-trained on ImageNet
     :type pretrained: bool
@@ -711,12 +1122,28 @@ def sew_resnext50_32x4d(pretrained=False, progress=True, cnf: str = None, single
     The spike-element-wise ResNeXt-50 32x4d `"Deep Residual Learning in Spiking Neural Networks" <https://arxiv.org/abs/2102.04159>`_
     modified by the ResNeXt-50 32x4d model from `"Aggregated Residual Transformation for Deep Neural Networks" <https://arxiv.org/pdf/1611.05431.pdf>`_
     """
-    kwargs['groups'] = 32
-    kwargs['width_per_group'] = 4
-    return _sew_resnet('resnext50_32x4d', Bottleneck, [3, 4, 6, 3], pretrained, progress, cnf, single_step_neuron, **kwargs)
+    kwargs["groups"] = 32
+    kwargs["width_per_group"] = 4
+    return _sew_resnet(
+        "resnext50_32x4d",
+        Bottleneck,
+        [3, 4, 6, 3],
+        pretrained,
+        progress,
+        cnf,
+        single_step_neuron,
+        **kwargs,
+    )
 
 
-def multi_step_sew_resnext50_32x4d(pretrained=False, progress=True, T: int = None, cnf: str = None, multi_step_neuron: callable = None, **kwargs):
+def multi_step_sew_resnext50_32x4d(
+    pretrained=False,
+    progress=True,
+    T: int = None,
+    cnf: str = None,
+    multi_step_neuron: callable = None,
+    **kwargs,
+):
     """
     :param pretrained: If True, the SNN will load parameters from the ANN pre-trained on ImageNet
     :type pretrained: bool
@@ -736,12 +1163,28 @@ def multi_step_sew_resnext50_32x4d(pretrained=False, progress=True, T: int = Non
     A multi-step spike-element-wise ResNeXt-50 32x4d `"Deep Residual Learning in Spiking Neural Networks" <https://arxiv.org/abs/2102.04159>`_
     modified by the ResNeXt-50 32x4d model from `"Aggregated Residual Transformation for Deep Neural Networks" <https://arxiv.org/pdf/1611.05431.pdf>`_
     """
-    kwargs['groups'] = 32
-    kwargs['width_per_group'] = 4
-    return _multi_step_sew_resnet('resnext50_32x4d', MultiStepBottleneck, [3, 4, 6, 3], pretrained, progress, T, cnf, multi_step_neuron, **kwargs)
+    kwargs["groups"] = 32
+    kwargs["width_per_group"] = 4
+    return _multi_step_sew_resnet(
+        "resnext50_32x4d",
+        MultiStepBottleneck,
+        [3, 4, 6, 3],
+        pretrained,
+        progress,
+        T,
+        cnf,
+        multi_step_neuron,
+        **kwargs,
+    )
 
 
-def sew_resnext101_32x8d(pretrained=False, progress=True, cnf: str = None, single_step_neuron: callable = None, **kwargs):
+def sew_resnext101_32x8d(
+    pretrained=False,
+    progress=True,
+    cnf: str = None,
+    single_step_neuron: callable = None,
+    **kwargs,
+):
     """
     :param pretrained: If True, the SNN will load parameters from the ANN pre-trained on ImageNet
     :type pretrained: bool
@@ -758,12 +1201,28 @@ def sew_resnext101_32x8d(pretrained=False, progress=True, cnf: str = None, singl
 
     The spike-element-wise ResNeXt-101 32x8d `"Deep Residual Learning in Spiking Neural Networks" <https://arxiv.org/abs/2102.04159>`_ modified by the ResNeXt-101 32x8d model from `"Aggregated Residual Transformation for Deep Neural Networks" <https://arxiv.org/pdf/1611.05431.pdf>`_
     """
-    kwargs['groups'] = 32
-    kwargs['width_per_group'] = 8
-    return _sew_resnet('resnext101_32x8d', Bottleneck, [3, 4, 23, 3], pretrained, progress, cnf, single_step_neuron, **kwargs)
+    kwargs["groups"] = 32
+    kwargs["width_per_group"] = 8
+    return _sew_resnet(
+        "resnext101_32x8d",
+        Bottleneck,
+        [3, 4, 23, 3],
+        pretrained,
+        progress,
+        cnf,
+        single_step_neuron,
+        **kwargs,
+    )
 
 
-def multi_step_sew_resnext101_32x8d(pretrained=False, progress=True, T: int = None, cnf: str = None, multi_step_neuron: callable = None, **kwargs):
+def multi_step_sew_resnext101_32x8d(
+    pretrained=False,
+    progress=True,
+    T: int = None,
+    cnf: str = None,
+    multi_step_neuron: callable = None,
+    **kwargs,
+):
     """
     :param pretrained: If True, the SNN will load parameters from the ANN pre-trained on ImageNet
     :type pretrained: bool
@@ -783,12 +1242,28 @@ def multi_step_sew_resnext101_32x8d(pretrained=False, progress=True, T: int = No
     The multi-step spike-element-wise ResNeXt-101 32x8d `"Deep Residual Learning in Spiking Neural Networks" <https://arxiv.org/abs/2102.04159>`_
     modified by the ResNeXt-101 32x8d model from `"Aggregated Residual Transformation for Deep Neural Networks" <https://arxiv.org/pdf/1611.05431.pdf>`_
     """
-    kwargs['groups'] = 32
-    kwargs['width_per_group'] = 8
-    return _multi_step_sew_resnet('resnext101_32x8d', MultiStepBottleneck, [3, 4, 23, 3], pretrained, progress, T, cnf, multi_step_neuron, **kwargs)
+    kwargs["groups"] = 32
+    kwargs["width_per_group"] = 8
+    return _multi_step_sew_resnet(
+        "resnext101_32x8d",
+        MultiStepBottleneck,
+        [3, 4, 23, 3],
+        pretrained,
+        progress,
+        T,
+        cnf,
+        multi_step_neuron,
+        **kwargs,
+    )
 
 
-def sew_wide_resnet50_2(pretrained=False, progress=True, cnf: str = None, single_step_neuron: callable = None, **kwargs):
+def sew_wide_resnet50_2(
+    pretrained=False,
+    progress=True,
+    cnf: str = None,
+    single_step_neuron: callable = None,
+    **kwargs,
+):
     """
     :param pretrained: If True, the SNN will load parameters from the ANN pre-trained on ImageNet
     :type pretrained: bool
@@ -811,11 +1286,27 @@ def sew_wide_resnet50_2(pretrained=False, progress=True, cnf: str = None, single
     convolutions is the same, e.g. last block in ResNet-50 has 2048-512-2048
     channels, and in Wide ResNet-50-2 has 2048-1024-2048.
     """
-    kwargs['width_per_group'] = 64 * 2
-    return _sew_resnet('wide_resnet50_2', Bottleneck, [3, 4, 6, 3], pretrained, progress, cnf, single_step_neuron, **kwargs)
+    kwargs["width_per_group"] = 64 * 2
+    return _sew_resnet(
+        "wide_resnet50_2",
+        Bottleneck,
+        [3, 4, 6, 3],
+        pretrained,
+        progress,
+        cnf,
+        single_step_neuron,
+        **kwargs,
+    )
 
 
-def multi_step_sew_wide_resnet50_2(pretrained=False, progress=True, T: int = None, cnf: str = None, multi_step_neuron: callable = None, **kwargs):
+def multi_step_sew_wide_resnet50_2(
+    pretrained=False,
+    progress=True,
+    T: int = None,
+    cnf: str = None,
+    multi_step_neuron: callable = None,
+    **kwargs,
+):
     """
     :param pretrained: If True, the SNN will load parameters from the ANN pre-trained on ImageNet
     :type pretrained: bool
@@ -840,11 +1331,27 @@ def multi_step_sew_wide_resnet50_2(pretrained=False, progress=True, T: int = Non
     convolutions is the same, e.g. last block in ResNet-50 has 2048-512-2048
     channels, and in Wide ResNet-50-2 has 2048-1024-2048.
     """
-    kwargs['width_per_group'] = 64 * 2
-    return _multi_step_sew_resnet('wide_resnet50_2', MultiStepBottleneck, [3, 4, 6, 3], pretrained, progress, T, cnf, multi_step_neuron, **kwargs)
+    kwargs["width_per_group"] = 64 * 2
+    return _multi_step_sew_resnet(
+        "wide_resnet50_2",
+        MultiStepBottleneck,
+        [3, 4, 6, 3],
+        pretrained,
+        progress,
+        T,
+        cnf,
+        multi_step_neuron,
+        **kwargs,
+    )
 
 
-def sew_wide_resnet101_2(pretrained=False, progress=True, cnf: str = None, single_step_neuron: callable = None, **kwargs):
+def sew_wide_resnet101_2(
+    pretrained=False,
+    progress=True,
+    cnf: str = None,
+    single_step_neuron: callable = None,
+    **kwargs,
+):
     """
     :param pretrained: If True, the SNN will load parameters from the ANN pre-trained on ImageNet
     :type pretrained: bool
@@ -867,11 +1374,27 @@ def sew_wide_resnet101_2(pretrained=False, progress=True, cnf: str = None, singl
     convolutions is the same, e.g. last block in ResNet-50 has 2048-512-2048
     channels, and in Wide ResNet-50-2 has 2048-1024-2048.
     """
-    kwargs['width_per_group'] = 64 * 2
-    return _sew_resnet('wide_resnet101_2', Bottleneck, [3, 4, 23, 3], pretrained, progress, cnf, single_step_neuron, **kwargs)
+    kwargs["width_per_group"] = 64 * 2
+    return _sew_resnet(
+        "wide_resnet101_2",
+        Bottleneck,
+        [3, 4, 23, 3],
+        pretrained,
+        progress,
+        cnf,
+        single_step_neuron,
+        **kwargs,
+    )
 
 
-def multi_step_sew_wide_resnet101_2(pretrained=False, progress=True, T: int = None, cnf: str = None, multi_step_neuron: callable = None, **kwargs):
+def multi_step_sew_wide_resnet101_2(
+    pretrained=False,
+    progress=True,
+    T: int = None,
+    cnf: str = None,
+    multi_step_neuron: callable = None,
+    **kwargs,
+):
     """
     :param pretrained: If True, the SNN will load parameters from the ANN pre-trained on ImageNet
     :type pretrained: bool
@@ -896,5 +1419,15 @@ def multi_step_sew_wide_resnet101_2(pretrained=False, progress=True, T: int = No
     convolutions is the same, e.g. last block in ResNet-50 has 2048-512-2048
     channels, and in Wide ResNet-50-2 has 2048-1024-2048.
     """
-    kwargs['width_per_group'] = 64 * 2
-    return _multi_step_sew_resnet('wide_resnet101_2', MultiStepBottleneck, [3, 4, 23, 3], pretrained, progress, T, cnf, multi_step_neuron, **kwargs)
+    kwargs["width_per_group"] = 64 * 2
+    return _multi_step_sew_resnet(
+        "wide_resnet101_2",
+        MultiStepBottleneck,
+        [3, 4, 23, 3],
+        pretrained,
+        progress,
+        T,
+        cnf,
+        multi_step_neuron,
+        **kwargs,
+    )

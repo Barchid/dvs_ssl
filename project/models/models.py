@@ -11,8 +11,14 @@ def get_encoder(in_channels: int) -> nn.Module:
     resnet18.fc = nn.Identity()
 
     if in_channels != 3:
-        resnet18.conv1 = nn.Conv2d(in_channels, 64, kernel_size=(
-            7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+        resnet18.conv1 = nn.Conv2d(
+            in_channels,
+            64,
+            kernel_size=(7, 7),
+            stride=(2, 2),
+            padding=(3, 3),
+            bias=False,
+        )
 
     return resnet18
 

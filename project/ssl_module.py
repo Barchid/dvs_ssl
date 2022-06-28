@@ -9,11 +9,11 @@ import pytorch_lightning as pl
 from torchmetrics.functional import accuracy
 from spikingjelly.clock_driven import functional
 
-from project.models.snn_models import get_encoder_snn, get_projector_liaf
+from project.models.snn_models import get_encoder_snn, get_projector_liaf, get_projector_lif
 from project.models.utils import MeanSpike
 
 class SSLModule(pl.LightningModule):
-    def __init__(self, n_classes: int, learning_rate: float, epochs: int, timesteps: int, ssl_loss: str = 'barlow_twins', enc1: str = 'cnn', enc2: str = 'cnn', **kwargs):
+    def __init__(self, n_classes: int, learning_rate: float, epochs: int, timesteps: int, ssl_loss: str = 'barlow_twins', enc1: str = 'cnn', enc2: str = 'cnn', output_all: bool = False, **kwargs):
         super().__init__()
         self.save_hyperparameters(ignore=['epochs', 'n_classes', 'ssl_loss', 'timesteps'])
         self.epochs = epochs
@@ -26,23 +26,26 @@ class SSLModule(pl.LightningModule):
         self.encoder2 = None
         
         # this is ugly af but nvm
-        self.projector = get_projector()
+        if output_all:
+            self.projector = get_projector_lif()
+        else:
+            self.projector = get_projector()
         
         if enc1 == enc2:
             if enc1 == 'cnn':
                 self.encoder = get_encoder(in_channels=2 * timesteps)
             elif enc1 == 'snn':
-                self.encoder = get_encoder_snn(2, timesteps, output_all=False)
+                self.encoder = get_encoder_snn(2, timesteps, output_all=output_all)
         else:
             if enc1 == 'cnn':
                 self.encoder1 = get_encoder(in_channels=2 * timesteps)
             elif enc1 == 'snn':
-                self.encoder1 = get_encoder_snn(2, timesteps, output_all=False)
+                self.encoder1 = get_encoder_snn(2, timesteps, output_all=output_all)
                 
             if enc2 == 'cnn':
                 self.encoder2 = get_encoder(in_channels=2 * timesteps)
             elif enc2 == 'snn':
-                self.encoder2 = get_encoder_snn(2, timesteps, output_all=False)
+                self.encoder2 = get_encoder_snn(2, timesteps, output_all=output_all)
             
         # either barlow twins or VICReg
         if ssl_loss == 'barlow_twins':
