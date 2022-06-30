@@ -15,6 +15,7 @@ import random
 from snntorch.spikegen import delta
 import tonic
 from project.datamodules.cifar10dvs import CIFAR10DVS
+from project.datamodules.dvs_lips import DVSLip
 from project.datamodules.ncaltech101 import NCALTECH101
 from project.datamodules.ncars import NCARS
 from project.utils.transform_dvs import BackgroundActivityNoise, ConcatTimeChannels, CutMixEvents, CutPasteEvent, RandomFlipLR, RandomFlipPolarity, RandomTimeReversal, ToFrame, get_frame_representation
@@ -69,6 +70,8 @@ class BarlowTwinsTransform:
                 tonic.datasets.ASLDVS(save_to=data_dir)
             elif dataset == 'ncars':
                 dataset = NCARS(save_to=data_dir, download=True)
+            elif dataset == 'dvs_lips':
+                dataset = DVSLip(save_to=data_dir)
                 
             trans_a.append(transforms.RandomApply([CutMixEvents(dataset, sensor_size=sensor_size)], p=0.5))
             trans_b.append(transforms.RandomApply([CutMixEvents(dataset, sensor_size=sensor_size)], p=0.5))
@@ -87,6 +90,8 @@ class BarlowTwinsTransform:
                 tonic.datasets.ASLDVS(save_to=data_dir)
             elif dataset == 'ncars':
                 dataset = NCARS(save_to=data_dir, download=True)
+            elif dataset == 'dvs_lips':
+                dataset = DVSLip(save_to=data_dir)
                 
             trans_a.append(transforms.RandomApply([CutMixEvents(dataset, sensor_size=sensor_size)], p=0.5))
             trans_b.append(transforms.RandomApply([CutMixEvents(dataset, sensor_size=sensor_size)], p=0.5))
