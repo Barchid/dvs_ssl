@@ -9,7 +9,7 @@ import pytorch_lightning as pl
 from torchmetrics.functional import accuracy
 from spikingjelly.clock_driven import functional
 
-from project.models.snn_models import get_encoder_snn, get_projector_liaf, get_projector_lif
+from project.models.snn_models import get_encoder_snn, get_projector_lif
 from project.models.utils import MeanSpike
 
 class SSLModule(pl.LightningModule):
