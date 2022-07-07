@@ -24,12 +24,12 @@ class BarlowTwinsLoss(nn.Module):
         batch_size = Z_a.shape[0]
         
         # normalize repr. along the batch dimension
-        Z_a = (Z_a - Z_a.mean(0)) / Z_a.std(0)
-        Z_b = (Z_b - Z_b.mean(0)) / Z_b.std(0)
+        Z_a = (Z_a - Z_a.mean(0)) / (Z_a.std(0) + 1e-5)
+        Z_b = (Z_b - Z_b.mean(0)) / (Z_b.std(0) + 1e-5)
         
         # N x D, where N is the batch size and D is output dim of projection head
-        Z_a = (Z_a - torch.mean(Z_a, dim=0)) / torch.std(Z_a, dim=0)
-        Z_b = (Z_b - torch.mean(Z_b, dim=0)) / torch.std(Z_b, dim=0)
+        Z_a = (Z_a - torch.mean(Z_a, dim=0)) / (torch.std(Z_a, dim=0) + 1e-5)
+        Z_b = (Z_b - torch.mean(Z_b, dim=0)) / (torch.std(Z_b, dim=0) + 1e-5)
 
         cross_corr = torch.matmul(Z_a.T, Z_b) / batch_size
 
