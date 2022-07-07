@@ -32,18 +32,18 @@ def get_encoder_snn(in_channels: int, T: int, output_all: bool):
         zero_init_residual=True,
         T=T,
         cnf="ADD",
-        multi_step_neuron=neuron.MultiStepIFNode,
+        multi_step_neuron=neuron.MultiStepLIFNode,
         detach_reset=True,
         surrogate_function=surrogate.ATan(),
         output_all=output_all,
     )
 
-    resnet18.layer4[-1].sn2 = MultiStepLIAFNode(
-        torch.nn.ReLU(),
-        threshold_related=False,
-        detach_reset=True,
-        surrogate_function=surrogate.ATan(),
-    )
+    # resnet18.layer4[-1].sn2 = MultiStepLIAFNode(
+    #     torch.nn.ReLU(),
+    #     threshold_related=False,
+    #     detach_reset=True,
+    #     surrogate_function=surrogate.ATan(),
+    # )
 
     if in_channels != 3:
         resnet18.conv1 = nn.Conv2d(
