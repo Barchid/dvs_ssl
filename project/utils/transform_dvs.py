@@ -343,8 +343,8 @@ class CutPasteEvent:
             paste = events.copy()
 
             bbx1, bby1, bbx2, bby2 = self._bbox(sensor_size[1], sensor_size[0])
-            dx = random.randint(0, sensor_size[0] - bbx2 - 1)
-            dy = random.randint(0, sensor_size[1] - bby2 - 1)
+            dx = random.randint(0, sensor_size[0] - (bbx2 - bbx1) - 1)
+            dy = random.randint(0, sensor_size[1] - (bby2 - bby1) - 1)
 
             # print(dx, dy, bbx1, bby1, bbx2, bby2)
             # print('\ndx = ', dx, 'lx = ', (sensor_size[0] - bbx2))
