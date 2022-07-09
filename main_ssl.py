@@ -7,7 +7,7 @@ import os
 from matplotlib import pyplot as plt
 
 from project.utils.eval_callback import OnlineFineTuner
-import traceback
+# import traceback
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 epochs = 1000
@@ -88,7 +88,7 @@ def main(args):
     try:
         trainer.fit(module, datamodule=datamodule)
     except:
-        traceback.print_exc()
+        # traceback.print_exc()
         report = open('errors.txt', 'a')
         report.write(f"{name} ===> error ! \n")
         report.flush()
@@ -103,9 +103,6 @@ def main(args):
 
 if __name__ == "__main__":
     pl.seed_everything(1234)
-    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'cutpaste']
-    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'snn'})
-    exit()
 
     # # exp - barlow - snn
     # trans = ['flip', 'background_activity', 'reverse', 'flip_polarity']
