@@ -34,7 +34,7 @@ class RandomTimeReversal:
             # events = events[np.argsort(events["t"])]
             events = np.flip(events)
             # events["p"] *= -1
-            events['p'] = np.logical_not(events['p'])  # apply to boolean (inverse)
+            events["p"] = np.logical_not(events["p"])  # apply to boolean (inverse)
         return events
 
 
@@ -55,7 +55,7 @@ class RandomFlipPolarity:
         # flips = np.ones(len(events))
         probs = np.random.rand(len(events))
         mask = probs < self.p
-        events["p"][mask] = np.logical_not(events['p'][mask])
+        events["p"][mask] = np.logical_not(events["p"][mask])
         return events
 
 
@@ -160,7 +160,9 @@ class BackgroundActivityNoise:
     sensor_size: Tuple[int, int, int] = None
 
     def __call__(self, events):
-        c = [.005, 0.01, 0.03, .10, .2][self.severity - 1]  # percentage of events to add in noise
+        c = [0.005, 0.01, 0.03, 0.10, 0.2][
+            self.severity - 1
+        ]  # percentage of events to add in noise
         if self.sensor_size is None:
             sensor_size = get_sensor_size(events)
         else:
@@ -179,7 +181,9 @@ class BackgroundActivityNoise:
                 low, high = events["t"].min(), events["t"].max()
 
             if channel == "p":
-                noise_events[channel] = np.random.choice([True, False], size=n_noise_events)
+                noise_events[channel] = np.random.choice(
+                    [True, False], size=n_noise_events
+                )
             else:
                 noise_events[channel] = np.random.uniform(
                     low=low, high=high, size=n_noise_events
@@ -192,15 +196,17 @@ class BackgroundActivityNoise:
 
 
 def get_frame_representation(sensor_size, timesteps):
-    return transforms.Compose([
-        # ToFrame(sensor_size=sensor_size, n_time_bins=timesteps),
-        # ToFrame(sensor_size=sensor_size, event_count=2500),
-        # TakeFrames(timesteps=timesteps),
-        CustomToFrame(timesteps=timesteps, sensor_size=sensor_size),
-        # transforms.Lambda(lambda x: (x > 0).astype(np.float32)),
-        # transforms.Lambda(lambda x: torch.from_numpy(x))
-        BinarizeFrame()
-    ])
+    return transforms.Compose(
+        [
+            # ToFrame(sensor_size=sensor_size, n_time_bins=timesteps),
+            # ToFrame(sensor_size=sensor_size, event_count=2500),
+            # TakeFrames(timesteps=timesteps),
+            CustomToFrame(timesteps=timesteps, sensor_size=sensor_size),
+            # transforms.Lambda(lambda x: (x > 0).astype(np.float32)),
+            # transforms.Lambda(lambda x: torch.from_numpy(x))
+            BinarizeFrame(),
+        ]
+    )
 
 
 @dataclass(frozen=True)
@@ -212,7 +218,7 @@ class TakeFrames:
         # print(current_t)
 
         gap = int((current_t - self.timesteps) / 2)
-        x = x[gap:gap + self.timesteps]
+        x = x[gap : gap + self.timesteps]
         return x
 
 
@@ -242,7 +248,7 @@ class CustomToFrame:
 
             if x.shape[0] > self.timesteps:
                 gap = int((x.shape[0] - self.timesteps) / 2)
-                return x[gap:gap + self.timesteps]
+                return x[gap : gap + self.timesteps]
             else:
                 return x
         else:
@@ -269,7 +275,9 @@ class BinarizeFrame:
 @dataclass(frozen=True)
 class ConcatTimeChannels:
     def __call__(self, x):
-        x = rearrange(x, 'frames polarity height width -> (frames polarity) height width')
+        x = rearrange(
+            x, "frames polarity height width -> (frames polarity) height width"
+        )
         return x
 
 
@@ -293,9 +301,19 @@ class CutMixEvents:
             bbx1, bby1, bbx2, bby2 = self._bbox(sensor_size[1], sensor_size[0])
 
             # filter image
-            mask_events = (events['x'] >= bbx1) & (events['y'] >= bby1) & (events['x'] <= bbx2) & (events['y'] <= bby2)
+            mask_events = (
+                (events["x"] >= bbx1)
+                & (events["y"] >= bby1)
+                & (events["x"] <= bbx2)
+                & (events["y"] <= bby2)
+            )
 
-            mask_mix = (mix['x'] >= bbx1) & (mix['y'] >= bby1) & (mix['x'] <= bbx2) & (mix['y'] <= bby2)
+            mask_mix = (
+                (mix["x"] >= bbx1)
+                & (mix["y"] >= bby1)
+                & (mix["x"] <= bbx2)
+                & (mix["y"] <= bby2)
+            )
 
             # delete events of bbox
             events = np.delete(events, mask_events)  # remove events
@@ -343,23 +361,33 @@ class CutPasteEvent:
             paste = events.copy()
 
             bbx1, bby1, bbx2, bby2 = self._bbox(sensor_size[1], sensor_size[0])
-            dx = random.randint(0, sensor_size[0] - (bbx2 - bbx1) - 1)
-            dy = random.randint(0, sensor_size[1] - (bby2 - bby1) - 1)
+
+            dx = random.randint(-bbx1, sensor_size[0] - bbx2 - 1)
+            dy = random.randint(-bby1, sensor_size[1] - bby2 - 1)
 
             # print(dx, dy, bbx1, bby1, bbx2, bby2)
             # print('\ndx = ', dx, 'lx = ', (sensor_size[0] - bbx2))
             # print('\ndy = ', dy, 'ly = ', (sensor_size[1] - bby2))
 
             # filter image
-            mask_events = (events['x'] >= bbx1 + dx) & (events['y'] >= bby1 +
-                                                        dy) & (events['x'] <= bbx2 + dx) & (events['y'] <= bby2 + dy)
+            mask_events = (
+                (events["x"] >= bbx1 + dx)
+                & (events["y"] >= bby1 + dy)
+                & (events["x"] <= bbx2 + dx)
+                & (events["y"] <= bby2 + dy)
+            )
 
             # delete events of bbox
             events = np.delete(events, mask_events)  # remove events
-            mask_events = (events['x'] >= bbx1) & (events['y'] >= bby1) & (events['x'] <= bbx2) & (events['y'] <= bby2)
+            mask_events = (
+                (events["x"] >= bbx1)
+                & (events["y"] >= bby1)
+                & (events["x"] <= bbx2)
+                & (events["y"] <= bby2)
+            )
             paste = events[mask_events].copy()
-            paste['x'] = paste['x'] + dx
-            paste['y'] = paste['y'] + dy
+            paste["x"] = paste["x"] + dx
+            paste["y"] = paste["y"] + dy
 
             # add mix events in bbox
             events = np.concatenate((events, paste))
