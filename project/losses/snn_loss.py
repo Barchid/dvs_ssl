@@ -24,9 +24,10 @@ def emd_loss(a: torch.Tensor, b: torch.Tensor):
     
     # |elementiwe difference|
     diff = torch.abs(cum_a - cum_b)
+    summation = torch.sum(diff, dim=0)
     
     # sum is the result
-    return diff.sum()
+    return torch.mean(summation)
 
 
 
@@ -35,11 +36,20 @@ class SnnLoss(nn.Module):
 
     def __init__(self, invariance_loss_weight: float = 25., variance_loss_weight: float = 25., covariance_loss_weight: float = 1., invariance_mode="emd", variance_mode="n", covariance_mode = "n"):
         super(SnnLoss, self).__init__()
+        
         self.invariance_loss_weight = invariance_loss_weight
         self.variance_loss_weight = variance_loss_weight
         self.covariance_loss_weight = covariance_loss_weight
         
-        self.invariance_loss = emd_loss if invariance_mode is "emd" else F.mse_loss
+        
+        if invariance_mode == "emd":
+            self.invariance_loss = emd_loss 
+        elif invariance_mode == "mse":
+            self.invariance_loss = F.mse_loss
+        elif invariance_mode == "smoothl1":
+            self.invariance_loss = F.smooth_l1_loss
+        
+        self.invariance_mode = invariance_mode
         self.variance_mode = variance_mode
         self.covariance_mode = covariance_mode
 
