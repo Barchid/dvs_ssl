@@ -18,45 +18,74 @@ from project.datamodules.cifar10dvs import CIFAR10DVS
 from project.datamodules.dvs_lips import DVSLip
 from project.datamodules.ncaltech101 import NCALTECH101
 from project.datamodules.ncars import NCARS
-from project.utils.transform_dvs import BackgroundActivityNoise, ConcatTimeChannels, CutMixEvents, CutPasteEvent, RandomFlipLR, RandomFlipPolarity, RandomTimeReversal, ToFrame, get_frame_representation
+from project.utils.dvs_noises import EventDrop
+from project.utils.transform_dvs import (
+    BackgroundActivityNoise,
+    ConcatTimeChannels,
+    CutMixEvents,
+    CutPasteEvent,
+    RandomFlipLR,
+    RandomFlipPolarity,
+    RandomTimeReversal,
+    ToFrame,
+    get_frame_representation,
+)
 
 
 class BarlowTwinsTransform:
-    def __init__(self, sensor_size=None, timesteps: int = 10, transforms_list=[], concat_time_channels=True, dataset=None, data_dir=None):
+    def __init__(
+        self,
+        sensor_size=None,
+        timesteps: int = 10,
+        transforms_list=[],
+        concat_time_channels=True,
+        dataset=None,
+        data_dir=None,
+    ):
         trans_a = []
         trans_b = []
 
         representation = get_frame_representation(sensor_size, timesteps)
 
         # BEFORE TENSOR TRANSFORMATION
-        if 'flip' in transforms_list:
+        if "flip" in transforms_list:
             trans_a.append(RandomFlipLR(sensor_size=sensor_size))
             trans_b.append(RandomFlipLR(sensor_size=sensor_size))
 
-        if 'background_activity' in transforms_list:
-            trans_a.append(transforms.RandomApply([
-                BackgroundActivityNoise(severity=5, sensor_size=sensor_size)
-            ], p=0.5))
-            trans_b.append(transforms.RandomApply([
-                BackgroundActivityNoise(severity=5, sensor_size=sensor_size)
-            ], p=0.5))
+        if "background_activity" in transforms_list:
+            trans_a.append(
+                transforms.RandomApply(
+                    [BackgroundActivityNoise(severity=5, sensor_size=sensor_size)],
+                    p=0.5,
+                )
+            )
+            trans_b.append(
+                transforms.RandomApply(
+                    [BackgroundActivityNoise(severity=5, sensor_size=sensor_size)],
+                    p=0.5,
+                )
+            )
 
-        if 'hot_pixels' in transforms_list:
+        if "hot_pixels" in transforms_list:
             pass
 
-        if 'reverse' in transforms_list:
-            trans_a.append(RandomTimeReversal(p=0.2))  # only for transformation A (not B)
-            trans_b.append(RandomTimeReversal(p=0.2))  # only for transformation A (not B)
+        if "reverse" in transforms_list:
+            trans_a.append(
+                RandomTimeReversal(p=0.2)
+            )  # only for transformation A (not B)
+            trans_b.append(
+                RandomTimeReversal(p=0.2)
+            )  # only for transformation A (not B)
 
-        if 'flip_polarity' in transforms_list:
+        if "flip_polarity" in transforms_list:
             trans_a.append(RandomFlipPolarity(p=0.2))
             trans_b.append(RandomFlipPolarity(p=0.2))
 
-        if 'time_jitter' in transforms_list:
+        if "time_jitter" in transforms_list:
             trans_a.append(TF.TimeJitter(clip_negative=True))
             trans_b.append(TF.TimeJitter(clip_negative=True))
 
-        if 'cutmix' in transforms_list:
+        if "cutmix" in transforms_list:
             # NOTE: since we use the library named "Tonic", all the download process is handled, we just have to make an instanciation
             if dataset == "n-mnist":
                 dataset = tonic.datasets.NMNIST(save_to=data_dir)
@@ -68,15 +97,23 @@ class BarlowTwinsTransform:
                 dataset = NCALTECH101(save_to=data_dir)
             elif dataset == "asl-dvs":
                 tonic.datasets.ASLDVS(save_to=data_dir)
-            elif dataset == 'ncars':
+            elif dataset == "ncars":
                 dataset = NCARS(save_to=data_dir, download=True)
-            elif dataset == 'dvs_lips':
+            elif dataset == "dvs_lips":
                 dataset = DVSLip(save_to=data_dir)
-                
-            trans_a.append(transforms.RandomApply([CutMixEvents(dataset, sensor_size=sensor_size)], p=0.5))
-            trans_b.append(transforms.RandomApply([CutMixEvents(dataset, sensor_size=sensor_size)], p=0.5))
-        
-        if 'eventmix' in transforms_list:
+
+            trans_a.append(
+                transforms.RandomApply(
+                    [CutMixEvents(dataset, sensor_size=sensor_size)], p=0.5
+                )
+            )
+            trans_b.append(
+                transforms.RandomApply(
+                    [CutMixEvents(dataset, sensor_size=sensor_size)], p=0.5
+                )
+            )
+
+        if "eventmix" in transforms_list:
             # NOTE: since we use the library named "Tonic", all the download process is handled, we just have to make an instanciation
             if dataset == "n-mnist":
                 dataset = tonic.datasets.NMNIST(save_to=data_dir)
@@ -88,80 +125,124 @@ class BarlowTwinsTransform:
                 dataset = NCALTECH101(save_to=data_dir)
             elif dataset == "asl-dvs":
                 tonic.datasets.ASLDVS(save_to=data_dir)
-            elif dataset == 'ncars':
+            elif dataset == "ncars":
                 dataset = NCARS(save_to=data_dir, download=True)
-            elif dataset == 'dvs_lips':
+            elif dataset == "dvs_lips":
                 dataset = DVSLip(save_to=data_dir)
-                
-            trans_a.append(transforms.RandomApply([CutMixEvents(dataset, sensor_size=sensor_size)], p=0.5))
-            trans_b.append(transforms.RandomApply([CutMixEvents(dataset, sensor_size=sensor_size)], p=0.5))
-            
-        if 'cutpaste' in transforms_list:
-            trans_a.append(transforms.RandomApply([CutPasteEvent(sensor_size=sensor_size)], p=0.5))
-            trans_b.append(transforms.RandomApply([CutPasteEvent(sensor_size=sensor_size)], p=0.5))
+
+            trans_a.append(
+                transforms.RandomApply(
+                    [CutMixEvents(dataset, sensor_size=sensor_size)], p=0.5
+                )
+            )
+            trans_b.append(
+                transforms.RandomApply(
+                    [CutMixEvents(dataset, sensor_size=sensor_size)], p=0.5
+                )
+            )
+
+        if "cutpaste" in transforms_list:
+            trans_a.append(
+                transforms.RandomApply([CutPasteEvent(sensor_size=sensor_size)], p=0.5)
+            )
+            trans_b.append(
+                transforms.RandomApply([CutPasteEvent(sensor_size=sensor_size)], p=0.5)
+            )
 
         # TENSOR TRANSFORMATION
         trans_a.append(representation)
         trans_b.append(representation)
 
         # if 'crop' in transforms_list:
-        if 'crop' in transforms_list:
-            trans_a.append(transforms.RandomResizedCrop((128, 128), interpolation=transforms.InterpolationMode.NEAREST))
-            trans_b.append(transforms.RandomResizedCrop((128, 128), interpolation=transforms.InterpolationMode.NEAREST))
-        else:
-            trans_a.append(transforms.Resize((128, 128), interpolation=transforms.InterpolationMode.NEAREST))
-            trans_b.append(transforms.Resize((128, 128), interpolation=transforms.InterpolationMode.NEAREST)) # debug
-            
-        # AFTER TENSOR TRANSFORMATION
-        if 'static_rotation' in transforms_list:
-            # Random rotation of [-20, 20] degrees)
-            trans_a.append(transforms.RandomApply([transforms.RandomRotation(75)], p=0.5))
-            # Random rotation of [-20, 20] degrees)
-            trans_b.append(transforms.RandomApply([transforms.RandomRotation(75)], p=0.5))
-
-        if 'static_translation' in transforms_list:
+        if "crop" in transforms_list:
             trans_a.append(
-                transforms.RandomApply([transforms.RandomAffine(0, translate=(0.2, 0.2))], p=0.5)
+                transforms.RandomResizedCrop(
+                    (128, 128), interpolation=transforms.InterpolationMode.NEAREST
+                )
+            )
+            trans_b.append(
+                transforms.RandomResizedCrop(
+                    (128, 128), interpolation=transforms.InterpolationMode.NEAREST
+                )
+            )
+        else:
+            trans_a.append(
+                transforms.Resize(
+                    (128, 128), interpolation=transforms.InterpolationMode.NEAREST
+                )
+            )
+            trans_b.append(
+                transforms.Resize(
+                    (128, 128), interpolation=transforms.InterpolationMode.NEAREST
+                )
+            )  # debug
+
+        # AFTER TENSOR TRANSFORMATION
+        if "static_rotation" in transforms_list:
+            # Random rotation of [-20, 20] degrees)
+            trans_a.append(
+                transforms.RandomApply([transforms.RandomRotation(75)], p=0.5)
+            )
+            # Random rotation of [-20, 20] degrees)
+            trans_b.append(
+                transforms.RandomApply([transforms.RandomRotation(75)], p=0.5)
+            )
+
+        if "static_translation" in transforms_list:
+            trans_a.append(
+                transforms.RandomApply(
+                    [transforms.RandomAffine(0, translate=(0.2, 0.2))], p=0.5
+                )
             )  # translation in Y and X axes
             trans_b.append(
-                transforms.RandomApply([transforms.RandomAffine(0, translate=(0.2, 0.2))], p=0.5)
+                transforms.RandomApply(
+                    [transforms.RandomAffine(0, translate=(0.2, 0.2))], p=0.5
+                )
             )  # translation in Y and X axes
 
-        if 'dynamic_rotation' in transforms_list:
+        if "dynamic_rotation" in transforms_list:
             trans_a.append(transforms.RandomApply([DynamicRotation()], p=0.5))
             trans_b.append(transforms.RandomApply([DynamicRotation()], p=0.5))
 
-        if 'dynamic_translation' in transforms_list:
+        if "dynamic_translation" in transforms_list:
             trans_a.append(transforms.RandomApply([DynamicTranslation()], p=0.5))
             trans_b.append(transforms.RandomApply([DynamicTranslation()], p=0.5))
 
-        if 'moving_occlusion' in transforms_list:
+        if "moving_occlusion" in transforms_list:
             trans_a.append(transforms.RandomApply([MovingOcclusion()], p=0.3))
             trans_b.append(transforms.RandomApply([MovingOcclusion()], p=0.3))
 
-        if 'cutout' in transforms_list:
+        if "cutout" in transforms_list:
             trans_a.append(transforms.RandomApply([Cutout()], p=0.3))
             trans_b.append(transforms.RandomApply([Cutout()], p=0.3))
 
+        if "event_drop" in transforms_list:
+            trans_a.append(EventDrop(sensor_size=sensor_size))
+            trans_b.append(EventDrop(sensor_size=sensor_size))
+
         # finish by concatenating polarity and timesteps
         if concat_time_channels:
-            trans_a.append(
-                ConcatTimeChannels()
-            )
-            trans_b.append(
-                ConcatTimeChannels()
-            )
+            trans_a.append(ConcatTimeChannels())
+            trans_b.append(ConcatTimeChannels())
 
-            self.transform = transforms.Compose([
-                representation,
-                transforms.Resize((128, 128), interpolation=transforms.InterpolationMode.NEAREST),
-                ConcatTimeChannels()
-            ])
+            self.transform = transforms.Compose(
+                [
+                    representation,
+                    transforms.Resize(
+                        (128, 128), interpolation=transforms.InterpolationMode.NEAREST
+                    ),
+                    ConcatTimeChannels(),
+                ]
+            )
         else:
-            self.transform = transforms.Compose([
-                representation,
-                transforms.Resize((128, 128), interpolation=transforms.InterpolationMode.NEAREST)
-            ])
+            self.transform = transforms.Compose(
+                [
+                    representation,
+                    transforms.Resize(
+                        (128, 128), interpolation=transforms.InterpolationMode.NEAREST
+                    ),
+                ]
+            )
 
         self.transform_a = transforms.Compose(trans_a)
         self.transform_b = transforms.Compose(trans_b)
@@ -179,10 +260,14 @@ class DynamicRotation:
 
     def __call__(self, frames: torch.Tensor):  # shape (..., H, W)
         timesteps = frames.shape[0]
-        angle = float(torch.empty(1).uniform_(float(self.degrees[0]), float(self.degrees[1])).item())
+        angle = float(
+            torch.empty(1)
+            .uniform_(float(self.degrees[0]), float(self.degrees[1]))
+            .item()
+        )
         step_angle = angle / (timesteps - 1)
 
-        current_angle = 0.
+        current_angle = 0.0
         result = torch.zeros_like(frames)
         for t in range(timesteps):
             result[t] = functional.rotate(frames[t], current_angle)
@@ -213,7 +298,9 @@ class DynamicTranslation:
         result = torch.zeros_like(frames)
         for t in range(timesteps):
             translations = (round(current_tx), round(current_ty))
-            result[t] = functional.affine(frames[t], 0., translate=translations, scale=1., shear=0., fill=0)
+            result[t] = functional.affine(
+                frames[t], 0.0, translate=translations, scale=1.0, shear=0.0, fill=0
+            )
             current_tx += step_tx
             current_ty += step_ty
 
@@ -237,10 +324,10 @@ class Cutout:
             size_w = int(W * size)
             x_min, y_min = random.randint(0, W - size_w), random.randint(0, H - size_h)
             x_max, y_max = x_min + size_w, y_min + size_h
-            mask[:, :, y_min:(y_max + 1), x_min:(x_max + 1)] = 0.
+            mask[:, :, y_min : (y_max + 1), x_min : (x_max + 1)] = 0.0
 
         # drop events where the
-        frames[mask == 0] = 0.
+        frames[mask == 0] = 0.0
 
         return frames
 
@@ -268,17 +355,29 @@ class MovingOcclusion:
         translated = torch.zeros((timesteps, H, W))  # shape=(T,H,W)
         for t in range(timesteps):
             translations = (round(current_tx), round(current_ty))
-            translated[t] = functional.affine(mask.unsqueeze(
-                0), 0., translate=translations, scale=1., shear=0., fill=1).squeeze()
+            translated[t] = functional.affine(
+                mask.unsqueeze(0),
+                0.0,
+                translate=translations,
+                scale=1.0,
+                shear=0.0,
+                fill=1,
+            ).squeeze()
             current_tx += step_tx
             current_ty += step_ty
 
-        deltaed = delta(translated, padding=True, off_spike=True)  # composed of 1's and -1's for the polarities
+        deltaed = delta(
+            translated, padding=True, off_spike=True
+        )  # composed of 1's and -1's for the polarities
 
         result = torch.zeros((timesteps, 2, H, W))  # shape=(T,C,H,W)
         for t in range(timesteps):
-            result[t, 0, :, :] = (deltaed[t] == 1.).type(torch.float32)  # positive events
-            result[t, 1, :, :] = (deltaed[t] == -1.).type(torch.float32)  # negative events
+            result[t, 0, :, :] = (deltaed[t] == 1.0).type(
+                torch.float32
+            )  # positive events
+            result[t, 1, :, :] = (deltaed[t] == -1.0).type(
+                torch.float32
+            )  # negative events
 
         return result, translated
 
@@ -295,14 +394,16 @@ class MovingOcclusion:
             size_w = int(W * size)
             x_min, y_min = random.randint(0, W - size_w), random.randint(0, H - size_h)
             x_max, y_max = x_min + size_w, y_min + size_h
-            mask[y_min:(y_max + 1), x_min:(x_max + 1)] = 0.
+            mask[y_min : (y_max + 1), x_min : (x_max + 1)] = 0.0
 
             # random translation
-            hole, mask_translated = self._hole_translation(mask, H, W, timesteps)  # hole.shape=(T, C, H, W)
+            hole, mask_translated = self._hole_translation(
+                mask, H, W, timesteps
+            )  # hole.shape=(T, C, H, W)
 
             # drop events where the mask is located
             for t in range(timesteps):
-                frames[t, :, mask_translated[t] == 0.] = 0.
+                frames[t, :, mask_translated[t] == 0.0] = 0.0
 
             # add events from moving holes
             frames = torch.logical_or(frames, hole, out=torch.empty_like(frames))
