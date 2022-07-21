@@ -103,22 +103,12 @@ def main(args):
 
 if __name__ == "__main__":
     pl.seed_everything(1234)
-
-    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'crop', 'static_rotation', 'static_translation']
-    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'snn'})
     
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'event_drop']
     main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'snn'})
     
-    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'dynamic_rotation', 'dynamic_translation']
-    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'snn'})
-    
-    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'dynamic_rotation', 'dynamic_translation', 'moving_occlusion']
-    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'snn'})
-    
-    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'dynamic_rotation', 'dynamic_translation', 'cutpaste']
-    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'snn'})
-    
+    exit()
+    # TODO
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'dynamic_rotation', 'dynamic_translation', 'cutpaste', 'moving_occlusion']
     main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'snn'})
     
