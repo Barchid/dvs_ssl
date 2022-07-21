@@ -71,7 +71,7 @@ class SnnLoss(nn.Module):
         loss_v_b = torch.mean(F.relu(1 - std_Z_b))
         loss_var = loss_v_a + loss_v_b
         
-        print('loss_var=', loss_var)
+        # print('loss_var=', loss_var)
 
         # covariance loss
         N, D = Z_a.shape
@@ -83,7 +83,7 @@ class SnnLoss(nn.Module):
         loss_c_b = (cov_Z_b.sum() - cov_Z_b.diagonal().sum()) / D
         loss_cov = loss_c_a + loss_c_b
         
-        print('loss_cov=', loss_cov)
+        # print('loss_cov=', loss_cov)
 
         weighted_inv = loss_inv * self.invariance_loss_weight
         weighted_var = loss_var * self.variance_loss_weight
