@@ -558,8 +558,11 @@ class MultiStepSEWResNet(nn.Module):
         #     torch.nn.ReLU(), threshold_related=False, detach_reset=True, surrogate_function=surrogate.ATan()
         # )
 
-        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        self.fc = nn.Linear(512 * block.expansion, 512 * block.expansion)
+        if output_all:
+            self.fc = nn.Linear(16 * 512 * block.expansion, 512 * block.expansion)
+        else:
+            self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
+            self.fc = nn.Linear(512 * block.expansion, 512 * block.expansion)
         self.final_neurons = MultiStepIFNode(
             v_threshold=1.0 if output_all else float("inf"),
             v_reset=0.0,
@@ -669,7 +672,8 @@ class MultiStepSEWResNet(nn.Module):
 
         x_seq = self.layer4(x_seq)
 
-        x_seq = functional.seq_to_ann_forward(x_seq, self.avgpool)
+        if not self.output_all:
+            x_seq = functional.seq_to_ann_forward(x_seq, self.avgpool)
 
         x_seq = torch.flatten(x_seq, 2)
         # x_seq = self.fc(x_seq.mean(0))
