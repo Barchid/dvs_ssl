@@ -149,6 +149,10 @@ class BarlowTwinsTransform:
                 transforms.RandomApply([CutPasteEvent(sensor_size=sensor_size)], p=0.5)
             )
 
+        if "event_drop" in transforms_list:
+            trans_a.append(EventDrop(sensor_size=sensor_size))
+            trans_b.append(EventDrop(sensor_size=sensor_size))
+
         # TENSOR TRANSFORMATION
         trans_a.append(representation)
         trans_b.append(representation)
@@ -215,10 +219,6 @@ class BarlowTwinsTransform:
         if "cutout" in transforms_list:
             trans_a.append(transforms.RandomApply([Cutout()], p=0.3))
             trans_b.append(transforms.RandomApply([Cutout()], p=0.3))
-
-        if "event_drop" in transforms_list:
-            trans_a.append(EventDrop(sensor_size=sensor_size))
-            trans_b.append(EventDrop(sensor_size=sensor_size))
 
         # finish by concatenating polarity and timesteps
         if concat_time_channels:
