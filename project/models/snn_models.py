@@ -16,9 +16,9 @@ from project.models.utils import (
 
 def get_projector_lif(in_channels=512) -> nn.Sequential:
     projector = nn.Sequential(
-        LinearBnSpike(in_channels, 3 * in_channels, neuron_model="LIF"),
-        LinearBnSpike(3 * in_channels, 3 * in_channels, neuron_model="LIF"),
-        LinearSpike(3 * in_channels, 3 * in_channels, neuron_model="LIF"),
+        LinearBnSpike(in_channels, 3 * in_channels, neuron_model="IF"),
+        LinearBnSpike(3 * in_channels, 3 * in_channels, neuron_model="IF"),
+        LinearSpike(3 * in_channels, 3 * in_channels, neuron_model="IF"),
         # MeanSpike(),
     )
 
