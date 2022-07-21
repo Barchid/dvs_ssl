@@ -1,4 +1,5 @@
 from project.losses.barlow_twins_loss import BarlowTwinsLoss
+from project.losses.snn_loss import SnnLoss
 from project.losses.vicreg_loss import VICRegLoss
 from project.models.models import get_encoder, get_projector
 import torch
@@ -50,6 +51,10 @@ class SSLModule(pl.LightningModule):
         # either barlow twins or VICReg
         if ssl_loss == 'barlow_twins':
             self.criterion = BarlowTwinsLoss()
+        elif ssl_loss == "snn_loss_emd":
+            self.criterion = SnnLoss()
+        elif ssl_loss == "snn_loss_mse":
+            self.criterion = SnnLoss(invariance_mode="mse")
         else:
             self.criterion = VICRegLoss()        
 

@@ -7,7 +7,7 @@ import os
 from matplotlib import pyplot as plt
 
 from project.utils.eval_callback import OnlineFineTuner
-# import traceback
+import traceback
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 epochs = 1000
@@ -15,8 +15,8 @@ learning_rate = 1e-2 # barlowsnn=0.1, vicregsnn=0.01, dvs=1e-3
 timesteps = 12
 batch_size = 128
 dataset = 'dvsgesture'
-ssl_loss = 'barlow_twins'
-output_all = False
+ssl_loss = 'snn_loss_emd'
+output_all = True
 
 
 def main(args):
@@ -88,7 +88,7 @@ def main(args):
     try:
         trainer.fit(module, datamodule=datamodule)
     except:
-        # traceback.print_exc()
+        traceback.print_exc()
         report = open('errors.txt', 'a')
         report.write(f"{name} ===> error ! \n")
         report.flush()
