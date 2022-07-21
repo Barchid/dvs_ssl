@@ -20,6 +20,7 @@ class SSLModule(pl.LightningModule):
         self.epochs = epochs
         self.enc1 = enc1
         self.enc2 = enc2
+        self.output_all = output_all
         
         self.encoder = None
         self.projector = None
@@ -68,6 +69,9 @@ class SSLModule(pl.LightningModule):
                 functional.reset_net(self.encoder1)
             else:
                 functional.reset_net(self.encoder2)
+                
+            if self.output_all:
+                functional.reset_net(self.projector)
             
         if enc is None:    
             representation = self.encoder(Y)
