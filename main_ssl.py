@@ -105,7 +105,7 @@ if __name__ == "__main__":
     pl.seed_everything(1234)
     
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'event_drop']
-    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'snn'})
+    main({'transforms': trans, 'ssl_loss': 'snn_loss_emd', 'mode':'snn'})
     
     exit()
     # TODO
