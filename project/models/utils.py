@@ -127,7 +127,7 @@ class LinearBnSpike(nn.Sequential):
             self.add_module('spike', neuron.MultiStepLIFNode(detach_reset=True, surrogate_function=surr_func))
 
 
-class LIAFNode(neuron.LIFNode):
+class LIAFNode(neuron.IFNode):
     def __init__(self, act: Callable, threshold_related: bool, *args, **kwargs):
         """
         :param act: the activation function

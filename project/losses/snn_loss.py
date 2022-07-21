@@ -60,8 +60,9 @@ class SnnLoss(nn.Module):
         loss_inv = self.invariance_loss(Z_a, Z_b)
 
         T = Z_a.shape[0]
-        Z_a = torch.count_nonzero(Z_a, dim=0) / T # number of spikes
-        Z_b = torch.count_nonzero(Z_b, dim=0) / T # same 
+        Z_a = torch.mean(Z_a, dim=0) #/ T # number of spikes
+        Z_b = torch.mean(Z_b, dim=0) #/ T # same 
+        # print(Z_a, Z_b)
 
         # variance loss
         std_Z_a = torch.sqrt(Z_a.var(dim=0) + 1e-04)
@@ -69,6 +70,8 @@ class SnnLoss(nn.Module):
         loss_v_a = torch.mean(F.relu(1 - std_Z_a))
         loss_v_b = torch.mean(F.relu(1 - std_Z_b))
         loss_var = loss_v_a + loss_v_b
+        
+        print('loss_var=', loss_var)
 
         # covariance loss
         N, D = Z_a.shape
@@ -79,6 +82,8 @@ class SnnLoss(nn.Module):
         loss_c_a = (cov_Z_a.sum() - cov_Z_a.diagonal().sum()) / D
         loss_c_b = (cov_Z_b.sum() - cov_Z_b.diagonal().sum()) / D
         loss_cov = loss_c_a + loss_c_b
+        
+        print('loss_cov=', loss_cov)
 
         weighted_inv = loss_inv * self.invariance_loss_weight
         weighted_var = loss_var * self.variance_loss_weight
