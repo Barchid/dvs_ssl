@@ -16,7 +16,7 @@ timesteps = 12
 batch_size = 128
 dataset = 'dvsgesture'
 ssl_loss = 'snn_loss_emd'
-output_all = True
+output_all = False
 
 
 def main(args):
