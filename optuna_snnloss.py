@@ -40,7 +40,7 @@ def objective(trial):
     module = SSLModule(
         n_classes=datamodule.num_classes,
         learning_rate=learning_rate,
-        epochs=300,
+        epochs=100,
         timesteps=timesteps,
         ssl_loss="snn",
         enc1="snn",
@@ -66,7 +66,7 @@ def objective(trial):
     trainer = pl.Trainer(
         logger=True,
         checkpoint_callback=False,
-        max_epochs=300,
+        max_epochs=100,
         gpus=1 if torch.cuda.is_available() else None,
         callbacks=[
             online_finetuner,
