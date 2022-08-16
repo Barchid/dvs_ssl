@@ -44,6 +44,7 @@ def objective(trial):
         timesteps=timesteps,
         ssl_loss="snn",
         enc1="snn",
+        enc2="snn",
         output_all=True,
     )
 
