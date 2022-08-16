@@ -20,7 +20,7 @@ timesteps = 12
 batch_size = 128
 dataset = "dvsgesture"
 ssl_loss = "barlow_twins"
-output_all = False
+output_all = True
 
 trans = []
 
@@ -61,7 +61,7 @@ def objective(trial):
     online_finetuner = OnlineFineTuner(
         encoder_output_dim=512,
         num_classes=datamodule.num_classes,
-        output_all=output_all,
+        output_all=True,
     )
 
     trainer = pl.Trainer(
