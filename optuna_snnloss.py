@@ -9,6 +9,7 @@ from matplotlib import pyplot as plt
 from optuna.integration import PyTorchLightningPruningCallback
 
 from project.utils.eval_callback import OnlineFineTuner
+from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 import optuna
 
 # import traceback
@@ -48,9 +49,9 @@ def objective(trial):
         output_all=True,
     )
 
-    inv_sugg = trial.suggest_float("inv_sugg", 1.0, 25.0)
-    var_sugg = trial.suggest_float("var_sugg", 1.0, 25.0)
-    cov_sugg = trial.suggest_float("cov_sugg", 1.0, 25.0)
+    inv_sugg = trial.suggest_float("inv_sugg", 0.5, 25.0)
+    var_sugg = trial.suggest_float("var_sugg", 0.5, 25.0)
+    cov_sugg = trial.suggest_float("cov_sugg", 0.5, 25.0)
 
     module.criterion = SnnLoss(
         invariance_loss_weight=inv_sugg,
@@ -71,6 +72,7 @@ def objective(trial):
         gpus=1 if torch.cuda.is_available() else None,
         callbacks=[
             online_finetuner,
+            EarlyStopping(monitor="loss", mode="min"),
             PyTorchLightningPruningCallback(trial, monitor="online_val_acc"),
         ],
         precision=16,
