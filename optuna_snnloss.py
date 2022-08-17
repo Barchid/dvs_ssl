@@ -72,7 +72,7 @@ def objective(trial):
         gpus=1 if torch.cuda.is_available() else None,
         callbacks=[
             online_finetuner,
-            EarlyStopping(monitor="loss", mode="min"),
+            EarlyStopping(monitor="val_loss", mode="min"),
             PyTorchLightningPruningCallback(trial, monitor="online_val_acc"),
         ],
         precision=16,
