@@ -104,24 +104,24 @@ def main(args):
 if __name__ == "__main__":
     pl.seed_everything(1234)
     
-    trans = ['flip', 'background_activity', 'reverse']
-    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'cnn'})
-    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'cnn'})
+    # trans = ['flip', 'background_activity', 'reverse']
+    # main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'cnn'})
+    # main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'cnn'})
     
-    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity']
-    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'cnn'})
-    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'cnn'})
+    # trans = ['flip', 'background_activity', 'reverse', 'flip_polarity']
+    # main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'cnn'})
+    # main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'cnn'})
     
-    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'crop']
-    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'cnn'})
-    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'cnn'})
+    # trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'crop']
+    # main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'cnn'})
+    # main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'cnn'})
     
-    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'cutout']
-    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'cnn'})
-    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'cnn'})
+    # trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'cutout']
+    # main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'cnn'})
+    # main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'cnn'})
     
-    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'moving_occlusion']
-    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'cnn'})
+    # trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'moving_occlusion']
+    # main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'cnn'})
     main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'cnn'})
     
     trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'cutpaste']
