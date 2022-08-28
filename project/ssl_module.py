@@ -88,7 +88,7 @@ class SSLModule(pl.LightningModule):
         
         if self.encoder is None:
             representation = self(Y_a, enc=1, mode=self.enc1)
-            print(torch.unique(representation))
+            # print(torch.unique(representation))
             Z_a = self.projector(representation)
             representation = self(Y_b, enc=2, mode=self.enc2)
             Z_b = self.projector(representation)

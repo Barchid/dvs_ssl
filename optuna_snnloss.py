@@ -92,9 +92,9 @@ if __name__ == "__main__":
     pl.seed_everything(1234)
 
     pruner: optuna.pruners.BasePruner = optuna.pruners.MedianPruner()
-    study_name = f"snn_loss_emd_v1"
+    study_name = f"snn_loss_emd_v2"
     study = optuna.create_study(study_name=study_name, storage=f"sqlite:///{study_name}.db", direction="maximize", pruner=pruner)
-    study.optimize(objective, n_trials=10000)
+    study.optimize(objective, n_trials=50000)
 
     print("Number of finished trials: {}".format(len(study.trials)))
 
