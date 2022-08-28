@@ -25,19 +25,20 @@ output_all = True
 
 trans = []
 
+datamodule = DVSDataModule(
+    batch_size,
+    dataset,
+    timesteps,
+    data_dir="data",
+    barlow_transf=trans,
+    in_memory=False,
+    num_workers=0,
+    mode="snn",
+)
+
 
 def objective(trial):
-    datamodule = DVSDataModule(
-        batch_size,
-        dataset,
-        timesteps,
-        data_dir="data",
-        barlow_transf=trans,
-        in_memory=False,
-        num_workers=0,
-        mode="snn",
-    )
-
+    global datamodule
     module = SSLModule(
         n_classes=datamodule.num_classes,
         learning_rate=learning_rate,
@@ -85,6 +86,14 @@ def objective(trial):
     trainer.logger.log_hyperparams(hyperparameters)
     trainer.fit(module, datamodule=datamodule)
 
+    # write in score
+    report = open("report_emd_study.txt", "a")
+    report.write(
+        f"{inv_sugg} {cov_sugg} {var_sugg} {trainer.callback_metrics['online_val_acc'].item()} \n"
+    )
+    report.flush()
+    report.close()
+
     return trainer.callback_metrics["online_val_acc"].item()
 
 
@@ -93,7 +102,12 @@ if __name__ == "__main__":
 
     pruner: optuna.pruners.BasePruner = optuna.pruners.MedianPruner()
     study_name = f"snn_loss_emd_v2"
-    study = optuna.create_study(study_name=study_name, storage=f"sqlite:///{study_name}.db", direction="maximize", pruner=pruner)
+    study = optuna.create_study(
+        study_name=study_name,
+        storage=f"sqlite:///{study_name}.db",
+        direction="maximize",
+        pruner=pruner,
+    )
     study.optimize(objective, n_trials=50000)
 
     print("Number of finished trials: {}".format(len(study.trials)))
