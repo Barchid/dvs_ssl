@@ -120,7 +120,7 @@ if __name__ == "__main__":
     # main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'cnn'})
     # main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'cnn'})
     
-    # trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'moving_occlusion']
+    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'moving_occlusion']
     # main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'cnn'})
     main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode':'cnn'})
     
