@@ -12,7 +12,7 @@ from project.utils.eval_callback import OnlineFineTuner
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 import optuna
 
-# import traceback
+import traceback
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 epochs = 1000
@@ -39,76 +39,83 @@ datamodule = DVSDataModule(
 
 def objective(trial):
     global datamodule
-    module = SSLModule(
-        n_classes=datamodule.num_classes,
-        learning_rate=learning_rate,
-        epochs=100,
-        timesteps=timesteps,
-        ssl_loss="snn",
-        enc1="snn",
-        enc2="snn",
-        output_all=True,
-    )
+    try:      
+        module = SSLModule(
+            n_classes=datamodule.num_classes,
+            learning_rate=learning_rate,
+            epochs=100,
+            timesteps=timesteps,
+            ssl_loss="snn",
+            enc1="snn",
+            enc2="snn",
+            output_all=True,
+        )
 
-    inv_sugg = trial.suggest_float("inv_sugg", 0.5, 25.0)
-    var_sugg = trial.suggest_float("var_sugg", 0.5, 25.0)
-    cov_sugg = trial.suggest_float("cov_sugg", 0.5, 25.0)
+        inv_sugg = trial.suggest_float("inv_sugg", 0.5, 25.0)
+        var_sugg = trial.suggest_float("var_sugg", 0.5, 25.0)
+        cov_sugg = trial.suggest_float("cov_sugg", 0.5, 25.0)
 
-    module.criterion = SnnLoss(
-        invariance_loss_weight=inv_sugg,
-        variance_loss_weight=var_sugg,
-        covariance_loss_weight=cov_sugg,
-    )
+        module.criterion = SnnLoss(
+            invariance_loss_weight=inv_sugg,
+            variance_loss_weight=var_sugg,
+            covariance_loss_weight=cov_sugg,
+        )
 
-    online_finetuner = OnlineFineTuner(
-        encoder_output_dim=512,
-        num_classes=datamodule.num_classes,
-        output_all=True,
-    )
+        online_finetuner = OnlineFineTuner(
+            encoder_output_dim=512,
+            num_classes=datamodule.num_classes,
+            output_all=True,
+        )
 
-    trainer = pl.Trainer(
-        logger=True,
-        checkpoint_callback=False,
-        max_epochs=100,
-        gpus=1 if torch.cuda.is_available() else None,
-        callbacks=[
-            online_finetuner,
-            EarlyStopping(monitor="val_loss", mode="min"),
-            PyTorchLightningPruningCallback(trial, monitor="online_val_acc"),
-        ],
-        precision=16,
-    )
-    hyperparameters = dict(
-        invariance_loss_weight=inv_sugg,
-        variance_loss_weight=var_sugg,
-        covariance_loss_weight=cov_sugg,
-    )
-    trainer.logger.log_hyperparams(hyperparameters)
-    trainer.fit(module, datamodule=datamodule)
+        trainer = pl.Trainer(
+            logger=True,
+            checkpoint_callback=False,
+            max_epochs=100,
+            gpus=1 if torch.cuda.is_available() else None,
+            callbacks=[
+                online_finetuner,
+                EarlyStopping(monitor="val_loss", mode="min"),
+                PyTorchLightningPruningCallback(trial, monitor="online_val_acc"),
+            ],
+            precision=16,
+        )
+        hyperparameters = dict(
+            invariance_loss_weight=inv_sugg,
+            variance_loss_weight=var_sugg,
+            covariance_loss_weight=cov_sugg,
+        )
+        trainer.logger.log_hyperparams(hyperparameters)
+        trainer.fit(module, datamodule=datamodule)
 
-    # write in score
-    report = open("report_emd_study.txt", "a")
-    report.write(
-        f"{inv_sugg} {cov_sugg} {var_sugg} {trainer.callback_metrics['online_val_acc'].item()} \n"
-    )
-    report.flush()
-    report.close()
+        # write in score
+        report = open("report_emd_study.txt", "a")
+        report.write(
+            f"{inv_sugg} {cov_sugg} {var_sugg} {trainer.callback_metrics['online_val_acc'].item()} \n"
+        )
+        report.flush()
+        report.close()
 
-    return trainer.callback_metrics["online_val_acc"].item()
+        return trainer.callback_metrics["online_val_acc"].item()
+    except:
+        traceback.print_exc()
+        report = open('errors.txt', 'a')
+        report.write(f" ===> error ! \n")
+        report.flush()
+        report.close()
 
 
 if __name__ == "__main__":
     pl.seed_everything(1234)
 
-    pruner: optuna.pruners.BasePruner = optuna.pruners.MedianPruner()
-    study_name = f"snn_loss_emd_v2"
+    # pruner: optuna.pruners.BasePruner = optuna.pruners.MedianPruner()
+    study_name = f"snn_loss_emd_v4"
     study = optuna.create_study(
         study_name=study_name,
         storage=f"sqlite:///{study_name}.db",
         direction="maximize",
-        pruner=pruner,
+        # pruner=pruner,
     )
-    study.optimize(objective, n_trials=50000)
+    study.optimize(objective, n_trials=100000)
 
     print("Number of finished trials: {}".format(len(study.trials)))
 
