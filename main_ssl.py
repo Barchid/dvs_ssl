@@ -16,7 +16,7 @@ timesteps = 12
 batch_size = 128
 dataset = 'dvsgesture'
 ssl_loss = 'snn_loss_emd'
-output_all = False
+output_all = True
 
 
 def main(args):
@@ -103,6 +103,10 @@ def main(args):
 
 if __name__ == "__main__":
     pl.seed_everything(1234)
+    
+    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'dynamic_rotation', 'dynamic_translation', 'event_drop']
+    main({'transforms': trans, 'ssl_loss': 'snn_loss_emd', 'mode':'snn'})
+    exit()
     
     # TODO: debug
     # trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'event_drop']
