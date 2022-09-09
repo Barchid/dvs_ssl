@@ -44,7 +44,7 @@ def objective(inv_sugg, var_sugg, cov_sugg):
         module = SSLModule(
             n_classes=datamodule.num_classes,
             learning_rate=learning_rate,
-            epochs=100,
+            epochs=30,
             timesteps=timesteps,
             ssl_loss="snn",
             enc1="snn",
@@ -67,11 +67,11 @@ def objective(inv_sugg, var_sugg, cov_sugg):
         trainer = pl.Trainer(
             logger=True,
             checkpoint_callback=False,
-            max_epochs=100,
+            max_epochs=30,
             gpus=1 if torch.cuda.is_available() else None,
             callbacks=[
                 online_finetuner,
-                EarlyStopping(monitor="train_loss", mode="min"),
+                EarlyStopping(monitor="train_loss", mode="min", min_delta=0.01),
             ],
             precision=16,
         )
@@ -107,9 +107,9 @@ def objective(inv_sugg, var_sugg, cov_sugg):
 if __name__ == "__main__":
     pl.seed_everything(1234)
 
-    invs = list(np.arange(0.1, 25.1, 0.1))
-    covs = list(np.arange(0.1, 25.1, 0.1))
-    vars = list(np.arange(0.1, 25.1, 0.1))
+    invs = list(np.arange(0.1, 25.1, 0.5))
+    covs = list(np.arange(0.1, 25.1, 0.5))
+    vars = list(np.arange(0.1, 25.1, 0.5))
     
     random.shuffle(invs)
     random.shuffle(covs)
