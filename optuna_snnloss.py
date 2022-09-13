@@ -40,7 +40,7 @@ datamodule = DVSDataModule(
 
 def objective(trial):
     global datamodule
-    try:      
+    try:
         module = SSLModule(
             n_classes=datamodule.num_classes,
             learning_rate=learning_rate,
@@ -100,10 +100,12 @@ def objective(trial):
     except:
         # traceback.print_exc()
         mess = traceback.format_exc()
-        report = open('errors.txt', 'a')
+        report = open("errors.txt", "a")
         now = datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-        report.write(f"{dt_string} ===> error ! {inv_sugg} {cov_sugg} {var_sugg}\n{mess}\n=========\n\n")
+        report.write(
+            f"{dt_string} ===> error ! {inv_sugg} {cov_sugg} {var_sugg}\n{mess}\n=========\n\n"
+        )
         report.flush()
         report.close()
 
@@ -117,6 +119,7 @@ if __name__ == "__main__":
         study_name=study_name,
         storage=f"sqlite:///{study_name}.db",
         direction="maximize",
+        load_if_exists=True,
         # pruner=pruner,
     )
     study.optimize(objective, n_trials=1000000)
