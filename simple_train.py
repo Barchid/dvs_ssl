@@ -10,7 +10,6 @@ import os
 from matplotlib import pyplot as plt
 from argparse import ArgumentParser
 from project.utils.eval_callback import OnlineFineTuner
-from datetime import date
 
 import traceback
 from datetime import datetime
@@ -56,14 +55,19 @@ def main(args):
         output_all=output_all,
     )
 
+    name = f"{dataset}_{mode}"
+    name += "_ALL" if output_all else ""
+    for tr in trans:
+        name += f"_{tr}"
+
     trainer = pl.Trainer(
         max_epochs=epochs,
         gpus=torch.cuda.device_count(),
         callbacks=[checkpoint_callback],
         logger=pl.loggers.TensorBoardLogger(
-            "experiments", name=f"simpletrain_{date.today}"
+            "experiments", name=f"{name}"
         ),
-        default_root_dir=f"experiments/simpletrain_{dataset}_{date.today}",
+        default_root_dir=f"experiments/{name}",
         precision=16,
     )
 
@@ -82,8 +86,10 @@ def main(args):
 
     # write in score
     report = open("report_simpletrain.txt", "a")
+    now = datetime.now()
+    dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     report.write(
-        f"{date.today} {dataset} {checkpoint_callback.best_model_score} {mode} {output_all} {trans}\n"
+        f"{dt_string} {dataset} {checkpoint_callback.best_model_score} {mode} {output_all} {trans}\n"
     )
     report.flush()
     report.close()
