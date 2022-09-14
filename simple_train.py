@@ -25,7 +25,7 @@ output_all = False
 
 
 def main(args):
-    trans = args["trans"]
+    trans = args["transforms"]
     mode = args["mode"]
     output_all = args["output_all"]
 
