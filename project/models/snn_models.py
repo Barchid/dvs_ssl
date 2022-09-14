@@ -14,11 +14,11 @@ from project.models.utils import (
 )
 
 
-def get_projector_lif(in_channels=512) -> nn.Sequential:
+def get_projector_lif(in_channels=512, neuron_model: str = "IF") -> nn.Sequential:
     projector = nn.Sequential(
-        LinearBnSpike(in_channels, 3 * in_channels, neuron_model="LIAF"),
-        LinearBnSpike(3 * in_channels, 3 * in_channels, neuron_model="LIAF"),
-        LinearSpike(3 * in_channels, 3 * in_channels, neuron_model="LIAF"),
+        LinearBnSpike(in_channels, 3 * in_channels, neuron_model=neuron_model),
+        LinearBnSpike(3 * in_channels, 3 * in_channels, neuron_model=neuron_model),
+        LinearSpike(3 * in_channels, 3 * in_channels, neuron_model=neuron_model),
         # MeanSpike(),
     )
 
@@ -56,3 +56,25 @@ def get_encoder_snn(in_channels: int, T: int, output_all: bool):
         )
 
     return resnet18
+
+
+class ProjectorSSL(nn.Module):
+    def __init__(self, in_channels: int = 512):
+        super(ProjectorSSL, self).__init__()
+        self.l1 = LinearBnSpike(in_channels, 3 * in_channels, neuron_model="IF")
+        self.l2 = LinearBnSpike(in_channels * 3, 3 * in_channels, neuron_model="IF")
+
+        self.l3_linear = layer.SeqToANNContainer(
+            nn.Linear(in_channels * 3, in_channels * 3, bias=True)
+        )
+        self.l3_spike = neuron.MultiStepIFNode(
+            detach_reset=True,
+            surrogate_function=surrogate.ATan(alpha=2.0, spiking=True),
+        )
+
+    def forward(self, x):
+        x = self.l1(x)
+        x = self.l2(x)
+        x = self.l3_linear(x)
+        x = self.l3_spike(x)
+        return x, self.l3_spike.v_seq

@@ -10,11 +10,11 @@ import pytorch_lightning as pl
 from torchmetrics.functional import accuracy
 from spikingjelly.clock_driven import functional
 
-from project.models.snn_models import get_encoder_snn, get_projector_lif
+from project.models.snn_models import ProjectorSSL, get_encoder_snn, get_projector_lif
 from project.models.utils import MeanSpike
 
 class SSLModule(pl.LightningModule):
-    def __init__(self, n_classes: int, learning_rate: float, epochs: int, timesteps: int, ssl_loss: str = 'barlow_twins', enc1: str = 'cnn', enc2: str = 'cnn', output_all: bool = False, **kwargs):
+    def __init__(self, n_classes: int, learning_rate: float, epochs: int, timesteps: int, ssl_loss: str = 'barlow_twins', enc1: str = 'cnn', enc2: str = 'cnn', output_all: bool = False, multiple_proj: bool = False, **kwargs):
         super().__init__()
         self.save_hyperparameters(ignore=['epochs', 'n_classes', 'ssl_loss', 'timesteps'])
         self.epochs = epochs
@@ -29,7 +29,10 @@ class SSLModule(pl.LightningModule):
         
         # this is ugly af but nvm
         if output_all:
-            self.projector = get_projector_lif()
+            if multiple_proj:
+                self.projector = ProjectorSSL()
+            else:
+                self.projector = get_projector_lif()
         else:
             self.projector = get_projector()
         
@@ -53,9 +56,9 @@ class SSLModule(pl.LightningModule):
         if ssl_loss == 'barlow_twins':
             self.criterion = BarlowTwinsLoss()
         elif ssl_loss == "snn_loss_emd":
-            self.criterion = SnnLoss()
+            self.criterion = SnnLoss(multiple_proj=multiple_proj)
         elif ssl_loss == "snn_loss_mse":
-            self.criterion = SnnLoss(invariance_mode="mse")
+            self.criterion = SnnLoss(invariance_mode="mse", multiple_proj=multiple_proj)
         else:
             self.criterion = VICRegLoss()        
 

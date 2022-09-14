@@ -23,7 +23,7 @@ batch_size = 128
 dataset = "dvsgesture"
 ssl_loss = "barlow_twins"
 output_all = True
-
+multiple_proj = False
 trans = []
 
 datamodule = DVSDataModule(
@@ -50,6 +50,7 @@ def objective(trial):
             enc1="snn",
             enc2="snn",
             output_all=True,
+            multiple_proj=multiple_proj,
         )
 
         inv_sugg = trial.suggest_float("inv_sugg", 0.1, 25.0)
@@ -60,6 +61,7 @@ def objective(trial):
             invariance_loss_weight=inv_sugg,
             variance_loss_weight=var_sugg,
             covariance_loss_weight=cov_sugg,
+            multiple_proj=multiple_proj,
         )
 
         online_finetuner = OnlineFineTuner(

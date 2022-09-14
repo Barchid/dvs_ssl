@@ -103,7 +103,7 @@ class LinearSpike(nn.Sequential):
 class LinearBnSpike(nn.Sequential):
     """FC layer + spiking neuron activation. Accepts input of dimension (T, B, C)"""
 
-    def __init__(self, in_channels, out_channels, bias=True, neuron_model="LIF"):
+    def __init__(self, in_channels, out_channels, bias=False, neuron_model="LIF"):
         super(LinearBnSpike, self).__init__()
 
         self.add_module('fc', layer.SeqToANNContainer(

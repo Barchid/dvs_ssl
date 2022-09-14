@@ -9,14 +9,15 @@ from matplotlib import pyplot as plt
 from project.utils.eval_callback import OnlineFineTuner
 import traceback
 
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 epochs = 1000
-learning_rate = 1e-2 # barlowsnn=0.1, vicregsnn=0.01, dvs=1e-3
+learning_rate = 1e-2  # barlowsnn=0.1, vicregsnn=0.01, dvs=1e-3
 timesteps = 12
 batch_size = 128
-dataset = 'dvsgesture'
-ssl_loss = 'snn_loss_emd'
+dataset = "dvsgesture"
+ssl_loss = "snn_loss_emd"
 output_all = True
+multiple_proj = False
 
 
 def main(args):
@@ -26,32 +27,32 @@ def main(args):
         save_top_k=1,
         mode="max",
     )
-    
-    if 'mode' in args:
-        mode = args['mode']
+
+    if "mode" in args:
+        mode = args["mode"]
     else:
-        mode = 'cnn'
+        mode = "cnn"
 
     datamodule = DVSDataModule(
         batch_size,
         dataset,
         timesteps,
-        data_dir='data',
-        barlow_transf=args['transforms'],
+        data_dir="data",
+        barlow_transf=args["transforms"],
         in_memory=False,
         num_workers=0,
-        mode=mode
+        mode=mode,
     )
 
-    if 'ssl_loss' in args:
-        ssl = args['ssl_loss']
+    if "ssl_loss" in args:
+        ssl = args["ssl_loss"]
     else:
         ssl = ssl_loss
-        
-    if 'lr' in args:
-        lr = args['lr']
+
+    if "lr" in args:
+        lr = args["lr"]
     else:
-        lr=learning_rate
+        lr = learning_rate
 
     module = SSLModule(
         n_classes=datamodule.num_classes,
@@ -61,14 +62,19 @@ def main(args):
         timesteps=timesteps,
         enc1=mode,
         enc2=mode,
-        output_all=output_all
+        output_all=output_all,
+        multiple_proj=multiple_proj,
     )
 
     name = f"{dataset}_{ssl}"
-    for tr in args['transforms']:
+    for tr in args["transforms"]:
         name += f"_{tr}"
 
-    online_finetuner = OnlineFineTuner(encoder_output_dim=512, num_classes=datamodule.num_classes, output_all=output_all)
+    online_finetuner = OnlineFineTuner(
+        encoder_output_dim=512,
+        num_classes=datamodule.num_classes,
+        output_all=output_all,
+    )
 
     trainer = pl.Trainer(
         max_epochs=epochs,
@@ -76,7 +82,7 @@ def main(args):
         callbacks=[online_finetuner, checkpoint_callback],
         logger=pl.loggers.TensorBoardLogger("experiments", name=name),
         default_root_dir=f"experiments/{name}",
-        precision=16
+        precision=16,
     )
 
     # lr_finder = trainer.tuner.lr_find(module, datamodule=datamodule)
@@ -89,13 +95,13 @@ def main(args):
         trainer.fit(module, datamodule=datamodule)
     except:
         traceback.print_exc()
-        report = open('errors.txt', 'a')
+        report = open("errors.txt", "a")
         report.write(f"{name} ===> error ! \n")
         report.flush()
         report.close()
 
     # write in score
-    report = open('report.txt', 'a')
+    report = open("report.txt", "a")
     report.write(f"{dataset} {name} {checkpoint_callback.best_model_score} \n")
     report.flush()
     report.close()
@@ -103,30 +109,64 @@ def main(args):
 
 if __name__ == "__main__":
     pl.seed_everything(1234)
-    
-    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'dynamic_rotation', 'dynamic_translation', 'event_drop']
-    main({'transforms': trans, 'ssl_loss': 'snn_loss_emd', 'mode':'snn'})
+
+    trans = [
+        "flip",
+        "background_activity",
+        "reverse",
+        "flip_polarity",
+        "dynamic_rotation",
+        "dynamic_translation",
+        "event_drop",
+    ]
+    main({"transforms": trans, "ssl_loss": "snn_loss_emd", "mode": "snn"})
     exit()
-    
+
     # TODO: debug
     # trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'event_drop']
     # main({'transforms': trans, 'ssl_loss': 'snn_loss_emd', 'mode':'snn'})
-    
-    # exit()
-    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'event_drop']
-    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'snn'})
 
-    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'dynamic_rotation', 'dynamic_translation', 'cutpaste', 'moving_occlusion']
-    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'snn'})
-    
-    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'crop', 'dynamic_rotation', 'dynamic_translation', 'moving_occlusion']
-    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'snn'})
-    
-    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'dynamic_rotation', 'dynamic_translation', 'event_drop']
-    main({'transforms': trans, 'ssl_loss': 'vicreg', 'mode':'snn'})
-    
+    # exit()
+    trans = ["flip", "background_activity", "reverse", "flip_polarity", "event_drop"]
+    main({"transforms": trans, "ssl_loss": "vicreg", "mode": "snn"})
+
+    trans = [
+        "flip",
+        "background_activity",
+        "reverse",
+        "flip_polarity",
+        "dynamic_rotation",
+        "dynamic_translation",
+        "cutpaste",
+        "moving_occlusion",
+    ]
+    main({"transforms": trans, "ssl_loss": "vicreg", "mode": "snn"})
+
+    trans = [
+        "flip",
+        "background_activity",
+        "reverse",
+        "flip_polarity",
+        "crop",
+        "dynamic_rotation",
+        "dynamic_translation",
+        "moving_occlusion",
+    ]
+    main({"transforms": trans, "ssl_loss": "vicreg", "mode": "snn"})
+
+    trans = [
+        "flip",
+        "background_activity",
+        "reverse",
+        "flip_polarity",
+        "dynamic_rotation",
+        "dynamic_translation",
+        "event_drop",
+    ]
+    main({"transforms": trans, "ssl_loss": "vicreg", "mode": "snn"})
+
     exit()
-    
+
     # VIC
 
     # # exp - vicreg
@@ -134,31 +174,59 @@ if __name__ == "__main__":
     # main({'transforms': trans, 'ssl_loss': 'vicreg'})
 
     # exp - try snn
-    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity']
-    main({'transforms': trans, 'ssl_loss': 'barlow_twins', 'mode': 'snn'})
+    trans = ["flip", "background_activity", "reverse", "flip_polarity"]
+    main({"transforms": trans, "ssl_loss": "barlow_twins", "mode": "snn"})
     exit()
 
     # exp 2 (+crop)
-    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'crop']
-    main({'transforms': trans})
+    trans = ["flip", "background_activity", "reverse", "flip_polarity", "crop"]
+    main({"transforms": trans})
 
     # exp 3 (+static rot/trans)
-    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'static_translation', 'static_rotation']
-    main({'transforms': trans})
+    trans = [
+        "flip",
+        "background_activity",
+        "reverse",
+        "flip_polarity",
+        "static_translation",
+        "static_rotation",
+    ]
+    main({"transforms": trans})
 
     # exp 4 (+cutout)
-    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity',
-             'static_translation', 'static_rotation', 'cutout']
-    main({'transforms': trans})
+    trans = [
+        "flip",
+        "background_activity",
+        "reverse",
+        "flip_polarity",
+        "static_translation",
+        "static_rotation",
+        "cutout",
+    ]
+    main({"transforms": trans})
 
     # exp 5 (+dyn - cutout)
-    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity', 'dynamic_translation', 'dynamic_rotation']
-    main({'transforms': trans})
+    trans = [
+        "flip",
+        "background_activity",
+        "reverse",
+        "flip_polarity",
+        "dynamic_translation",
+        "dynamic_rotation",
+    ]
+    main({"transforms": trans})
 
     # exp 6 (+ dyn + movinOcc)
-    trans = ['flip', 'background_activity', 'reverse', 'flip_polarity',
-             'dynamic_translation', 'dynamic_rotation', 'moving_occlusion']
-    main({'transforms': trans})
+    trans = [
+        "flip",
+        "background_activity",
+        "reverse",
+        "flip_polarity",
+        "dynamic_translation",
+        "dynamic_rotation",
+        "moving_occlusion",
+    ]
+    main({"transforms": trans})
 
     # static_trans = ['flip', 'background_activity', 'reverse',
     #                 'flip_polarity', 'static_rotation', 'static_translation', 'cutout']

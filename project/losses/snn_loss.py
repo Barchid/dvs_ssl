@@ -34,12 +34,13 @@ def emd_loss(a: torch.Tensor, b: torch.Tensor):
 
 class SnnLoss(nn.Module):
 
-    def __init__(self, invariance_loss_weight: float = 25., variance_loss_weight: float = 25., covariance_loss_weight: float = 1., invariance_mode="emd", variance_mode="n", covariance_mode = "n"):
+    def __init__(self, invariance_loss_weight: float = 25., variance_loss_weight: float = 25., covariance_loss_weight: float = 1., invariance_mode="emd", variance_mode="n", covariance_mode = "n", multiple_proj: bool=False):
         super(SnnLoss, self).__init__()
         
         self.invariance_loss_weight = invariance_loss_weight
         self.variance_loss_weight = variance_loss_weight
         self.covariance_loss_weight = covariance_loss_weight
+        self.multiple_proj = multiple_proj
         
         
         if invariance_mode == "emd":
@@ -54,14 +55,25 @@ class SnnLoss(nn.Module):
         self.covariance_mode = covariance_mode
 
     def forward(self, Z_a, Z_b):
+        if self.multiple_proj: # if this flag is True, it means that the membrane potentials are also included in the input
+            Z_a, V_a = Z_a
+            Z_b, V_b = Z_b
+            
         assert Z_a.shape == Z_b.shape and len(Z_a.shape) == 3 # ensure (T,B,C)
+        assert V_a.shape == V_b.shape and len(V_a.shape) == 3 # ensure (T,B,C)
 
         # invariance loss
         loss_inv = self.invariance_loss(Z_a, Z_b)
 
-        T = Z_a.shape[0]
-        Z_a = torch.mean(Z_a, dim=0) #/ T # number of spikes
-        Z_b = torch.mean(Z_b, dim=0) #/ T # same 
+        if self.multiple_proj:
+            T = V_a.shape[0]
+            # use Z_* as V_* because it is easier to code and I'm tired to code properly
+            Z_a = torch.mean(V_a, dim=0) #/ T # number of spikes
+            Z_b = torch.mean(V_b, dim=0) #/ T # same 
+        else:
+            T = Z_a.shape[0]
+            Z_a = torch.mean(Z_a, dim=0) #/ T # number of spikes
+            Z_b = torch.mean(Z_b, dim=0) #/ T # same 
         # print(Z_a, Z_b)
 
         # variance loss
