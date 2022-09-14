@@ -46,7 +46,7 @@ class ClassifModule(pl.LightningModule):
             functional.reset_net(self.encoder)
             x = x.permute(1, 0, 2, 3, 4)  # from (B,T,C,H,W) to (T, B, C, H, W)
 
-        x = self.model(x)
+        x = self.encoder(x)
         x = self.fc(x)
         return x
 
