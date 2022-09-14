@@ -51,11 +51,11 @@ class ClassifModule(pl.LightningModule):
         return x
 
     def shared_step(self, batch):
-        x, y = batch
+        (X, Y_a, Y_b), label = batch
 
-        y_hat = self(x)
-        loss = F.cross_entropy(y_hat, y)
-        acc = torchmetrics.functional.accuracy(y_hat.clone().detach(), y)
+        y_hat = self(Y_a)
+        loss = F.cross_entropy(y_hat, label)
+        acc = torchmetrics.functional.accuracy(y_hat.clone().detach(), label)
         return loss, acc
 
     def training_step(self, batch, batch_idx):
