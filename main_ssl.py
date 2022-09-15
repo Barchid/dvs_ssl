@@ -17,7 +17,7 @@ batch_size = 128
 dataset = "dvsgesture"
 ssl_loss = "snn_loss_emd"
 output_all = True
-multiple_proj = False
+multiple_proj = True
 
 
 def main(args):
