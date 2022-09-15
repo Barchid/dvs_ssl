@@ -32,7 +32,7 @@ def get_encoder_snn(in_channels: int, T: int, output_all: bool):
         zero_init_residual=True,
         T=T,
         cnf="ADD",
-        multi_step_neuron=neuron.MultiStepLIFNode,
+        multi_step_neuron=neuron.MultiStepIFNode,
         detach_reset=True,
         surrogate_function=surrogate.ATan(),
         output_all=output_all,
@@ -75,6 +75,6 @@ class ProjectorSSL(nn.Module):
     def forward(self, x):
         x = self.l1(x)
         x = self.l2(x)
-        x = self.l3_linear(x)
-        x = self.l3_spike(x)
-        return x, self.l3_spike.v_seq
+        lin = self.l3_linear(x)
+        x = self.l3_spike(lin)
+        return x, lin
