@@ -101,7 +101,7 @@ def main(args):
         report.close()
 
     # write in score
-    report = open("report.txt", "a")
+    report = open("report_testsnn.txt", "a")
     report.write(f"{dataset} {name} {checkpoint_callback.best_model_score} \n")
     report.flush()
     report.close()
