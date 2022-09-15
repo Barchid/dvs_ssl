@@ -44,7 +44,7 @@ def objective(trial):
         module = SSLModule(
             n_classes=datamodule.num_classes,
             learning_rate=learning_rate,
-            epochs=12,
+            epochs=30,
             timesteps=timesteps,
             ssl_loss="snn_loss_emd",
             enc1="snn",
@@ -52,7 +52,7 @@ def objective(trial):
             output_all=True,
             multiple_proj=multiple_proj,
         )
-
+        invmode_sugg = trial.suggest_categorical("invmode_sugg", ["mse", "smoothl1", "emd"])
         inv_sugg = trial.suggest_float("inv_sugg", 0.1, 25.0)
         var_sugg = trial.suggest_float("var_sugg", 0.1, 25.0)
         cov_sugg = trial.suggest_float("cov_sugg", 0.1, 25.0)
@@ -62,6 +62,7 @@ def objective(trial):
             variance_loss_weight=var_sugg,
             covariance_loss_weight=cov_sugg,
             multiple_proj=multiple_proj,
+            invariance_mode=invmode_sugg,
         )
 
         online_finetuner = OnlineFineTuner(
@@ -73,7 +74,7 @@ def objective(trial):
         trainer = pl.Trainer(
             logger=False,
             checkpoint_callback=False,
-            max_epochs=12,
+            max_epochs=30,
             gpus=1 if torch.cuda.is_available() else None,
             callbacks=[
                 online_finetuner,
@@ -91,9 +92,9 @@ def objective(trial):
         trainer.fit(module, datamodule=datamodule)
 
         # write in score
-        report = open("report_emd_study.txt", "a")
+        report = open("report_emdspecial_study.txt", "a")
         report.write(
-            f"ACC={trainer.callback_metrics['online_train_acc'].item()} VAL_ACC={trainer.callback_metrics['online_val_acc'].item()} INV={inv_sugg} COV={cov_sugg} VAR={var_sugg}\n"
+            f"ACC={trainer.callback_metrics['online_train_acc'].item()} VAL_ACC={trainer.callback_metrics['online_val_acc'].item()} INV={inv_sugg} COV={cov_sugg} VAR={var_sugg} INVMODE={invmode_sugg}\n"
         )
         report.flush()
         report.close()
@@ -116,7 +117,7 @@ if __name__ == "__main__":
     pl.seed_everything(1234)
 
     # pruner: optuna.pruners.BasePruner = optuna.pruners.MedianPruner()
-    study_name = f"snn_loss_emd_v5"
+    study_name = f"snn_loss_emds_v1"
     study = optuna.create_study(
         study_name=study_name,
         storage=f"sqlite:///{study_name}.db",
