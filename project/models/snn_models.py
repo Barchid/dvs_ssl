@@ -25,6 +25,20 @@ def get_projector_lif(in_channels=512, neuron_model: str = "IF") -> nn.Sequentia
     return projector
 
 
+def try_projector(in_channels=512):
+    out_channels = in_channels * 3
+    return layer.SeqToANNContainer(
+        nn.Linear(in_channels, out_channels, bias=False),
+        nn.BatchNorm1d(out_channels),
+        nn.ReLU(),
+        nn.Linear(out_channels, out_channels, bias=False),
+        nn.BatchNorm1d(out_channels),
+        nn.ReLU(),
+        nn.Linear(out_channels, out_channels, bias=True),
+        nn.ReLU(),
+    )
+
+
 def get_encoder_snn(in_channels: int, T: int, output_all: bool):
     resnet18 = sew_resnet.MultiStepSEWResNet(
         block=sew_resnet.MultiStepBasicBlock,

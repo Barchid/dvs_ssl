@@ -29,7 +29,23 @@ def emd_loss(a: torch.Tensor, b: torch.Tensor):
     # sum is the result
     return torch.mean(summation)
 
-
+def special_emd(a: torch.Tensor, b:torch.Tensor):
+    # normalize spike trains over spike numbers
+    n_a = torch.sum(a, dim=0)
+    a = a / (n_a + 1e-5)
+    n_b = torch.sum(b, dim=0)
+    b = b / (n_b + 1e-5)
+    
+    # cumsum
+    cum_a = torch.cumsum(a, 0) # cumulative function of spike train a
+    cum_b = torch.cumsum(b, 0) # cumulative function of spike train b
+    
+    # |elementiwe difference|
+    diff = torch.abs(cum_a - cum_b)
+    summation = torch.sum(diff, dim=0)
+    
+    # sum is the result
+    return torch.mean(summation)
 
 
 class SnnLoss(nn.Module):
@@ -44,7 +60,7 @@ class SnnLoss(nn.Module):
         
         
         if invariance_mode == "emd":
-            self.invariance_loss = emd_loss 
+            self.invariance_loss = special_emd 
         elif invariance_mode == "mse":
             self.invariance_loss = F.mse_loss
         elif invariance_mode == "smoothl1":
@@ -58,9 +74,11 @@ class SnnLoss(nn.Module):
         if self.multiple_proj: # if this flag is True, it means that the membrane potentials are also included in the input
             Z_a, V_a = Z_a
             Z_b, V_b = Z_b
+            debug_a = Z_a
+            debug_b = Z_b
+            assert V_a.shape == V_b.shape and len(V_a.shape) == 3 # ensure (T,B,C)
             
         assert Z_a.shape == Z_b.shape and len(Z_a.shape) == 3 # ensure (T,B,C)
-        assert V_a.shape == V_b.shape and len(V_a.shape) == 3 # ensure (T,B,C)
 
         # invariance loss
         loss_inv = self.invariance_loss(Z_a, Z_b)
@@ -103,5 +121,12 @@ class SnnLoss(nn.Module):
 
         loss = weighted_inv + weighted_var + weighted_cov
 
+        if torch.count_nonzero(torch.isnan(loss).to(torch.int)).item() > 0:
+            print("LOSS=", loss)
+            print("WINV=", weighted_inv)
+            print("WVAR=", weighted_var)
+            print("WCOV=", weighted_cov)
+            print("\nZ_A", torch.unique(debug_a), "\nV_A", torch.unique(V_a), "\n\nZ_b", torch.unique(debug_b), "\nV_b", torch.unique(V_b))
+            exit()
         return loss
     

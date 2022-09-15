@@ -10,7 +10,7 @@ import pytorch_lightning as pl
 from torchmetrics.functional import accuracy
 from spikingjelly.clock_driven import functional
 
-from project.models.snn_models import ProjectorSSL, get_encoder_snn, get_projector_lif
+from project.models.snn_models import ProjectorSSL, get_encoder_snn, get_projector_lif, try_projector
 from project.models.utils import MeanSpike
 
 class SSLModule(pl.LightningModule):
@@ -32,7 +32,8 @@ class SSLModule(pl.LightningModule):
             if multiple_proj:
                 self.projector = ProjectorSSL()
             else:
-                self.projector = get_projector_lif()
+                # self.projector = get_projector_lif()
+                self.projector = try_projector()
         else:
             self.projector = get_projector()
         
@@ -73,8 +74,8 @@ class SSLModule(pl.LightningModule):
             else:
                 functional.reset_net(self.encoder2)
                 
-            if self.output_all:
-                functional.reset_net(self.projector)
+            # if self.output_all:
+            #     functional.reset_net(self.projector)
             
         if enc is None:    
             representation = self.encoder(Y)
