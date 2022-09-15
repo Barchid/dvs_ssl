@@ -200,7 +200,7 @@ class DVSDataModule(pl.LightningDataModule):
         return DataLoader(
             self.train_set,
             batch_size=self.batch_size,
-            num_workers=5 if not self.in_memory else 0,
+            num_workers=9 if not self.in_memory else 0,
             shuffle=True,
         )
 
