@@ -1,3 +1,4 @@
+from itertools import chain, combinations
 from operator import mod
 import pytorch_lightning as pl
 from project.classif_module import ClassifModule
@@ -21,6 +22,11 @@ timesteps = 12
 batch_size = 128
 dataset = "dvsgesture"
 output_all = False
+
+def powerset(iterable):
+    "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
+    s = list(iterable)
+    return chain.from_iterable(combinations(s, r) for r in range(len(s)+1))
 
 
 def main(args):
@@ -99,20 +105,15 @@ def main(args):
 if __name__ == "__main__":
     pl.seed_everything(1234)
 
-    poss_trans = ["flip", "background_activity", "reverse", "flip_polarity", "crop"]
-    trans = []
+    poss_trans = list(powerset(["flip", "background_activity", "reverse", "flip_polarity", "crop"]))
+    print(poss_trans)
     best_acc = -2
     best_tran = None
-    for t1 in poss_trans:
-        trans.append(t1)
-        for t2 in poss_trans:
-            if t2 in trans:
-                continue
-            curr = [*trans, t2]
-            acc = main({"transforms": curr, "mode": "cnn", "output_all": False})
-            if acc > best_acc:
-                best_acc = acc
-                best_tran = curr
+    for curr in poss_trans:
+        acc = main({"transforms": list(curr), "mode": "cnn", "output_all": False})
+        if acc > best_acc:
+            best_acc = acc
+            best_tran = list(curr)
                 
     messss = f'BEST BASIC FOR CNN IS : {best_acc} {best_tran}'
     print(messss)
