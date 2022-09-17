@@ -74,8 +74,8 @@ class OnlineFineTuner(Callback):
         self.optimizer.zero_grad()
 
         acc = accuracy(F.softmax(preds, dim=1), y)
-        pl_module.log("online_train_acc", acc, on_step=True, on_epoch=True)
-        pl_module.log("online_train_loss", loss, on_step=True, on_epoch=False)
+        pl_module.log("online_train_acc", acc, on_step=False, on_epoch=True, prog_bar=True)
+        pl_module.log("online_train_loss", loss, on_step=False, on_epoch=True)
 
     def on_validation_batch_end(
         self,

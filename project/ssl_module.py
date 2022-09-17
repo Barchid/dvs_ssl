@@ -61,7 +61,7 @@ class SSLModule(pl.LightningModule):
         elif ssl_loss == "snn_loss_mse":
             self.criterion = SnnLoss(invariance_mode="mse", multiple_proj=multiple_proj)
         else:
-            self.criterion = VICRegLoss()        
+            self.criterion = VICRegLoss()
 
     def forward(self, Y, enc=None, mode="cnn"):
         if mode == "snn":

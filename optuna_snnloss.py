@@ -52,17 +52,17 @@ def objective(trial):
             output_all=True,
             multiple_proj=multiple_proj,
         )
-        invmode_sugg = trial.suggest_categorical("invmode_sugg", ["mse", "smoothl1", "emd"])
-        inv_sugg = trial.suggest_float("inv_sugg", 0.1, 25.0)
-        var_sugg = trial.suggest_float("var_sugg", 0.1, 25.0)
-        cov_sugg = trial.suggest_float("cov_sugg", 0.1, 25.0)
+        # invmode_sugg = trial.suggest_categorical("invmode_sugg", ["mse", "smoothl1", "emd"])
+        inv_sugg = trial.suggest_float("inv_sugg", 22., 30.)
+        var_sugg = trial.suggest_float("var_sugg", 0.5, 2.)
+        cov_sugg = trial.suggest_float("cov_sugg", 0.5, 2.)
 
         module.criterion = SnnLoss(
             invariance_loss_weight=inv_sugg,
             variance_loss_weight=var_sugg,
             covariance_loss_weight=cov_sugg,
             multiple_proj=multiple_proj,
-            invariance_mode=invmode_sugg,
+            invariance_mode="mse",
         )
 
         online_finetuner = OnlineFineTuner(
@@ -92,9 +92,9 @@ def objective(trial):
         trainer.fit(module, datamodule=datamodule)
 
         # write in score
-        report = open("report_emdspecial_study.txt", "a")
+        report = open("report_mse_study.txt", "a")
         report.write(
-            f"ACC={trainer.callback_metrics['online_train_acc'].item()} VAL_ACC={trainer.callback_metrics['online_val_acc'].item()} INV={inv_sugg} COV={cov_sugg} VAR={var_sugg} INVMODE={invmode_sugg}\n"
+            f"ACC={trainer.callback_metrics['online_train_acc'].item()} VAL_ACC={trainer.callback_metrics['online_val_acc'].item()} INV={inv_sugg} COV={cov_sugg} VAR={var_sugg}\n"
         )
         report.flush()
         report.close()
@@ -117,7 +117,7 @@ if __name__ == "__main__":
     pl.seed_everything(1234)
 
     # pruner: optuna.pruners.BasePruner = optuna.pruners.MedianPruner()
-    study_name = f"snn_loss_emds_v1"
+    study_name = f"snn_loss_mse_v1"
     study = optuna.create_study(
         study_name=study_name,
         storage=f"sqlite:///{study_name}.db",

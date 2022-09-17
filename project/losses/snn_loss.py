@@ -50,7 +50,7 @@ def special_emd(a: torch.Tensor, b:torch.Tensor):
 
 class SnnLoss(nn.Module):
 
-    def __init__(self, invariance_loss_weight: float = 25., variance_loss_weight: float = 25., covariance_loss_weight: float = 1., invariance_mode="emd", variance_mode="n", covariance_mode = "n", multiple_proj: bool=False):
+    def __init__(self, invariance_loss_weight: float = 25., variance_loss_weight: float = 25., covariance_loss_weight: float = 1., invariance_mode="mse", variance_mode="n", covariance_mode = "n", multiple_proj: bool=False):
         super(SnnLoss, self).__init__()
         
         self.invariance_loss_weight = invariance_loss_weight
