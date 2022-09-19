@@ -63,6 +63,9 @@ class SnnLoss(nn.Module):
             self.invariance_loss = special_emd 
         elif invariance_mode == "mse":
             self.invariance_loss = F.mse_loss
+            self.invariance_loss_weight = 24.18
+            self.covariance_loss_weight = 0.78
+            self.variance_loss_weight = 1.99
         elif invariance_mode == "smoothl1":
             self.invariance_loss = F.smooth_l1_loss
         
