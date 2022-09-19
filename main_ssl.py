@@ -10,6 +10,7 @@ from matplotlib import pyplot as plt
 from project.utils.eval_callback import OnlineFineTuner
 import traceback
 from datetime import datetime
+from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 
 
 def powerset(iterable):
@@ -42,7 +43,7 @@ def main(args):
 
     checkpoint_callback = pl.callbacks.ModelCheckpoint(
         monitor="online_val_acc",  # TODO: select the logged metric to monitor the checkpoint saving
-        filename="name-{epoch:03d}-{online_val_acc:.4f}",
+        filename=name + "-{epoch:03d}-{online_val_acc:.4f}",
         save_top_k=1,
         mode="max",
     )
@@ -81,7 +82,11 @@ def main(args):
     trainer = pl.Trainer(
         max_epochs=epochs,
         gpus=torch.cuda.device_count(),
-        callbacks=[online_finetuner, checkpoint_callback],
+        callbacks=[
+            online_finetuner,
+            checkpoint_callback,
+            EarlyStopping(monitor="online_val_acc", mode="max", patience=20),
+        ],
         # logger=pl.loggers.TensorBoardLogger("experiments", name=name),
         default_root_dir=f"experiments/{name}",
         precision=16,
