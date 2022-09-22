@@ -105,6 +105,17 @@ def main(args):
 if __name__ == "__main__":
     pl.seed_everything(1234)
 
+    # study on cuts
+    curr = ["background_activity", "flip_polarity", "static_rotation", "static_translation", "event_drop"]
+    eventdrop = main({"transforms": curr, "mode": "cnn", "output_all": False})
+    
+    curr = ["background_activity", "flip_polarity", "static_rotation", "static_translation", "cutpaste"]
+    cutpaste = main({"transforms": curr, "mode": "cnn", "output_all": False})
+    
+    curr = ["background_activity", "flip_polarity", "static_rotation", "static_translation", "moving_occlusions"]
+    movingocc = main({"transforms": curr, "mode": "cnn", "output_all": False})
+    exit()
+    
     poss_trans = list(powerset(["flip", "background_activity", "reverse", "flip_polarity", "crop"]))
     print(poss_trans)
     best_acc = -2
@@ -141,18 +152,5 @@ if __name__ == "__main__":
     report.write(f"{messss}\n\n\n")
     report.flush()
     report.close()
-    
-    # study on cuts
-    curr = [*best_tran, "cutout"]
-    cutout = main({"transforms": curr, "mode": "cnn", "output_all": False})
-    
-    curr = [*best_tran, "event_drop"]
-    eventdrop = main({"transforms": curr, "mode": "cnn", "output_all": False})
-    
-    curr = [*best_tran, "cutpaste"]
-    cutpaste = main({"transforms": curr, "mode": "cnn", "output_all": False})
-    
-    curr = [*best_tran, "moving_occlusions"]
-    movingocc = main({"transforms": curr, "mode": "cnn", "output_all": False})
     
     
