@@ -111,7 +111,7 @@ def main(args):
         return -1
 
     # write in score
-    report = open("report_mainssl.txt", "a")
+    report = open("report_cnnssl.txt", "a")
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     report.write(
@@ -146,7 +146,7 @@ if __name__ == "__main__":
 
     messss = f"BEST BASIC FOR CNN IS : {best_acc} {best_tran}"
     print(messss)
-    report = open("report_mainssl.txt", "a")
+    report = open("report_cnnssl.txt", "a")
     report.write(f"{messss}\n\n\n")
     report.flush()
     report.close()
@@ -170,7 +170,7 @@ if __name__ == "__main__":
         best_tran = [*best_tran, "static_translation", "static_rotation"]
 
     print(messss)
-    report = open("report_mainssl.txt", "a")
+    report = open("report_cnnssl.txt", "a")
     report.write(f"{messss}\n\n\n")
     report.flush()
     report.close()
