@@ -85,7 +85,7 @@ def main(args):
         callbacks=[
             online_finetuner,
             checkpoint_callback,
-            EarlyStopping(monitor="online_val_acc", mode="max", patience=20),
+            EarlyStopping(monitor="online_val_acc", mode="max", patience=50),
         ],
         # logger=pl.loggers.TensorBoardLogger("experiments", name=name),
         default_root_dir=f"experiments/{name}",
@@ -135,9 +135,9 @@ if __name__ == "__main__":
         acc = main(
             {
                 "transforms": list(curr),
-                "ssl_loss": "vicreg",
+                "ssl_loss": "snn_loss_mse",
                 "mode": "snn",
-                "output_all": False,
+                "output_all": True,
             }
         )
         if acc > best_acc:
@@ -154,12 +154,12 @@ if __name__ == "__main__":
     # study based on transrot
     curr = [*best_tran, "static_translation", "static_rotation"]
     st = main(
-        {"transforms": curr, "ssl_loss": "vicreg", "mode": "snn", "output_all": False}
+        {"transforms": curr, "ssl_loss": "snn_loss_mse", "mode": "snn", "output_all": True}
     )
 
     curr = [*best_tran, "dynamic_translation", "dynamic_rotation"]
     dyn = main(
-        {"transforms": curr, "ssl_loss": "vicreg", "mode": "snn", "output_all": False}
+        {"transforms": curr, "ssl_loss": "snn_loss_mse", "mode": "snn", "output_all": True}
     )
 
     if dyn >= st:
@@ -178,22 +178,22 @@ if __name__ == "__main__":
     # study on cuts
     curr = [*best_tran, "cutout"]
     cutout = main(
-        {"transforms": curr, "ssl_loss": "vicreg", "mode": "snn", "output_all": False}
+        {"transforms": curr, "ssl_loss": "snn_loss_mse", "mode": "snn", "output_all": True}
     )
 
     curr = [*best_tran, "event_drop"]
     eventdrop = main(
-        {"transforms": curr, "ssl_loss": "vicreg", "mode": "snn", "output_all": False}
+        {"transforms": curr, "ssl_loss": "snn_loss_mse", "mode": "snn", "output_all": True}
     )
 
     curr = [*best_tran, "cutpaste"]
     cutpaste = main(
-        {"transforms": curr, "ssl_loss": "vicreg", "mode": "snn", "output_all": False}
+        {"transforms": curr, "ssl_loss": "snn_loss_mse", "mode": "snn", "output_all": True}
     )
 
     curr = [*best_tran, "moving_occlusions"]
     movingocc = main(
-        {"transforms": curr, "ssl_loss": "vicreg", "mode": "snn", "output_all": False}
+        {"transforms": curr, "ssl_loss": "snn_loss_mse", "mode": "snn", "output_all": True}
     )
 
     exit()
