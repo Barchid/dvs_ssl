@@ -22,6 +22,13 @@ def get_encoder(in_channels: int) -> nn.Module:
 
     return resnet18
 
+def get_encoder_3d(in_channels: int) -> nn.Module:
+    resnet18 = models.video.r3d_18()
+    resnet18.fc = nn.Identity()
+    resnet18.stem[0] = nn.Conv3d(in_channels=in_channels, out_channels=64, kernel_size=(3,7,7), stride=(1,2,2), padding=(1,3,3))
+
+    return resnet18
+
 
 # def get_encoder(in_channels: int):
 #     encoder = models.resnet18(pretrained=False)

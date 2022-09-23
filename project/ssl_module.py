@@ -1,7 +1,7 @@
 from project.losses.barlow_twins_loss import BarlowTwinsLoss
 from project.losses.snn_loss import SnnLoss
 from project.losses.vicreg_loss import VICRegLoss
-from project.models.models import get_encoder, get_projector
+from project.models.models import get_encoder, get_encoder_3d, get_projector
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -42,16 +42,22 @@ class SSLModule(pl.LightningModule):
                 self.encoder = get_encoder(in_channels=2 * timesteps)
             elif enc1 == 'snn':
                 self.encoder = get_encoder_snn(2, timesteps, output_all=output_all)
+            elif enc1 == "3dcnn":
+                self.encoder = get_encoder_3d(in_channels=2)
         else:
             if enc1 == 'cnn':
                 self.encoder1 = get_encoder(in_channels=2 * timesteps)
             elif enc1 == 'snn':
                 self.encoder1 = get_encoder_snn(2, timesteps, output_all=output_all)
+            elif enc1 == "3dcnn":
+                self.encoder1 = get_encoder_3d(in_channels=2)
                 
             if enc2 == 'cnn':
                 self.encoder2 = get_encoder(in_channels=2 * timesteps)
             elif enc2 == 'snn':
                 self.encoder2 = get_encoder_snn(2, timesteps, output_all=output_all)
+            elif enc2 == "3dcnn":
+                self.encoder2 = get_encoder_3d(in_channels=2)
             
         # either barlow twins or VICReg
         if ssl_loss == 'barlow_twins':
@@ -64,7 +70,7 @@ class SSLModule(pl.LightningModule):
             self.criterion = VICRegLoss()
 
     def forward(self, Y, enc=None, mode="cnn"):
-        if mode == "snn":
+        if mode == "snn":                     # 0,1,2,3,4
             Y = Y.permute(1, 0, 2, 3, 4)# from (B,T,C,H,W) to (T, B, C, H, W)
             
             if enc is None:
@@ -76,6 +82,9 @@ class SSLModule(pl.LightningModule):
                 
             # if self.output_all:
             #     functional.reset_net(self.projector)
+            
+        if mode == "3dcnn":
+            Y = Y.permute(0, 2, 1, 3, 4) # from (B,T,C,H,W) to (B,C,T,H,W)
             
         if enc is None:    
             representation = self.encoder(Y)
