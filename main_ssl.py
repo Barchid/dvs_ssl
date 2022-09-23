@@ -135,9 +135,9 @@ if __name__ == "__main__":
         acc = main(
             {
                 "transforms": list(curr),
-                "ssl_loss": "snn_loss_mse",
-                "mode": "snn",
-                "output_all": True,
+                "ssl_loss": "vicreg",
+                "mode": "cnn",
+                "output_all": False,
             }
         )
         if acc > best_acc:
@@ -154,12 +154,12 @@ if __name__ == "__main__":
     # study based on transrot
     curr = [*best_tran, "static_translation", "static_rotation"]
     st = main(
-        {"transforms": curr, "ssl_loss": "snn_loss_mse", "mode": "snn", "output_all": True}
+        {"transforms": curr, "ssl_loss": "vicreg", "mode": "cnn", "output_all": False}
     )
 
     curr = [*best_tran, "dynamic_translation", "dynamic_rotation"]
     dyn = main(
-        {"transforms": curr, "ssl_loss": "snn_loss_mse", "mode": "snn", "output_all": True}
+        {"transforms": curr, "ssl_loss": "vicreg", "mode": "cnn", "output_all": False}
     )
 
     if dyn >= st:
@@ -178,22 +178,22 @@ if __name__ == "__main__":
     # study on cuts
     curr = [*best_tran, "cutout"]
     cutout = main(
-        {"transforms": curr, "ssl_loss": "snn_loss_mse", "mode": "snn", "output_all": True}
+        {"transforms": curr, "ssl_loss": "vicreg", "mode": "cnn", "output_all": False}
     )
 
     curr = [*best_tran, "event_drop"]
     eventdrop = main(
-        {"transforms": curr, "ssl_loss": "snn_loss_mse", "mode": "snn", "output_all": True}
+        {"transforms": curr, "ssl_loss": "vicreg", "mode": "cnn", "output_all": False}
     )
 
     curr = [*best_tran, "cutpaste"]
     cutpaste = main(
-        {"transforms": curr, "ssl_loss": "snn_loss_mse", "mode": "snn", "output_all": True}
+        {"transforms": curr, "ssl_loss": "vicreg", "mode": "cnn", "output_all": False}
     )
 
     curr = [*best_tran, "moving_occlusions"]
     movingocc = main(
-        {"transforms": curr, "ssl_loss": "snn_loss_mse", "mode": "snn", "output_all": True}
+        {"transforms": curr, "ssl_loss": "vicreg", "mode": "cnn", "output_all": False}
     )
 
     exit()
@@ -204,7 +204,7 @@ if __name__ == "__main__":
 
     # exit()
     trans = ["flip", "background_activity", "reverse", "flip_polarity", "event_drop"]
-    main({"transforms": trans, "ssl_loss": "vicreg", "mode": "snn"})
+    main({"transforms": trans, "ssl_loss": "vicreg", "mode": "cnn"})
 
     trans = [
         "flip",
@@ -216,7 +216,7 @@ if __name__ == "__main__":
         "cutpaste",
         "moving_occlusion",
     ]
-    main({"transforms": trans, "ssl_loss": "vicreg", "mode": "snn"})
+    main({"transforms": trans, "ssl_loss": "vicreg", "mode": "cnn"})
 
     trans = [
         "flip",
@@ -228,7 +228,7 @@ if __name__ == "__main__":
         "dynamic_translation",
         "moving_occlusion",
     ]
-    main({"transforms": trans, "ssl_loss": "vicreg", "mode": "snn"})
+    main({"transforms": trans, "ssl_loss": "vicreg", "mode": "cnn"})
 
     trans = [
         "flip",
@@ -239,7 +239,7 @@ if __name__ == "__main__":
         "dynamic_translation",
         "event_drop",
     ]
-    main({"transforms": trans, "ssl_loss": "vicreg", "mode": "snn"})
+    main({"transforms": trans, "ssl_loss": "vicreg", "mode": "cnn"})
 
     exit()
 
@@ -251,7 +251,7 @@ if __name__ == "__main__":
 
     # exp - try snn
     trans = ["flip", "background_activity", "reverse", "flip_polarity"]
-    main({"transforms": trans, "ssl_loss": "barlow_twins", "mode": "snn"})
+    main({"transforms": trans, "ssl_loss": "barlow_twins", "mode": "cnn"})
     exit()
 
     # exp 2 (+crop)
