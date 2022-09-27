@@ -18,7 +18,7 @@ from project.datamodules.cifar10dvs import CIFAR10DVS
 from project.datamodules.dvs_lips import DVSLip
 from project.datamodules.ncaltech101 import NCALTECH101
 from project.datamodules.ncars import NCARS
-from project.utils.dvs_noises import EventDrop
+from project.utils.dvs_noises import EventDrop, EventDrop2
 from project.utils.transform_dvs import (
     BackgroundActivityNoise,
     ConcatTimeChannels,
@@ -152,6 +152,10 @@ class BarlowTwinsTransform:
         if "event_drop" in transforms_list:
             trans_a.append(EventDrop(sensor_size=sensor_size))
             trans_b.append(EventDrop(sensor_size=sensor_size))
+
+        if "event_drop_2" in transforms_list:
+            trans_a.append(EventDrop2(sensor_size=sensor_size))
+            trans_b.append(EventDrop2(sensor_size=sensor_size))
 
         # TENSOR TRANSFORMATION
         trans_a.append(representation)

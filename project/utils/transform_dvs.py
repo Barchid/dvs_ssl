@@ -398,7 +398,8 @@ class CutPasteEvent:
         return events
 
     def _bbox(self, H, W):
-        ratio = random.uniform(self.ratio[0], self.ratio[1])
+        ratio = np.random.randint(1, 6) / 20.0
+        # ratio = random.uniform(self.ratio[0], self.ratio[1])
 
         cut_w = int(W * ratio)
         cut_h = int(H * ratio)
