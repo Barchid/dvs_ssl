@@ -14,7 +14,11 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class OnlineFineTuner(Callback):
     def __init__(
-        self, encoder_output_dim: int, num_classes: int, output_all: bool = False
+        self,
+        encoder_output_dim: int,
+        num_classes: int,
+        output_all: bool = False,
+        enc="enc1",
     ) -> None:
         super().__init__()
 
@@ -23,24 +27,34 @@ class OnlineFineTuner(Callback):
         self.encoder_output_dim = encoder_output_dim
         self.num_classes = num_classes
         self.output_all = output_all
+        self.enc = enc
 
     def on_pretrain_routine_start(
         self, trainer: pl.Trainer, pl_module: pl.LightningModule
     ) -> None:
 
-        # add linear_eval layer and optimizer
-        if self.output_all is False:
-            pl_module.online_finetuner = nn.Linear(
+        if self.enc == "enc2":
+            pl_module.online_finetuner2 = nn.Linear(
                 self.encoder_output_dim, self.num_classes
             ).to(pl_module.device)
-        else:
-            pl_module.online_finetuner = nn.Sequential(
-                MeanSpike(), nn.Linear(self.encoder_output_dim, self.num_classes)
-            ).to(pl_module.device)
 
-        self.optimizer = torch.optim.Adam(
-            pl_module.online_finetuner.parameters(), lr=1e-4
-        )
+            self.optimizer = torch.optim.Adam(
+                pl_module.online_finetuner2.parameters(), lr=1e-4
+            )
+        else:
+            # add linear_eval layer and optimizer
+            if self.output_all is False:
+                pl_module.online_finetuner = nn.Linear(
+                    self.encoder_output_dim, self.num_classes
+                ).to(pl_module.device)
+            else:
+                pl_module.online_finetuner = nn.Sequential(
+                    MeanSpike(), nn.Linear(self.encoder_output_dim, self.num_classes)
+                ).to(pl_module.device)
+
+            self.optimizer = torch.optim.Adam(
+                pl_module.online_finetuner.parameters(), lr=1e-4
+            )
 
     def extract_online_finetuning_view(
         self, batch: Sequence
@@ -63,10 +77,17 @@ class OnlineFineTuner(Callback):
         x, y = self.extract_online_finetuning_view(batch)
 
         with torch.no_grad():
-            feats = pl_module(x, mode=pl_module.enc1)
+            if self.enc == "enc2":
+                feats = pl_module(x, mode=pl_module.enc2, enc=2)
+            else:
+                feats = pl_module(x, mode=pl_module.enc1)
 
         feats = feats.detach()
-        preds = pl_module.online_finetuner(feats)
+        if self.enc == "enc2":
+            preds = pl_module.online_finetuner2(feats)
+        else:
+            preds = pl_module.online_finetuner(feats)
+
         loss = F.cross_entropy(preds, y)
 
         loss.backward()
@@ -74,8 +95,16 @@ class OnlineFineTuner(Callback):
         self.optimizer.zero_grad()
 
         acc = accuracy(F.softmax(preds, dim=1), y)
-        pl_module.log("online_train_acc", acc, on_step=False, on_epoch=True, prog_bar=True)
-        pl_module.log("online_train_loss", loss, on_step=False, on_epoch=True)
+        pl_module.log(
+            f"online_train_acc_{self.enc}",
+            acc,
+            on_step=False,
+            on_epoch=True,
+            prog_bar=True,
+        )
+        pl_module.log(
+            f"online_train_loss_{self.enc}", loss, on_step=False, on_epoch=True
+        )
 
     def on_validation_batch_end(
         self,
@@ -89,15 +118,22 @@ class OnlineFineTuner(Callback):
         x, y = self.extract_online_finetuning_view(batch)
 
         with torch.no_grad():
-            feats = pl_module(x, mode=pl_module.enc1)
+            if self.enc == "enc2":
+                feats = pl_module(x, mode=pl_module.enc2, enc=2)
+            else:
+                feats = pl_module(x, mode=pl_module.enc1)
 
         feats = feats.detach()
-        preds = pl_module.online_finetuner(feats)
+        if self.enc == "enc2":
+            preds = pl_module.online_finetuner2(feats)
+        else:
+            preds = pl_module.online_finetuner(feats)
+
         loss = F.cross_entropy(preds, y)
 
         acc = accuracy(F.softmax(preds, dim=1), y)
         pl_module.log(
-            "online_val_acc",
+            f"online_val_acc_{self.enc}",
             acc,
             on_step=False,
             on_epoch=True,
@@ -105,5 +141,9 @@ class OnlineFineTuner(Callback):
             prog_bar=True,
         )
         pl_module.log(
-            "online_val_loss", loss, on_step=False, on_epoch=True, sync_dist=True
+            f"online_val_loss_{self.enc}",
+            loss,
+            on_step=False,
+            on_epoch=True,
+            sync_dist=True,
         )
