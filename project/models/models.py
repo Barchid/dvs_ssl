@@ -24,11 +24,12 @@ def get_encoder(in_channels: int) -> nn.Module:
 
 def get_encoder_3d(in_channels: int) -> nn.Module:
     # resnet18 = models.video.r3d_18()
-    # resnet18.fc = nn.Identity()
-    # resnet18.stem[0] = nn.Conv3d(in_channels=in_channels, out_channels=64, kernel_size=(3,7,7), stride=(1,2,2), padding=(1,3,3))
-    resnet18 = models.video.r2plus1d_18()
+    resnet18 = models.video.mc3_18()
     resnet18.fc = nn.Identity()
-    resnet18.stem[0] = nn.Conv3d(in_channels=in_channels, out_channels=45, kernel_size=(1,7,7), stride=(1,2,2), padding=(0,3,3), bias=False)
+    resnet18.stem[0] = nn.Conv3d(in_channels=in_channels, out_channels=64, kernel_size=(3,7,7), stride=(1,2,2), padding=(1,3,3), bias=False)
+    # resnet18 = models.video.r2plus1d_18()
+    # resnet18.fc = nn.Identity()
+    # resnet18.stem[0] = nn.Conv3d(in_channels=in_channels, out_channels=45, kernel_size=(1,7,7), stride=(1,2,2), padding=(0,3,3), bias=False)
     return resnet18
 
 
