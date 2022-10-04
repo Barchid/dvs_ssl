@@ -20,7 +20,7 @@ ssl_loss = "barlow_twins"
 output_all = False
 
 
-trans = ["flip", "background_activity", "reverse", "flip_polarity", "crop"]
+trans = ["background_activity", "reverse", "flip_polarity", "crop"]
 
 
 def main(args):
