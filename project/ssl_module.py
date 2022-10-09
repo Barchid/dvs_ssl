@@ -7,6 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import pytorch_lightning as pl
+from einops import rearrange
 from torchmetrics.functional import accuracy
 from spikingjelly.clock_driven import functional
 
@@ -82,6 +83,11 @@ class SSLModule(pl.LightningModule):
                 
             # if self.output_all:
             #     functional.reset_net(self.projector)
+            
+        if mode == "cnn" and len(Y.shape) == 5:
+            Y = rearrange(
+                Y, "batch time channel height width -> batch (time channel) height width"
+            )
             
         if mode == "3dcnn":
             Y = Y.permute(0, 2, 1, 3, 4) # from (B,T,C,H,W) to (B,C,T,H,W)
