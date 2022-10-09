@@ -121,7 +121,7 @@ class OnlineFineTuner(Callback):
             if self.enc == "enc2":
                 feats = pl_module(x, mode=pl_module.enc2, enc=2)
             else:
-                feats = pl_module(x, mode=pl_module.enc1)
+                feats = pl_module(x, mode=pl_module.enc1, enc=1)
 
         feats = feats.detach()
         if self.enc == "enc2":

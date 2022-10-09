@@ -36,7 +36,7 @@ def main(args):
     output_all = args["output_all"]
     ssl_loss = args["ssl_loss"]
 
-    name = f"{dataset}_{mode}"
+    name = f"{dataset}_{mode}_DIFFE"
     name += "_ALL" if output_all else ""
     for tr in trans:
         name += f"_{tr}"
@@ -44,6 +44,13 @@ def main(args):
     checkpoint_callback = pl.callbacks.ModelCheckpoint(
         monitor="online_val_acc_enc1",  # TODO: select the logged metric to monitor the checkpoint saving
         filename=name + "-{epoch:03d}-{online_val_acc_enc1:.4f}",
+        save_top_k=1,
+        mode="max",
+    )
+    
+    checkpoint_callback2 = pl.callbacks.ModelCheckpoint(
+        monitor="online_val_acc_enc2",  # TODO: select the logged metric to monitor the checkpoint saving
+        filename=name + "-ENC2-{epoch:03d}-{online_val_acc_enc2:.4f}",
         save_top_k=1,
         mode="max",
     )
@@ -93,7 +100,8 @@ def main(args):
             online_finetuner,
             online_finetuner2,
             checkpoint_callback,
-            EarlyStopping(monitor="online_val_acc_enc1", mode="max", patience=50),
+            checkpoint_callback2,
+            # EarlyStopping(monitor="online_val_acc_enc1", mode="max", patience=50),
         ],
         # logger=pl.loggers.TensorBoardLogger("experiments", name=name),
         default_root_dir=f"experiments/{name}",
@@ -119,15 +127,15 @@ def main(args):
         return -1
 
     # write in score
-    report = open("report_3dcnn.txt", "a")
+    report = open("report_3dcnn_snn.txt", "a")
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     report.write(
-        f"{dt_string} {dataset} {checkpoint_callback.best_model_score} {mode} {output_all} {trans}\n"
+        f"{dt_string} {dataset} ENC1={checkpoint_callback.best_model_score} ENC2={checkpoint_callback2.best_model_score} {mode} {output_all} {trans}\n"
     )
     report.flush()
     report.close()
-    return checkpoint_callback.best_model_score
+    return checkpoint_callback.best_model_score, checkpoint_callback2.best_model_score
 
 
 if __name__ == "__main__":
@@ -137,10 +145,12 @@ if __name__ == "__main__":
         powerset(["flip", "background_activity", "reverse", "flip_polarity", "crop"])
     )
     print(poss_trans)
-    best_acc = -2
-    best_tran = None
+    best_acc1 = -2
+    best_acc2 = -1
+    best_tran1 = None
+    best_tran2 = None
     for curr in poss_trans:
-        acc = main(
+        acc1, acc2 = main(
             {
                 "transforms": list(curr),
                 "ssl_loss": "vicreg",
@@ -148,60 +158,82 @@ if __name__ == "__main__":
                 "output_all": False,
             }
         )
-        if acc > best_acc:
-            best_acc = acc
-            best_tran = list(curr)
+        if acc1 > best_acc1:
+            best_acc1 = acc1
+            best_tran1 = list(curr)
+        
+        if acc2 > best_acc2:
+            best_acc2 = acc2
+            best_tran2 = list(curr)
 
-    messss = f"BEST BASIC FOR CNN IS : {best_acc} {best_tran}"
+    messss = f"BEST BASIC FOR ENC1 IS : {best_acc1} {best_tran1}\n"
+    messss += f"BEST BASIC FOR ENC2 IS : {best_acc2} {best_tran2}"
     print(messss)
-    report = open("report_3dcnn.txt", "a")
+    report = open("report_3dcnn_snn.txt", "a")
     report.write(f"{messss}\n\n\n")
     report.flush()
     report.close()
 
     # study based on transrot
-    curr = [*best_tran, "static_translation", "static_rotation"]
-    st = main(
-        {"transforms": curr, "ssl_loss": "vicreg", "mode": "3dcnn", "output_all": False}
+    curr1 = [*best_tran1, "static_translation", "static_rotation"]
+    st1, _ = main(
+        {"transforms": curr1, "ssl_loss": "vicreg", "mode": "3dcnn", "output_all": False}
+    )
+    
+    curr2 = [*best_tran2, "static_translation", "static_rotation"]
+    _, st2 = main(
+        {"transforms": curr2, "ssl_loss": "vicreg", "mode": "3dcnn", "output_all": False}
     )
 
-    curr = [*best_tran, "dynamic_translation", "dynamic_rotation"]
-    dyn = main(
-        {"transforms": curr, "ssl_loss": "vicreg", "mode": "3dcnn", "output_all": False}
+    curr1 = [*best_tran1, "dynamic_translation", "dynamic_rotation"]
+    dyn1, _ = main(
+        {"transforms": curr1, "ssl_loss": "vicreg", "mode": "3dcnn", "output_all": False}
+    )
+    
+    curr2 = [*best_tran2, "dynamic_translation", "dynamic_rotation"]
+    _, dyn2 = main(
+        {"transforms": curr2, "ssl_loss": "vicreg", "mode": "3dcnn", "output_all": False}
     )
 
-    if dyn >= st:
-        messss = f"BEST TRANSROT FOR CNN IS DYNAMIC = {dyn}"
-        best_tran = [*best_tran, "dynamic_translation", "dynamic_rotation"]
+    if dyn1 >= st1:
+        messss = f"BEST TRANSROT FOR ENC1 IS DYNAMIC = {dyn1}\n"
+        best_tran1 = [*best_tran1, "dynamic_translation", "dynamic_rotation"]
     else:
-        messss = f"BEST TRANSROT FOR CNN IS STATIC = {st}"
-        best_tran = [*best_tran, "static_translation", "static_rotation"]
+        messss = f"BEST TRANSROT FOR ENC1 IS STATIC = {st1}\n"
+        best_tran1 = [*best_tran1, "static_translation", "static_rotation"]
+        
+    if dyn2 >= st2:
+        messss += f"BEST TRANSROT FOR ENC2 IS DYNAMIC = {dyn2}"
+        best_tran2 = [*best_tran2, "dynamic_translation", "dynamic_rotation"]
+    else:
+        messss += f"BEST TRANSROT FOR ENC2 IS STATIC = {st2}"
+        best_tran2 = [*best_tran2, "static_translation", "static_rotation"]
 
     print(messss)
-    report = open("report_3dcnn.txt", "a")
+    report = open("report_3dcnn_snn.txt", "a")
     report.write(f"{messss}\n\n\n")
     report.flush()
     report.close()
 
     # study on cuts
-    curr = [*best_tran, "cutout"]
+    curr1 = [*best_tran1, "cutout"]
     cutout = main(
-        {"transforms": curr, "ssl_loss": "vicreg", "mode": "3dcnn", "output_all": False}
+        {"transforms": curr1, "ssl_loss": "vicreg", "mode": "3dcnn", "output_all": False}
     )
 
-    curr = [*best_tran, "event_drop"]
+    curr1 = [*best_tran1, "event_drop"]
     eventdrop = main(
-        {"transforms": curr, "ssl_loss": "vicreg", "mode": "3dcnn", "output_all": False}
+        {"transforms": curr1, "ssl_loss": "vicreg", "mode": "3dcnn", "output_all": False}
     )
 
-    curr = [*best_tran, "cutpaste"]
+    curr1 = [*best_tran1, "cutpaste"]
     cutpaste = main(
-        {"transforms": curr, "ssl_loss": "vicreg", "mode": "3dcnn", "output_all": False}
+        {"transforms": curr1, "ssl_loss": "vicreg", "mode": "3dcnn", "output_all": False}
     )
 
-    curr = [*best_tran, "moving_occlusions"]
+    curr1 = [*best_tran1, "moving_occlusions"]
     movingocc = main(
-        {"transforms": curr, "ssl_loss": "vicreg", "mode": "3dcnn", "output_all": False}
+        {"transforms": curr1, "ssl_loss": "vicreg", "mode": "3dcnn", "output_all": False}
     )
 
     exit()
