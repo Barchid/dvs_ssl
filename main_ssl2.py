@@ -124,7 +124,7 @@ def main(args):
         report.write(f"{dt_string} ===> {mess}\n=========\n\n")
         report.flush()
         report.close()
-        return -1
+        return -1, -1
 
     # write in score
     report = open("report_3dcnn_snn.txt", "a")
