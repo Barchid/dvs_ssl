@@ -9,7 +9,7 @@ from spikingjelly.clock_driven import functional
 import pytorch_lightning as pl
 import torchmetrics
 
-from project.models.models import get_encoder
+from project.models.models import get_encoder, get_encoder_3d
 from project.models.snn_models import get_encoder_snn
 from project.models.utils import MeanSpike
 
@@ -35,6 +35,8 @@ class ClassifModule(pl.LightningModule):
             self.encoder = get_encoder(in_channels=2 * timesteps)
         elif mode == "snn":
             self.encoder = get_encoder_snn(2, timesteps, output_all=output_all)
+        elif mode == "3dcnn":
+            self.encoder = get_encoder_3d(in_channels=2)
 
         if self.mode == "snn" and output_all is True:
             self.fc = nn.Sequential(MeanSpike(), nn.Linear(512, n_classes))
@@ -46,27 +48,30 @@ class ClassifModule(pl.LightningModule):
             functional.reset_net(self.encoder)
             x = x.permute(1, 0, 2, 3, 4)  # from (B,T,C,H,W) to (T, B, C, H, W)
 
+        if self.mode == "3dcnn":
+            x = x.permute(0, 2, 1, 3, 4)  # from (B,T,C,H,W) to (B,C,T,H,W)
+
         x = self.encoder(x)
         x = self.fc(x)
         return x
 
-    def shared_step(self, batch):
-        (X, Y_a, Y_b), label = batch
-
-        y_hat = self(Y_a)
+    def shared_step(self, x, label):
+        y_hat = self(x)
         loss = F.cross_entropy(y_hat, label)
         acc = torchmetrics.functional.accuracy(y_hat.clone().detach(), label)
         return loss, acc
 
     def training_step(self, batch, batch_idx):
-        loss, acc = self.shared_step(batch)
+        (X, Y_a, Y_b), label = batch
+        loss, acc = self.shared_step(Y_a, label)
 
         self.log("train_loss", loss, on_epoch=True, prog_bar=True)
         self.log("train_acc", acc, on_epoch=True, prog_bar=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
-        loss, acc = self.shared_step(batch)
+        (X, Y_a, Y_b), label = batch
+        loss, acc = self.shared_step(X, label)
 
         # logs
         self.log("val_loss", loss, on_epoch=True, prog_bar=True)

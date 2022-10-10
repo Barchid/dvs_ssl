@@ -15,8 +15,9 @@ from project.utils.eval_callback import OnlineFineTuner
 import traceback
 from datetime import datetime
 
+DISP = "cnn"
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-epochs = 100
+epochs = 400
 learning_rate = 1e-2  # barlowsnn=0.1, vicregsnn=0.01, dvs=1e-3
 timesteps = 12
 batch_size = 128
@@ -61,7 +62,7 @@ def main(args):
         output_all=output_all,
     )
 
-    name = f"{dataset}_{mode}"
+    name = f"simptrain_{dataset}_{mode}"
     name += "_ALL" if output_all else ""
     for tr in trans:
         name += f"_{tr}"
@@ -71,9 +72,9 @@ def main(args):
         gpus=torch.cuda.device_count(),
         callbacks=[checkpoint_callback],
         logger=pl.loggers.TensorBoardLogger(
-            "experiments", name=f"{name}"
+            "experiments", "simpletrains", name=f"{name}"
         ),
-        default_root_dir=f"experiments/{name}",
+        default_root_dir=f"experiments/simpletrains/{name}",
         precision=16,
     )
 
@@ -91,11 +92,11 @@ def main(args):
         return -1
 
     # write in score
-    report = open("report_simpletrain.txt", "a")
+    report = open(f"report_simpletrain_{DISP}.txt", "a")
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     report.write(
-        f"{dt_string} {dataset} {checkpoint_callback.best_model_score} {mode} {output_all} {trans}\n"
+        f"{dt_string} {dataset} {checkpoint_callback.best_model_score} {mode} {trans}\n"
     )
     report.flush()
     report.close()
@@ -105,40 +106,40 @@ def main(args):
 if __name__ == "__main__":
     pl.seed_everything(1234)
 
-    # study on cuts
-    curr = ["background_activity", "flip_polarity", "static_rotation", "static_translation", "event_drop"]
-    eventdrop = main({"transforms": curr, "mode": "cnn", "output_all": False})
+    # # study on cuts
+    # curr = ["background_activity", "flip_polarity", "static_rotation", "static_translation", "event_drop"]
+    # eventdrop = main({"transforms": curr, "mode": DISP, "output_all": False})
     
-    curr = ["background_activity", "flip_polarity", "static_rotation", "static_translation", "cutpaste"]
-    cutpaste = main({"transforms": curr, "mode": "cnn", "output_all": False})
+    # curr = ["background_activity", "flip_polarity", "static_rotation", "static_translation", "cutpaste"]
+    # cutpaste = main({"transforms": curr, "mode": DISP, "output_all": False})
     
-    curr = ["background_activity", "flip_polarity", "static_rotation", "static_translation", "moving_occlusions"]
-    movingocc = main({"transforms": curr, "mode": "cnn", "output_all": False})
-    exit()
+    # curr = ["background_activity", "flip_polarity", "static_rotation", "static_translation", "moving_occlusions"]
+    # movingocc = main({"transforms": curr, "mode": DISP, "output_all": False})
+    # exit()
     
-    poss_trans = list(powerset(["flip", "background_activity", "reverse", "flip_polarity", "crop"]))
+    poss_trans = list(powerset(["background_activity", "reverse", "flip_polarity", "crop"]))
     print(poss_trans)
     best_acc = -2
     best_tran = None
     for curr in poss_trans:
-        acc = main({"transforms": list(curr), "mode": "cnn", "output_all": False})
+        acc = main({"transforms": list(curr), "mode": DISP, "output_all": False})
         if acc > best_acc:
             best_acc = acc
             best_tran = list(curr)
                 
-    messss = f'BEST BASIC FOR CNN IS : {best_acc} {best_tran}'
+    messss = f'BEST BASIC FOR {DISP} IS : {best_acc} {best_tran}'
     print(messss)
-    report = open("report_simpletrain.txt", "a")
+    report = open(f"report_simpletrain_{DISP}.txt", "a")
     report.write(f"{messss}\n\n\n")
     report.flush()
     report.close()
     
     # study based on transrot
     curr = [*best_tran, "static_translation", "static_rotation"]
-    st = main({"transforms": curr, "mode": "cnn", "output_all": False})
+    st = main({"transforms": curr, "mode": DISP, "output_all": False})
     
     curr = [*best_tran, "dynamic_translation", "dynamic_rotation"]
-    dyn = main({"transforms": curr, "mode": "cnn", "output_all": False})
+    dyn = main({"transforms": curr, "mode": DISP, "output_all": False})
     
     if dyn >= st:
         messss = f"BEST TRANSROT FOR CNN IS DYNAMIC = {dyn}"
@@ -148,9 +149,30 @@ if __name__ == "__main__":
         best_tran = [*best_tran, "static_translation", "static_rotation"]
     
     print(messss)
-    report = open("report_simpletrain.txt", "a")
+    report = open(f"report_simpletrain_{DISP}.txt", "a")
     report.write(f"{messss}\n\n\n")
     report.flush()
     report.close()
     
+    # study on cuts
+    curr = [*best_tran, "cutout"]
+    cutout = main(
+        {"transforms": curr, "mode": DISP, "output_all": False}
+    )
+
+    curr = [*best_tran, "event_drop"]
+    eventdrop = main(
+        {"transforms": curr, "mode": DISP, "output_all": False}
+    )
+
+    curr = [*best_tran, "cutpaste"]
+    cutpaste = main(
+        {"transforms": curr, "mode": DISP, "output_all": False}
+    )
+
+    curr = [*best_tran, "moving_occlusions"]
+    movingocc = main(
+        {"transforms": curr, "mode": DISP, "output_all": False}
+    )
     
+    exit()
