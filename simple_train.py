@@ -72,7 +72,7 @@ def main(args):
         gpus=torch.cuda.device_count(),
         callbacks=[checkpoint_callback],
         logger=pl.loggers.TensorBoardLogger(
-            "experiments", "simpletrains", name=f"{name}"
+            "experiments/simpletrains", name=f"{name}"
         ),
         default_root_dir=f"experiments/simpletrains/{name}",
         precision=16,
