@@ -217,8 +217,8 @@ class BarlowTwinsTransform:
             trans_b.append(transforms.RandomApply([DynamicTranslation()], p=0.5))
 
         if "moving_occlusion" in transforms_list:
-            trans_a.append(transforms.RandomApply([MovingOcclusion()], p=0.3))
-            trans_b.append(transforms.RandomApply([MovingOcclusion()], p=0.3))
+            trans_a.append(transforms.RandomApply([MovingOcclusion()], p=0.5))
+            trans_b.append(transforms.RandomApply([MovingOcclusion()], p=0.5))
 
         if "cutout" in transforms_list:
             trans_a.append(transforms.RandomApply([Cutout()], p=0.3))
@@ -338,8 +338,7 @@ class Cutout:
 
 @dataclass(frozen=True)
 class MovingOcclusion:
-    size: Tuple[float] = (0.3, 0.6)
-    nb_holes: int = 3
+    nb_holes: int = 1
     translate: Tuple[float] = (0.3, 0.3)
 
     def _hole_translation(self, mask: torch.Tensor, H, W, timesteps):
@@ -393,7 +392,8 @@ class MovingOcclusion:
         for i in range(n_holes):
             # create hole
             mask = torch.ones((H, W))  # shape=(H,W)
-            size = random.uniform(self.size[0], self.size[1])
+            size = np.random.randint(1, 6) / 20.0
+            # size = random.uniform(self.size[0], self.size[1])
             size_h = int(H * size)
             size_w = int(W * size)
             x_min, y_min = random.randint(0, W - size_w), random.randint(0, H - size_h)
