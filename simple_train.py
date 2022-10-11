@@ -23,6 +23,7 @@ timesteps = 12
 batch_size = 128
 dataset = "dvsgesture"
 output_all = False
+data_dir = "/data/fox-data/datasets/spiking_camera_datasets/"
 
 def powerset(iterable):
     "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
@@ -46,7 +47,7 @@ def main(args):
         batch_size,
         dataset,
         timesteps,
-        data_dir="data",
+        data_dir=data_dir,
         barlow_transf=trans,
         in_memory=False,
         num_workers=0,
