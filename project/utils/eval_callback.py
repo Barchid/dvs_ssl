@@ -79,8 +79,10 @@ class OnlineFineTuner(Callback):
         with torch.no_grad():
             if self.enc == "enc2":
                 feats = pl_module(x, mode=pl_module.enc2, enc=2)
-            else:
+            elif self.enc == "enc1":
                 feats = pl_module(x, mode=pl_module.enc1, enc=1)
+            else:
+                feats = pl_module(x, mode=pl_module.enc1)
 
         feats = feats.detach()
         if self.enc == "enc2":
@@ -95,16 +97,34 @@ class OnlineFineTuner(Callback):
         self.optimizer.zero_grad()
 
         acc = accuracy(F.softmax(preds, dim=1), y)
-        pl_module.log(
-            f"online_train_acc_{self.enc}",
-            acc,
-            on_step=False,
-            on_epoch=True,
-            prog_bar=True,
-        )
-        pl_module.log(
-            f"online_train_loss_{self.enc}", loss, on_step=False, on_epoch=True
-        )
+        if self.enc == "enc2" or self.enc == "enc1":
+            pl_module.log(
+                f"online_train_acc_{self.enc}",
+                acc,
+                on_step=False,
+                on_epoch=True,
+                prog_bar=True,
+            )
+            pl_module.log(
+                f"online_train_loss_{self.enc}",
+                loss,
+                on_step=False,
+                on_epoch=True
+            )
+        else:
+            pl_module.log(
+                f"online_train_loss",
+                loss,
+                on_step=False,
+                on_epoch=True,
+            )
+            pl_module.log(
+                f"online_train_acc",
+                acc,
+                on_step=False,
+                on_epoch=True,
+                prog_bar=True,
+            )
 
     def on_validation_batch_end(
         self,
@@ -120,8 +140,10 @@ class OnlineFineTuner(Callback):
         with torch.no_grad():
             if self.enc == "enc2":
                 feats = pl_module(x, mode=pl_module.enc2, enc=2)
-            else:
+            elif self.enc == "enc1":
                 feats = pl_module(x, mode=pl_module.enc1, enc=1)
+            else:
+                feats = pl_module(x, mode=pl_module.enc1)
 
         feats = feats.detach()
         if self.enc == "enc2":
@@ -132,18 +154,36 @@ class OnlineFineTuner(Callback):
         loss = F.cross_entropy(preds, y)
 
         acc = accuracy(F.softmax(preds, dim=1), y)
-        pl_module.log(
-            f"online_val_acc_{self.enc}",
-            acc,
-            on_step=False,
-            on_epoch=True,
-            sync_dist=True,
-            prog_bar=True,
-        )
-        pl_module.log(
-            f"online_val_loss_{self.enc}",
-            loss,
-            on_step=False,
-            on_epoch=True,
-            sync_dist=True,
-        )
+        
+        if self.enc == "enc2" or self.enc == "enc1":
+            pl_module.log(
+                f"online_val_acc_{self.enc}",
+                acc,
+                on_step=False,
+                on_epoch=True,
+                sync_dist=True,
+                prog_bar=True,
+            )
+            pl_module.log(
+                f"online_val_loss_{self.enc}",
+                loss,
+                on_step=False,
+                on_epoch=True,
+                sync_dist=True,
+            )
+        else:
+            pl_module.log(
+                f"online_val_loss",
+                loss,
+                on_step=False,
+                on_epoch=True,
+                sync_dist=True,
+            )
+            pl_module.log(
+                f"online_val_acc",
+                acc,
+                on_step=False,
+                on_epoch=True,
+                sync_dist=True,
+                prog_bar=True,
+            )
