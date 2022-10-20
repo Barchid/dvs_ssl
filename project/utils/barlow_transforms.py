@@ -12,18 +12,18 @@ from torchvision.transforms import functional
 from tonic import transforms as TF
 import numpy as np
 import random
-from snntorch.spikegen import delta
 import tonic
 from project.datamodules.cifar10dvs import CIFAR10DVS
 from project.datamodules.dvs_lips import DVSLip
 from project.datamodules.ncaltech101 import NCALTECH101
 from project.datamodules.ncars import NCARS
-from project.utils.dvs_noises import EventDrop, EventDrop2
+from project.utils.dvs_noises import EventDrop, EventDrop2, EventDrop3
 from project.utils.transform_dvs import (
     BackgroundActivityNoise,
     ConcatTimeChannels,
     CutMixEvents,
     CutPasteEvent,
+    MovingOcclusion,
     RandomFlipLR,
     RandomFlipPolarity,
     RandomTimeReversal,
@@ -157,6 +157,10 @@ class BarlowTwinsTransform:
             trans_a.append(EventDrop2(sensor_size=sensor_size))
             trans_b.append(EventDrop2(sensor_size=sensor_size))
 
+        if "event_drop_3" in transforms_list:
+            trans_a.append(EventDrop3(sensor_size=sensor_size))
+            trans_b.append(EventDrop3(sensor_size=sensor_size))
+
         # TENSOR TRANSFORMATION
         trans_a.append(representation)
         trans_b.append(representation)
@@ -215,6 +219,10 @@ class BarlowTwinsTransform:
         if "dynamic_translation" in transforms_list:
             trans_a.append(transforms.RandomApply([DynamicTranslation()], p=0.5))
             trans_b.append(transforms.RandomApply([DynamicTranslation()], p=0.5))
+
+        if "transrot" in transforms_list:
+            trans_a.append(TransRot())
+            trans_b.append(TransRot())
 
         if "moving_occlusion" in transforms_list:
             trans_a.append(transforms.RandomApply([MovingOcclusion()], p=0.5))
@@ -312,6 +320,27 @@ class DynamicTranslation:
 
 
 @dataclass(frozen=True)
+class TransRot:
+    dyn_tran = DynamicTranslation()
+    dyn_rot = DynamicRotation()
+    stat_tran = transforms.RandomAffine(0, translate=(0.2, 0.2))
+    stat_rot = transforms.RandomRotation(75)
+
+    def __call__(self, frames: torch.Tensor):
+        choice = np.random.randint(0, 5)
+        if choice == 0:
+            return frames
+        if choice == 1:
+            return self.dyn_tran(frames)
+        if choice == 2:
+            return self.dyn_rot(frames)
+        if choice == 3:
+            return self.stat_tran(frames)
+        if choice == 4:
+            return self.stat_rot(frames)
+
+
+@dataclass(frozen=True)
 class Cutout:
     size: Tuple[float] = (0.3, 0.6)
     nb_holes: int = 3
@@ -332,84 +361,5 @@ class Cutout:
 
         # drop events where the
         frames[mask == 0] = 0.0
-
-        return frames
-
-
-@dataclass(frozen=True)
-class MovingOcclusion:
-    nb_holes: int = 1
-    translate: Tuple[float] = (0.3, 0.3)
-
-    def _hole_translation(self, mask: torch.Tensor, H, W, timesteps):
-        # compute max translation
-        max_dx = float(self.translate[0] * H)
-        max_dy = float(self.translate[1] * W)
-        max_tx = int(round(torch.empty(1).uniform_(-max_dx, max_dx).item()))
-        max_ty = int(round(torch.empty(1).uniform_(-max_dy, max_dy).item()))
-
-        # step translation
-        step_tx = max_tx / (timesteps - 1)
-        current_tx = 0
-
-        step_ty = max_ty / (timesteps - 1)
-        current_ty = 0
-
-        translated = torch.zeros((timesteps, H, W))  # shape=(T,H,W)
-        for t in range(timesteps):
-            translations = (round(current_tx), round(current_ty))
-            translated[t] = functional.affine(
-                mask.unsqueeze(0),
-                0.0,
-                translate=translations,
-                scale=1.0,
-                shear=0.0,
-                fill=1,
-            ).squeeze()
-            current_tx += step_tx
-            current_ty += step_ty
-
-        deltaed = delta(
-            translated, padding=True, off_spike=True
-        )  # composed of 1's and -1's for the polarities
-
-        result = torch.zeros((timesteps, 2, H, W))  # shape=(T,C,H,W)
-        for t in range(timesteps):
-            result[t, 0, :, :] = (deltaed[t] == 1.0).type(
-                torch.float32
-            )  # positive events
-            result[t, 1, :, :] = (deltaed[t] == -1.0).type(
-                torch.float32
-            )  # negative events
-
-        return result, translated
-
-    def __call__(self, frames: torch.Tensor):  # shape (T, C, H, W)
-        timesteps, H, W = frames.shape[0], frames.shape[-2], frames.shape[-1]
-
-        # each hole creates a mask and is translated randomly, then it is added to the frames result
-        n_holes = random.randint(1, self.nb_holes)
-        for i in range(n_holes):
-            # create hole
-            mask = torch.ones((H, W))  # shape=(H,W)
-            size = np.random.randint(1, 6) / 20.0
-            # size = random.uniform(self.size[0], self.size[1])
-            size_h = int(H * size)
-            size_w = int(W * size)
-            x_min, y_min = random.randint(0, W - size_w), random.randint(0, H - size_h)
-            x_max, y_max = x_min + size_w, y_min + size_h
-            mask[y_min : (y_max + 1), x_min : (x_max + 1)] = 0.0
-
-            # random translation
-            hole, mask_translated = self._hole_translation(
-                mask, H, W, timesteps
-            )  # hole.shape=(T, C, H, W)
-
-            # drop events where the mask is located
-            for t in range(timesteps):
-                frames[t, :, mask_translated[t] == 0.0] = 0.0
-
-            # add events from moving holes
-            frames = torch.logical_or(frames, hole, out=torch.empty_like(frames))
 
         return frames

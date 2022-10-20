@@ -111,7 +111,7 @@ def main(args):
         return -1
 
     # write in score
-    report = open("report_3dcnn.txt", "a")
+    report = open(f"report_{mode}.txt", "a")
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     report.write(
@@ -125,6 +125,153 @@ def main(args):
 if __name__ == "__main__":
     pl.seed_everything(1234)
 
+    tran = ['background_activity', 'reverse', 'flip_polarity', 'crop', 'transrot']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "snn",
+        "output_all": False
+    })
+    
+    tran = ['background_activity', 'reverse', 'flip_polarity', 'crop', 'dynamic_translation', 'dynamic_rotation', 'event_drop_2']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "snn",
+        "output_all": False
+    })
+    
+    tran = ['background_activity', 'reverse', 'flip_polarity', 'crop', 'dynamic_translation', 'dynamic_rotation', 'event_drop_3']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "snn",
+        "output_all": False
+    })
+    
+    tran = ['background_activity', 'reverse', 'flip_polarity', 'crop', 'transrot', 'event_drop']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "snn",
+        "output_all": False
+    })
+    
+    tran = ['background_activity', 'reverse', 'flip_polarity', 'crop', 'transrot', 'event_drop_2']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "snn",
+        "output_all": False
+    })
+    
+    tran = ['background_activity', 'reverse', 'flip_polarity', 'crop', 'transrot', 'event_drop_3']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "snn",
+        "output_all": False
+    })
+    
+    # 3D-CNN
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "3dcnn",
+        "output_all": False
+    })
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'event_drop']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "3dcnn",
+        "output_all": False
+    })
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'event_drop_2']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "3dcnn",
+        "output_all": False
+    })
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'event_drop_3']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "3dcnn",
+        "output_all": False
+    })
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'dynamic_translation', 'dynamic_rotation', 'event_drop_2']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "3dcnn",
+        "output_all": False
+    })
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'dynamic_translation', 'dynamic_rotation', 'event_drop_3']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "3dcnn",
+        "output_all": False
+    })
+    
+    # CNN
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "cnn",
+        "output_all": False
+    })
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'event_drop']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "cnn",
+        "output_all": False
+    })
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'event_drop_2']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "cnn",
+        "output_all": False
+    })
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'event_drop_3']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "cnn",
+        "output_all": False
+    })
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'static_translation', 'static_rotation', 'event_drop_2']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "cnn",
+        "output_all": False
+    })
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'static_translation', 'static_rotation', 'event_drop_3']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "cnn",
+        "output_all": False
+    })
+    
+    exit()
     poss_trans = list(
         powerset(["flip", "background_activity", "reverse", "flip_polarity", "crop"])
     )
