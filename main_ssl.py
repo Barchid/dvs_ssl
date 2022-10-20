@@ -77,6 +77,7 @@ def main(args):
         encoder_output_dim=512,
         num_classes=datamodule.num_classes,
         output_all=output_all,
+        enc=None
     )
 
     trainer = pl.Trainer(
