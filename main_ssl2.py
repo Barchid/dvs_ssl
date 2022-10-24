@@ -141,6 +141,27 @@ def main(args):
 if __name__ == "__main__":
     pl.seed_everything(1234)
 
+    tran1 = ['background_activity', 'flip_polarity', 'crop', 'transrot']
+    main(
+        {"transforms": tran1, "ssl_loss": "vicreg", "mode": "3dcnn", "output_all": False}
+    )
+    
+    tran1 = ['background_activity', 'flip_polarity', 'crop', 'transrot']
+    main(
+        {"transforms": tran1, "ssl_loss": "vicreg", "mode": "3dcnn", "output_all": False}
+    )
+    
+    tran1 = ['background_activity', 'flip_polarity', 'crop', 'dynamic_translation', 'dynamic_rotation', 'event_drop_2']
+    main(
+        {"transforms": tran1, "ssl_loss": "vicreg", "mode": "3dcnn", "output_all": False}
+    )
+    
+    tran1 = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'event_drop_2']
+    main(
+        {"transforms": tran1, "ssl_loss": "vicreg", "mode": "3dcnn", "output_all": False}
+    )
+
+    exit()
     poss_trans = list(
         powerset(["background_activity", "reverse", "flip_polarity", "crop"])
     )
