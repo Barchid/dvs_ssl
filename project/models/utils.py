@@ -186,3 +186,30 @@ class MeanSpike(nn.Module):
     def forward(self, x):
         # shape = (T,B,C) to (B,C)
         return torch.mean(x, dim=0)
+
+class BNTT(nn.Module):
+    """Some Information about BNTT"""
+    def __init__(self, num_features: int, timesteps: int):
+        super(BNTT, self).__init__()
+        self.timesteps = timesteps
+        self.num_features = num_features
+        self.bntt = nn.ModuleList([nn.BatchNorm2d(self.num_features, eps=1e-4, momentum=0.1) for i in range(self.timesteps)])
+        
+        # Turn off bias of BNTT
+        for bn_list in self.bntt:
+            for bn_temp in bn_list:
+                bn_temp.bias = None
+        
+    def forward(self, x):
+        # x.shape = (T,B,C,H,W)
+        out = []
+        for t in range(x.shape[0]):
+            x_t = x[t]
+            bn = self.bntt[t]
+            x_t = bn(x_t)
+            out.append(x_t)
+            
+        for t in range(len(out)):
+            out[t] = out[t].unsqueeze(0)
+            
+        return torch.cat(out, 0)
