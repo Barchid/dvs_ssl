@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import torchvision.models as models
-from project.models import sew_resnet
+from project.models import sew_resnet, sew_resnet2
 from spikingjelly.clock_driven import neuron, functional, surrogate, layer
 
 from project.models.utils import (
@@ -47,6 +47,39 @@ def get_encoder_snn(in_channels: int, T: int, output_all: bool):
         T=T,
         cnf="ADD",
         multi_step_neuron=neuron.MultiStepIFNode,
+        detach_reset=True,
+        surrogate_function=surrogate.ATan(),
+        output_all=output_all,
+    )
+
+    # resnet18.layer4[-1].sn2 = MultiStepLIAFNode(
+    #     torch.nn.ReLU(),
+    #     threshold_related=False,
+    #     detach_reset=True,
+    #     surrogate_function=surrogate.ATan(),
+    # )
+
+    if in_channels != 3:
+        resnet18.conv1 = nn.Conv2d(
+            in_channels,
+            64,
+            kernel_size=(7, 7),
+            stride=(2, 2),
+            padding=(3, 3),
+            bias=False,
+        )
+
+    return resnet18
+
+
+def get_encoder_snn_2(in_channels: int, T: int, output_all: bool):
+    resnet18 = sew_resnet2.MultiStepSEWResNet(
+        block=sew_resnet.MultiStepBasicBlock,
+        layers=[2, 2, 2, 2],
+        zero_init_residual=True,
+        T=T,
+        cnf="ADD",
+        multi_step_neuron=neuron.MultiStepParametricLIFNode,
         detach_reset=True,
         surrogate_function=surrogate.ATan(),
         output_all=output_all,
