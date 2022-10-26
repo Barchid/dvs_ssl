@@ -8,6 +8,7 @@ import torch.optim as optim
 from torchmetrics.functional import accuracy
 
 from project.models.utils import MeanSpike
+from project.utils.localization import DIoULoss, compute_IoU
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -16,7 +17,6 @@ class OnlineFineTuner(Callback):
     def __init__(
         self,
         encoder_output_dim: int,
-        num_classes: int,
         output_all: bool = False,
         enc="enc1",
     ) -> None:
@@ -25,9 +25,9 @@ class OnlineFineTuner(Callback):
         self.optimizer: torch.optim.Optimizer
 
         self.encoder_output_dim = encoder_output_dim
-        self.num_classes = num_classes
         self.output_all = output_all
         self.enc = enc
+        self.criterion = DIoULoss()
 
     def on_pretrain_routine_start(
         self, trainer: pl.Trainer, pl_module: pl.LightningModule
@@ -35,7 +35,7 @@ class OnlineFineTuner(Callback):
 
         if self.enc == "enc2":
             pl_module.online_finetuner2 = nn.Linear(
-                self.encoder_output_dim, self.num_classes
+                self.encoder_output_dim, 4
             ).to(pl_module.device)
 
             self.optimizer = torch.optim.Adam(
@@ -45,11 +45,11 @@ class OnlineFineTuner(Callback):
             # add linear_eval layer and optimizer
             if self.output_all is False:
                 pl_module.online_finetuner = nn.Linear(
-                    self.encoder_output_dim, self.num_classes
+                    self.encoder_output_dim, 4
                 ).to(pl_module.device)
             else:
                 pl_module.online_finetuner = nn.Sequential(
-                    MeanSpike(), nn.Linear(self.encoder_output_dim, self.num_classes)
+                    MeanSpike(), nn.Linear(self.encoder_output_dim, 4)
                 ).to(pl_module.device)
 
             self.optimizer = torch.optim.Adam(
@@ -90,13 +90,13 @@ class OnlineFineTuner(Callback):
         else:
             preds = pl_module.online_finetuner(feats)
 
-        loss = F.cross_entropy(preds, y)
+        loss = self.criterion(preds, y)
 
         loss.backward()
         self.optimizer.step()
         self.optimizer.zero_grad()
 
-        acc = accuracy(F.softmax(preds, dim=1), y)
+        acc = compute_IoU(preds, y)
         if self.enc == "enc2" or self.enc == "enc1":
             pl_module.log(
                 f"online_train_acc_{self.enc}",
@@ -151,9 +151,9 @@ class OnlineFineTuner(Callback):
         else:
             preds = pl_module.online_finetuner(feats)
 
-        loss = F.cross_entropy(preds, y)
+        loss = self.criterion(preds, y)
 
-        acc = accuracy(F.softmax(preds, dim=1), y)
+        acc = compute_IoU(preds, y)
         
         if self.enc == "enc2" or self.enc == "enc1":
             pl_module.log(
