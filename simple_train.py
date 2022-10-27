@@ -93,7 +93,7 @@ def main(args):
         return -1
 
     # write in score
-    report = open(f"report_simpletrain_{DISP}.txt", "a")
+    report = open(f"report_simpletrain_{mode}.txt", "a")
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     report.write(
@@ -105,8 +105,45 @@ def main(args):
 
 
 if __name__ == "__main__":
-    pl.seed_everything(1234)
 
+    # SNN
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot']
+    main({"transforms": tran, "mode": 'snn', "output_all": False})
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'cutout']
+    main({"transforms": tran, "mode": 'snn', "output_all": False})
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'cutpaste']
+    main({"transforms": tran, "mode": 'snn', "output_all": False})
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'event_drop']
+    main({"transforms": tran, "mode": 'snn', "output_all": False})
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'event_drop_2']
+    main({"transforms": tran, "mode": 'snn', "output_all": False})
+    
+    
+    
+    # 3DCNN
+    tran = ['background_activity', 'flip_polarity', 'crop']
+    main({"transforms": tran, "mode": '3dcnn', "output_all": False})
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot']
+    main({"transforms": tran, "mode": '3dcnn', "output_all": False})
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'cutout']
+    main({"transforms": tran, "mode": '3dcnn', "output_all": False})
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'cutpaste']
+    main({"transforms": tran, "mode": '3dcnn', "output_all": False})
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'event_drop']
+    main({"transforms": tran, "mode": '3dcnn', "output_all": False})
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'event_drop_2']
+    main({"transforms": tran, "mode": '3dcnn', "output_all": False})
+    
+    exit()
     # # study on cuts
     # curr = ["background_activity", "flip_polarity", "static_rotation", "static_translation", "event_drop"]
     # eventdrop = main({"transforms": curr, "mode": DISP, "output_all": False})
