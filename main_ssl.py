@@ -20,7 +20,7 @@ def powerset(iterable):
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-epochs = 500
+epochs = 1000
 learning_rate = 1e-2  # barlowsnn=0.1, vicregsnn=0.01, dvs=1e-3
 timesteps = 12
 batch_size = 128
@@ -86,7 +86,7 @@ def main(args):
         callbacks=[
             online_finetuner,
             checkpoint_callback,
-            EarlyStopping(monitor="online_val_acc", mode="max", patience=50),
+            EarlyStopping(monitor="online_val_acc", mode="max", patience=75),
         ],
         # logger=pl.loggers.TensorBoardLogger("experiments", name=name),
         default_root_dir=f"experiments/{name}",
@@ -124,7 +124,113 @@ def main(args):
 
 
 if __name__ == "__main__":
-    pl.seed_everything(1234)
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "cnn",
+        "output_all": False
+    })
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'cutpaste']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "cnn",
+        "output_all": False
+    })
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'cutout']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "cnn",
+        "output_all": False
+    })
+    
+    
+    
+    #################
+    tran = ['background_activity', 'flip_polarity', 'crop', 'dynamic_translation', 'dynamic_rotation']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "3dcnn",
+        "output_all": False
+    })
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'event_drop']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "3dcnn",
+        "output_all": False
+    })
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'event_drop_2']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "3dcnn",
+        "output_all": False
+    })
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'cutout']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "3dcnn",
+        "output_all": False
+    })
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'cutpaste']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "3dcnn",
+        "output_all": False
+    })
+    
+    
+    ################
+    tran = ['background_activity', 'reverse', 'flip_polarity', 'crop', 'dynamic_translation', 'dynamic_rotation']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "snn",
+        "output_all": False
+    })
+    tran = ['background_activity', 'reverse', 'flip_polarity', 'crop', 'transrot', 'cutout']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "snn",
+        "output_all": False
+    })
+    tran = ['background_activity', 'reverse', 'flip_polarity', 'crop', 'transrot', 'cutpaste']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "snn",
+        "output_all": False
+    })
+    tran = ['background_activity', 'reverse', 'flip_polarity', 'crop', 'transrot', 'event_drop_2']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "snn",
+        "output_all": False
+    })
+    
+    
+    
+    ##########
+    
+    
+    
+    
+    exit()
 
     tran = ['background_activity', 'reverse', 'flip_polarity', 'crop', 'transrot']
     acc = main({
