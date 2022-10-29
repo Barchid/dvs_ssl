@@ -71,7 +71,7 @@ class SSLModule(pl.LightningModule):
             self.criterion = VICRegLoss()
 
     def forward(self, Y, enc=None, mode="cnn"):
-        if mode == "snn":                     # 0,1,2,3,4
+        if mode == "snn" or mode == "snn2":                     # 0,1,2,3,4
             Y = Y.permute(1, 0, 2, 3, 4)# from (B,T,C,H,W) to (T, B, C, H, W)
             
             if enc is None:

@@ -203,7 +203,6 @@ class BNTT(nn.Module):
         # x.shape = (T,B,C,H,W)
         out = []
         for t in range(x.shape[0]):
-            print(x.shape, t)
             x_t = x[t]
             bn = self.bntt[t]
             x_t = bn(x_t)
