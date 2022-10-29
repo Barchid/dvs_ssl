@@ -196,8 +196,8 @@ class BNTT(nn.Module):
         self.bntt = nn.ModuleList([nn.BatchNorm2d(self.num_features, eps=1e-4, momentum=0.1) for i in range(self.timesteps)])
         
         # Turn off bias of BNTT
-        for bn_temp in self.bntt:
-            bn_temp.bias = None
+        # for bn_temp in self.bntt:
+        #     bn_temp.bias = None
         
     def forward(self, x):
         # x.shape = (T,B,C,H,W)
