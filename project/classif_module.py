@@ -46,7 +46,7 @@ class ClassifModule(pl.LightningModule):
             self.fc = nn.Linear(512, n_classes)
 
     def forward(self, x):
-        if self.mode == "snn":
+        if self.mode == "snn" or self.mode == "snn2":
             functional.reset_net(self.encoder)
             x = x.permute(1, 0, 2, 3, 4)  # from (B,T,C,H,W) to (T, B, C, H, W)
 
