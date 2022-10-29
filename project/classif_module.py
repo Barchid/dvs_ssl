@@ -10,7 +10,7 @@ import pytorch_lightning as pl
 import torchmetrics
 
 from project.models.models import get_encoder, get_encoder_3d
-from project.models.snn_models import get_encoder_snn
+from project.models.snn_models import get_encoder_snn, get_encoder_snn_2
 from project.models.utils import MeanSpike
 
 
@@ -35,6 +35,8 @@ class ClassifModule(pl.LightningModule):
             self.encoder = get_encoder(in_channels=2 * timesteps)
         elif mode == "snn":
             self.encoder = get_encoder_snn(2, timesteps, output_all=output_all)
+        elif mode == "snn2":
+            self.encoder = get_encoder_snn_2(2, timesteps, output_all=output_all)
         elif mode == "3dcnn":
             self.encoder = get_encoder_3d(in_channels=2)
 

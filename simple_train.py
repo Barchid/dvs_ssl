@@ -105,7 +105,10 @@ def main(args):
 
 
 if __name__ == "__main__":
-
+    # SNN2
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'event_drop_2']
+    main({"transforms": tran, "mode": 'snn2', "output_all": False})
+    exit()
     # SNN
     tran = ['background_activity', 'flip_polarity', 'crop', 'transrot']
     main({"transforms": tran, "mode": 'snn', "output_all": False})
