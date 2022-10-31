@@ -47,7 +47,7 @@ def main(args):
         batch_size,
         dataset,
         timesteps,
-        # data_dir=data_dir,
+        data_dir=data_dir,
         barlow_transf=trans,
         in_memory=False,
         num_workers=0,
@@ -107,6 +107,12 @@ def main(args):
 if __name__ == "__main__":
     # SNN2
     tran = ['background_activity', 'flip_polarity', 'crop']
+    main({"transforms": tran, "mode": 'snn2', "output_all": False})
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot']
+    main({"transforms": tran, "mode": 'snn2', "output_all": False})
+    
+    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'event_drop_2']
     main({"transforms": tran, "mode": 'snn2', "output_all": False})
     exit()
     # SNN
