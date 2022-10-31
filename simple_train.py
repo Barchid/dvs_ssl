@@ -15,7 +15,7 @@ from project.utils.eval_callback import OnlineFineTuner
 import traceback
 from datetime import datetime
 
-DISP = "snn"
+DISP = "snn2"
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 epochs = 500
 learning_rate = 3e-3  # barlowsnn=0.1, vicregsnn=0.01, dvs=1e-3
@@ -105,65 +105,6 @@ def main(args):
 
 
 if __name__ == "__main__":
-    # SNN2
-    tran = ['background_activity', 'flip_polarity', 'crop']
-    main({"transforms": tran, "mode": 'snn2', "output_all": False})
-    
-    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot']
-    main({"transforms": tran, "mode": 'snn2', "output_all": False})
-    
-    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'event_drop_2']
-    main({"transforms": tran, "mode": 'snn2', "output_all": False})
-    exit()
-    # SNN
-    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot']
-    main({"transforms": tran, "mode": 'snn', "output_all": False})
-    
-    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'cutout']
-    main({"transforms": tran, "mode": 'snn', "output_all": False})
-    
-    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'cutpaste']
-    main({"transforms": tran, "mode": 'snn', "output_all": False})
-    
-    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'event_drop']
-    main({"transforms": tran, "mode": 'snn', "output_all": False})
-    
-    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'event_drop_2']
-    main({"transforms": tran, "mode": 'snn', "output_all": False})
-    
-    
-    
-    # 3DCNN
-    tran = ['background_activity', 'flip_polarity', 'crop']
-    main({"transforms": tran, "mode": '3dcnn', "output_all": False})
-    
-    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot']
-    main({"transforms": tran, "mode": '3dcnn', "output_all": False})
-    
-    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'cutout']
-    main({"transforms": tran, "mode": '3dcnn', "output_all": False})
-    
-    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'cutpaste']
-    main({"transforms": tran, "mode": '3dcnn', "output_all": False})
-    
-    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'event_drop']
-    main({"transforms": tran, "mode": '3dcnn', "output_all": False})
-    
-    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'event_drop_2']
-    main({"transforms": tran, "mode": '3dcnn', "output_all": False})
-    
-    exit()
-    # # study on cuts
-    # curr = ["background_activity", "flip_polarity", "static_rotation", "static_translation", "event_drop"]
-    # eventdrop = main({"transforms": curr, "mode": DISP, "output_all": False})
-    
-    # curr = ["background_activity", "flip_polarity", "static_rotation", "static_translation", "cutpaste"]
-    # cutpaste = main({"transforms": curr, "mode": DISP, "output_all": False})
-    
-    # curr = ["background_activity", "flip_polarity", "static_rotation", "static_translation", "moving_occlusions"]
-    # movingocc = main({"transforms": curr, "mode": DISP, "output_all": False})
-    # exit()
-    
     poss_trans = list(powerset(["background_activity", "reverse", "flip_polarity", "crop"]))
     print(poss_trans)
     best_acc = -2
