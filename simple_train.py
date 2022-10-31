@@ -19,11 +19,11 @@ DISP = "snn"
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 epochs = 500
 learning_rate = 3e-3  # barlowsnn=0.1, vicregsnn=0.01, dvs=1e-3
-timesteps = 12
-batch_size = 64
+timesteps = 6
+batch_size = 128
 dataset = "dvsgesture"
 output_all = False
-# data_dir = "/data/fox-data/datasets/spiking_camera_datasets/"
+data_dir = "/data/fox-data/datasets/spiking_camera_datasets/"
 
 def powerset(iterable):
     "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
@@ -106,7 +106,7 @@ def main(args):
 
 if __name__ == "__main__":
     # SNN2
-    tran = ['background_activity', 'flip_polarity', 'crop', 'transrot', 'event_drop_2']
+    tran = ['background_activity', 'flip_polarity', 'crop']
     main({"transforms": tran, "mode": 'snn2', "output_all": False})
     exit()
     # SNN
