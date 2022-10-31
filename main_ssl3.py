@@ -140,7 +140,13 @@ def main(args):
 
 if __name__ == "__main__":
     pl.seed_everything(1234)
-
+    
+    tran1 = ['background_activity', 'crop', 'transrot']
+    main(
+        {"transforms": tran1, "ssl_loss": "vicreg", "mode": "cnn", "output_all": False}
+    )
+    
+    exit()
     poss_trans = list(
         powerset(["background_activity", "reverse", "flip_polarity", "crop"])
     )
