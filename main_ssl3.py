@@ -141,7 +141,7 @@ def main(args):
 if __name__ == "__main__":
     pl.seed_everything(1234)
     
-    tran1 = ['background_activity', 'crop', 'transrot']
+    tran1 = ['background_activity', 'crop', 'dynamic_translation', 'dynamic_rotation', 'event_drop_2']
     main(
         {"transforms": tran1, "ssl_loss": "vicreg", "mode": "cnn", "output_all": False}
     )
