@@ -146,7 +146,7 @@ class SupervisedTransform:
             )
 
     def __call__(self, X):
-        smpls = random.sample(self.transforms_list, k=2)
+        smpls = random.sample(self.transforms_list, k=1)
         if self.flip is not None:
             final_transforms = [self.flip]
         else:
