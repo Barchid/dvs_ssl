@@ -125,6 +125,16 @@ def main(args):
 
 if __name__ == "__main__":
     
+    tran = ['background_activity', 'reverse', 'flip_polarity', 'crop', 'transrot']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "snn",
+        "output_all": False
+    })
+    
+    exit()
+    
     tran = ['background_activity', 'flip_polarity', 'crop', 'transrot']
     acc = main({
         "transforms": tran,
