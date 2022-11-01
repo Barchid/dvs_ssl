@@ -52,6 +52,7 @@ def main(args):
         in_memory=False,
         num_workers=0,
         mode=mode,
+        use_barlow_trans=False
     )
 
     module = ClassifModule(
@@ -105,6 +106,15 @@ def main(args):
 
 
 if __name__ == "__main__":
+    tran = ["background_activity", "flip_polarity", "crop"]
+    main({"transforms": tran, "mode": "snn", "output_all": False})
+    
+    tran = ["background_activity", "flip_polarity", "crop", 'transrot']
+    main({"transforms": tran, "mode": "snn", "output_all": False})
+    
+    tran = ["background_activity", "flip_polarity", "crop", 'dynamic_translation', 'dynamic_rotation']
+    main({"transforms": tran, "mode": "snn", "output_all": False})
+    
     tran = ["background_activity", "flip_polarity", "crop"]
     main({"transforms": tran, "mode": "snn2", "output_all": False})
     

@@ -16,6 +16,7 @@ from project.datamodules.dvs_memory import DvsMemory
 from project.datamodules.ncaltech101 import NCALTECH101
 from project.datamodules.ncars import NCARS
 from project.utils.barlow_transforms import BarlowTwinsTransform
+from project.utils.supervised_transforms import SupervisedTransform
 
 
 class DVSDataModule(pl.LightningDataModule):
@@ -29,6 +30,7 @@ class DVSDataModule(pl.LightningDataModule):
         barlow_transf=None,
         mode="cnn",
         in_memory: bool = False,
+        use_barlow_trans = True,
         **kwargs
     ):
         super().__init__()
@@ -44,14 +46,24 @@ class DVSDataModule(pl.LightningDataModule):
 
         # transform
         self.sensor_size, self.num_classes = self._get_dataset_info()
-        self.train_transform = BarlowTwinsTransform(
-            self.sensor_size,
-            timesteps=timesteps,
-            transforms_list=barlow_transf,
-            concat_time_channels=mode == "cnn",
-            dataset=dataset,
-            data_dir=data_dir,
-        )
+        if use_barlow_trans:
+            self.train_transform = BarlowTwinsTransform(
+                self.sensor_size,
+                timesteps=timesteps,
+                transforms_list=barlow_transf,
+                concat_time_channels=mode == "cnn",
+                dataset=dataset,
+                data_dir=data_dir,
+            )
+        else:
+            self.train_transform = SupervisedTransform(
+                self.sensor_size,
+                timesteps=timesteps,
+                transforms_list=barlow_transf,
+                concat_time_channels=mode == "cnn",
+                dataset=dataset,
+                data_dir=data_dir,
+            )
         self.val_transform = BarlowTwinsTransform(
             self.sensor_size,
             timesteps=timesteps,
