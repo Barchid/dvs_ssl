@@ -19,8 +19,8 @@ DISP = "snn2"
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 epochs = 500
 learning_rate = 3e-3  # barlowsnn=0.1, vicregsnn=0.01, dvs=1e-3
-timesteps = 6
-batch_size = 128
+timesteps = 12
+batch_size = 64
 dataset = "dvsgesture"
 output_all = False
 data_dir = "/data/fox-data/datasets/spiking_camera_datasets/"
@@ -105,6 +105,10 @@ def main(args):
 
 
 if __name__ == "__main__":
+    tran = ["background_activity", "flip_polarity", "crop"]
+    main({"transforms": tran, "mode": "snn2", "output_all": False})
+    
+    exit()
     poss_trans = list(powerset(["background_activity", "reverse", "flip_polarity", "crop"]))
     print(poss_trans)
     best_acc = -2
