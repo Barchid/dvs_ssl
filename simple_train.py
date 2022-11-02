@@ -19,16 +19,17 @@ DISP = "snn2"
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 epochs = 500
 learning_rate = 3e-3  # barlowsnn=0.1, vicregsnn=0.01, dvs=1e-3
-timesteps = 12
-batch_size = 64
+timesteps = 6
+batch_size = 128
 dataset = "dvsgesture"
 output_all = False
 data_dir = "/data/fox-data/datasets/spiking_camera_datasets/"
 
+
 def powerset(iterable):
     "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
     s = list(iterable)
-    return chain.from_iterable(combinations(s, r) for r in range(len(s)+1))
+    return chain.from_iterable(combinations(s, r) for r in range(len(s) + 1))
 
 
 def main(args):
@@ -52,7 +53,7 @@ def main(args):
         in_memory=False,
         num_workers=0,
         mode=mode,
-        use_barlow_trans=False
+        use_barlow_trans=False,
     )
 
     module = ClassifModule(
@@ -73,9 +74,7 @@ def main(args):
         max_epochs=epochs,
         gpus=torch.cuda.device_count(),
         callbacks=[checkpoint_callback],
-        logger=pl.loggers.TensorBoardLogger(
-            "experiments/simpletrains", name=f"{name}"
-        ),
+        logger=pl.loggers.TensorBoardLogger("experiments/simpletrains", name=f"{name}"),
         default_root_dir=f"experiments/simpletrains/{name}",
         precision=16,
     )
@@ -105,21 +104,106 @@ def main(args):
     return checkpoint_callback.best_model_score
 
 
+def compare(mode):
+    tran = ["background_activity", "flip_polarity"]
+    main({"transforms": tran, "mode": mode, "output_all": False})
+
+    tran = ["background_activity", "flip_polarity", "crop"]
+    main({"transforms": tran, "mode": mode, "output_all": False})
+    
+    tran = ["flip_polarity", "crop"]
+    main({"transforms": tran, "mode": mode, "output_all": False})
+
+    tran = [
+        "background_activity",
+        "flip_polarity",
+        "crop",
+        "static_translation",
+        "static_rotation",
+    ]
+    main({"transforms": tran, "mode": mode, "output_all": False})
+
+    tran = [
+        "background_activity",
+        "flip_polarity",
+        "crop",
+        "dynamic_translation",
+        "dynamic_rotation",
+    ]
+    main({"transforms": tran, "mode": mode, "output_all": False})
+
+    tran = [
+        "background_activity",
+        "flip_polarity",
+        "crop",
+        "cutout",
+    ]
+    main({"transforms": tran, "mode": mode, "output_all": False})
+    
+    tran = [
+        "background_activity",
+        "flip_polarity",
+        "crop",
+        "cutpaste",
+    ]
+    main({"transforms": tran, "mode": mode, "output_all": False})
+    
+    tran = [
+        "background_activity",
+        "flip_polarity",
+        "crop",
+        "event_drop",
+    ]
+    main({"transforms": tran, "mode": mode, "output_all": False})
+    
+    tran = [
+        "background_activity",
+        "flip_polarity",
+        "crop",
+        "static_translation",
+        "static_rotation",
+        "dynamic_translation",
+        "dynamic_rotation",
+        "cutout",
+        "cutpaste"
+    ]
+    main({"transforms": tran, "mode": mode, "output_all": False})
+
+
 if __name__ == "__main__":
-    tran = ["background_activity", "flip_polarity", "crop"]
-    main({"transforms": tran, "mode": "snn", "output_all": False})
-    
-    tran = ["background_activity", "flip_polarity", "crop", 'transrot']
-    main({"transforms": tran, "mode": "snn", "output_all": False})
-    
-    tran = ["background_activity", "flip_polarity", "crop", 'dynamic_translation', 'dynamic_rotation']
-    main({"transforms": tran, "mode": "snn", "output_all": False})
-    
-    tran = ["background_activity", "flip_polarity", "crop"]
-    main({"transforms": tran, "mode": "snn2", "output_all": False})
+    compare(mode="snn")
+    compare(mode="cnn")
+    compare(mode="3dcnn")
     
     exit()
-    poss_trans = list(powerset(["background_activity", "reverse", "flip_polarity", "crop"]))
+    tran = ["background_activity", "flip_polarity", "crop"]
+    main({"transforms": tran, "mode": "snn", "output_all": False})
+
+    tran = [
+        "background_activity",
+        "flip_polarity",
+        "crop",
+        "static_translation",
+        "static_rotation",
+    ]
+    main({"transforms": tran, "mode": "snn", "output_all": False})
+
+    tran = [
+        "background_activity",
+        "flip_polarity",
+        "crop",
+        "dynamic_translation",
+        "dynamic_rotation",
+    ]
+    main({"transforms": tran, "mode": "snn", "output_all": False})
+
+    tran = ["background_activity", "flip_polarity", "crop"]
+    main({"transforms": tran, "mode": "snn2", "output_all": False})
+
+    exit()
+    poss_trans = list(
+        powerset(["background_activity", "reverse", "flip_polarity", "crop"])
+    )
     print(poss_trans)
     best_acc = -2
     best_tran = None
@@ -128,53 +212,45 @@ if __name__ == "__main__":
         if acc > best_acc:
             best_acc = acc
             best_tran = list(curr)
-                
-    messss = f'BEST BASIC FOR {DISP} IS : {best_acc} {best_tran}'
+
+    messss = f"BEST BASIC FOR {DISP} IS : {best_acc} {best_tran}"
     print(messss)
     report = open(f"report_simpletrain_{DISP}.txt", "a")
     report.write(f"{messss}\n\n\n")
     report.flush()
     report.close()
-    
+
     # study based on transrot
     curr = [*best_tran, "static_translation", "static_rotation"]
     st = main({"transforms": curr, "mode": DISP, "output_all": False})
-    
+
     curr = [*best_tran, "dynamic_translation", "dynamic_rotation"]
     dyn = main({"transforms": curr, "mode": DISP, "output_all": False})
-    
+
     if dyn >= st:
         messss = f"BEST TRANSROT FOR CNN IS DYNAMIC = {dyn}"
         best_tran = [*best_tran, "dynamic_translation", "dynamic_rotation"]
     else:
         messss = f"BEST TRANSROT FOR CNN IS STATIC = {st}"
         best_tran = [*best_tran, "static_translation", "static_rotation"]
-    
+
     print(messss)
     report = open(f"report_simpletrain_{DISP}.txt", "a")
     report.write(f"{messss}\n\n\n")
     report.flush()
     report.close()
-    
+
     # study on cuts
     curr = [*best_tran, "cutout"]
-    cutout = main(
-        {"transforms": curr, "mode": DISP, "output_all": False}
-    )
+    cutout = main({"transforms": curr, "mode": DISP, "output_all": False})
 
     curr = [*best_tran, "event_drop"]
-    eventdrop = main(
-        {"transforms": curr, "mode": DISP, "output_all": False}
-    )
+    eventdrop = main({"transforms": curr, "mode": DISP, "output_all": False})
 
     curr = [*best_tran, "cutpaste"]
-    cutpaste = main(
-        {"transforms": curr, "mode": DISP, "output_all": False}
-    )
+    cutpaste = main({"transforms": curr, "mode": DISP, "output_all": False})
 
     curr = [*best_tran, "moving_occlusions"]
-    movingocc = main(
-        {"transforms": curr, "mode": DISP, "output_all": False}
-    )
-    
+    movingocc = main({"transforms": curr, "mode": DISP, "output_all": False})
+
     exit()
