@@ -133,7 +133,7 @@ class DVSDataModule(pl.LightningDataModule):
             full_len = len(dataset_train)
             train_len = int(0.9 * full_len)
             val_len = full_len - train_len
-            self.train_set, self.val_set_ = random_split(
+            self.train_set, self.val_set = random_split(
                 dataset_train, lengths=[train_len, val_len]
             )
 
