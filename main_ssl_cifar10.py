@@ -127,6 +127,13 @@ def compare(mode):
 
 
 if __name__ == "__main__":
+    tran = ['background_activity', 'flip_polarity', 'crop']
+    acc = main({
+        "transforms": tran,
+        "ssl_loss": "vicreg",
+        "mode": "snn",
+        "output_all": False
+    })
     
     tran = ['background_activity', 'reverse', 'flip_polarity', 'crop', 'flip']
     acc = main({
@@ -136,7 +143,7 @@ if __name__ == "__main__":
         "output_all": False
     })
     
-    tran = ['background_activity', 'reverse', 'flip_polarity', 'crop']
+    tran = ['background_activity', 'flip_polarity', 'crop', 'reverse']
     acc = main({
         "transforms": tran,
         "ssl_loss": "vicreg",
@@ -144,7 +151,7 @@ if __name__ == "__main__":
         "output_all": False
     })
     
-    tran = ['background_activity', 'flip_polarity', 'crop']
+    tran = ['background_activity', 'flip_polarity', 'crop', 'reverse', 'flip']
     acc = main({
         "transforms": tran,
         "ssl_loss": "vicreg",
