@@ -122,6 +122,9 @@ def main(args):
     report.close()
     return checkpoint_callback.best_model_score
 
+def compare(mode):
+    pass
+
 
 if __name__ == "__main__":
     
