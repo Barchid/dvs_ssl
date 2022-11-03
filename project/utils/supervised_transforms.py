@@ -56,7 +56,7 @@ class SupervisedTransform:
         # BEFORE TENSOR TRANSFORMATION
         self.flip = None
         if "flip" in transforms_list:
-            self.transforms_list.remove('flip')
+            self.transforms_list.remove("flip")
             self.flip = RandomFlipLR(sensor_size=sensor_size)
             # trans_a.append(RandomFlipLR(sensor_size=sensor_size))
             # trans_b.append(RandomFlipLR(sensor_size=sensor_size))
@@ -86,7 +86,7 @@ class SupervisedTransform:
 
         # if 'crop' in transforms_list:
         if "crop" in transforms_list:
-            self.transforms_list.remove('crop')
+            self.transforms_list.remove("crop")
             self.crop = transforms.RandomResizedCrop(
                 (128, 128), interpolation=transforms.InterpolationMode.NEAREST
             )
@@ -146,7 +146,8 @@ class SupervisedTransform:
             )
 
     def __call__(self, X):
-        smpls = random.sample(self.transforms_list, k=1)
+        k = 2 if len(self.transforms_list) >= 2 else 1
+        smpls = random.sample(self.transforms_list, k=k)
         if self.flip is not None:
             final_transforms = [self.flip]
         else:
@@ -159,14 +160,14 @@ class SupervisedTransform:
         final_transforms.append(self.representation)
 
         final_transforms.append(self.crop)
-        
+
         for smpl in smpls:
             if smpl in self.trans_aft:
                 final_transforms.append(self.trans_aft[smpl])
-                
+
         if self.concat is not None:
             final_transforms.append(self.concat)
-            
+
         final_transforms = transforms.Compose(final_transforms)
         Y_a = final_transforms(X)
         X = self.transform(X)
