@@ -50,7 +50,7 @@ class NCALTECH101(Dataset):
             os.path.join(self.location_on_system, NCALTECH101.folder_name)
         )
         classes_list.sort()
-        print(len(classes_list), classes_list)
+        # print(len(classes_list), classes_list)
         for path, dirs, files in os.walk(file_path):
             for file in files:
                 if file.endswith("bin"):
