@@ -46,8 +46,11 @@ class NCALTECH101(Dataset):
             extract_archive(os.path.join(self.location_on_system, self.data_filename))
 
         file_path = os.path.join(self.location_on_system, self.folder_name)
-        classes_list = os.listdir(os.path.join(self.location_on_system, NCALTECH101.folder_name))
+        classes_list = os.listdir(
+            os.path.join(self.location_on_system, NCALTECH101.folder_name)
+        )
         classes_list.sort()
+        print(len(classes_list), classes_list)
         for path, dirs, files in os.walk(file_path):
             for file in files:
                 if file.endswith("bin"):
@@ -74,6 +77,7 @@ class NCALTECH101(Dataset):
         return len(self.data)
 
     def _check_exists(self):
-        return self._is_file_present() and self._folder_contains_at_least_n_files_of_type(
-            8709, ".bin"
+        return (
+            self._is_file_present()
+            and self._folder_contains_at_least_n_files_of_type(8709, ".bin")
         )
