@@ -123,22 +123,22 @@ def main(args):
 def compare(mode):
     tran = ["background_activity", "flip_polarity", "crop"]
     acc = main(
-        {"transforms": tran, "ssl_loss": "vicreg", "mode": "snn", "output_all": False}
+        {"transforms": tran, "ssl_loss": "vicreg", "mode": mode, "output_all": False}
     )
 
     tran = ["background_activity", "flip_polarity", "crop", "flip", "reverse"]
     acc = main(
-        {"transforms": tran, "ssl_loss": "vicreg", "mode": "snn", "output_all": False}
+        {"transforms": tran, "ssl_loss": "vicreg", "mode": mode, "output_all": False}
     )
 
     tran = ["background_activity", "flip_polarity", "crop", "reverse"]
     acc = main(
-        {"transforms": tran, "ssl_loss": "vicreg", "mode": "snn", "output_all": False}
+        {"transforms": tran, "ssl_loss": "vicreg", "mode": mode, "output_all": False}
     )
 
     tran = ["background_activity", "flip_polarity", "crop", "flip"]
     acc = main(
-        {"transforms": tran, "ssl_loss": "vicreg", "mode": "snn", "output_all": False}
+        {"transforms": tran, "ssl_loss": "vicreg", "mode": mode, "output_all": False}
     )
 
 
