@@ -83,7 +83,7 @@ def main(args):
         callbacks=[
             online_finetuner,
             checkpoint_callback,
-            EarlyStopping(monitor="online_val_acc", mode="max", patience=75),
+            # EarlyStopping(monitor="online_val_acc", mode="max", patience=75),
         ],
         # logger=pl.loggers.TensorBoardLogger("experiments", name=name),
         default_root_dir=f"experiments/{name}",
