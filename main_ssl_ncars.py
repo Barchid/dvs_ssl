@@ -83,7 +83,7 @@ def main(args):
         callbacks=[
             online_finetuner,
             checkpoint_callback,
-            EarlyStopping(monitor="online_val_acc", mode="max", patience=75),
+            # EarlyStopping(monitor="online_val_acc", mode="max", patience=75),
         ],
         # logger=pl.loggers.TensorBoardLogger("experiments", name=name),
         default_root_dir=f"experiments/{name}",
@@ -137,6 +137,16 @@ def compare(mode):
     )
 
     tran = ["background_activity", "flip_polarity", "crop", "flip"]
+    acc = main(
+        {"transforms": tran, "ssl_loss": "vicreg", "mode": mode, "output_all": False}
+    )
+    
+    tran = ["background_activity", "flip_polarity", "crop", "reverse", "transrot"]
+    acc = main(
+        {"transforms": tran, "ssl_loss": "vicreg", "mode": mode, "output_all": False}
+    )
+    
+    tran = ["background_activity", "flip_polarity", "crop", "reverse", "transrot", "event_drop_2"]
     acc = main(
         {"transforms": tran, "ssl_loss": "vicreg", "mode": mode, "output_all": False}
     )
