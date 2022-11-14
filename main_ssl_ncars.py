@@ -24,7 +24,7 @@ epochs = 500
 learning_rate = 1e-2  # barlowsnn=0.1, vicregsnn=0.01, dvs=1e-3
 timesteps = 12
 batch_size = 128
-dataset = "n-cars"
+dataset = "ncars"
 
 
 def main(args):
