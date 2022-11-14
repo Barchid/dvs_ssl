@@ -150,6 +150,11 @@ def compare(mode):
     acc = main(
         {"transforms": tran, "ssl_loss": "vicreg", "mode": mode, "output_all": False}
     )
+    
+    tran = ["background_activity", "flip_polarity", "crop", "reverse", "event_drop_2"]
+    acc = main(
+        {"transforms": tran, "ssl_loss": "vicreg", "mode": mode, "output_all": False}
+    )
 
 
 if __name__ == "__main__":
