@@ -121,37 +121,37 @@ def main(args):
 
 
 def compare(mode):
-    tran = ["background_activity", "flip_polarity", "crop"]
+    tran = ["background_activity", "flip_polarity"]
     acc = main(
         {"transforms": tran, "ssl_loss": "vicreg", "mode": mode, "output_all": False}
     )
 
-    tran = ["background_activity", "flip_polarity", "crop", "flip", "reverse"]
+    tran = ["background_activity", "flip_polarity", "flip", "reverse"]
     acc = main(
         {"transforms": tran, "ssl_loss": "vicreg", "mode": mode, "output_all": False}
     )
 
-    tran = ["background_activity", "flip_polarity", "crop", "reverse"]
+    tran = ["background_activity", "flip_polarity", "reverse"]
     acc = main(
         {"transforms": tran, "ssl_loss": "vicreg", "mode": mode, "output_all": False}
     )
 
-    tran = ["background_activity", "flip_polarity", "crop", "flip"]
+    tran = ["background_activity", "flip_polarity", "flip"]
     acc = main(
         {"transforms": tran, "ssl_loss": "vicreg", "mode": mode, "output_all": False}
     )
     
-    tran = ["background_activity", "flip_polarity", "crop", "reverse", "transrot"]
+    tran = ["background_activity", "flip_polarity", "reverse", "transrot"]
     acc = main(
         {"transforms": tran, "ssl_loss": "vicreg", "mode": mode, "output_all": False}
     )
     
-    tran = ["background_activity", "flip_polarity", "crop", "reverse", "transrot", "event_drop_2"]
+    tran = ["background_activity", "flip_polarity", "reverse", "transrot", "event_drop_2"]
     acc = main(
         {"transforms": tran, "ssl_loss": "vicreg", "mode": mode, "output_all": False}
     )
     
-    tran = ["background_activity", "flip_polarity", "crop", "reverse", "event_drop_2"]
+    tran = ["background_activity", "flip_polarity", "reverse", "event_drop_2"]
     acc = main(
         {"transforms": tran, "ssl_loss": "vicreg", "mode": mode, "output_all": False}
     )
