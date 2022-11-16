@@ -7,7 +7,7 @@ from torchvision.datasets.utils import (
     extract_archive,
 )
 from numpy.lib.recfunctions import structured_to_unstructured
-import loris
+from project.utils.read_dat import load_td_data
 
 class NCARS(Dataset):
     """N-Cars <https://www.prophesee.ai/dataset-n-cars-download/> data set.
@@ -82,13 +82,11 @@ class NCARS(Dataset):
                     self.targets.append(self.class_dict[os.path.basename(path)])
 
     def __getitem__(self, index):
-        events = loris.read_file(self.data[index])["events"]
+        events = load_td_data(self.data['index']) #events = loris.read_file(self.data[index])["events"]
         events.dtype.names = ['t', 'x', 'y', 'p']  # for correctly reading the data
         # print(events, events.dtype, events[0])
         # exit()
         # events = np.array(structured_to_unstructured(events, dtype=np.float))
-        for i in range(len(events)):
-            events[i]['y'] -= self.minimum_y_value
         target = self.targets[index]
         if self.transform is not None:
             events = self.transform(events)
