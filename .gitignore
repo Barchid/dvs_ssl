@@ -133,3 +133,4 @@ experiments/*
 !experiments/.gitkeep
 try.py
 real_main.py
+examples/*
