@@ -82,7 +82,7 @@ class NCARS(Dataset):
                     self.targets.append(self.class_dict[os.path.basename(path)])
 
     def __getitem__(self, index):
-        events = load_td_data(self.data['index']) #events = loris.read_file(self.data[index])["events"]
+        events = load_td_data(self.data[index]) #events = loris.read_file(self.data[index])["events"]
         events.dtype.names = ['t', 'x', 'y', 'p']  # for correctly reading the data
         # print(events, events.dtype, events[0])
         # exit()
