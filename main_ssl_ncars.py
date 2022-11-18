@@ -140,7 +140,7 @@ def compare(mode):
     acc = main(
         {"transforms": tran, "ssl_loss": "vicreg", "mode": mode, "output_all": False}
     )
-    
+    return    
     tran = ["background_activity", "flip_polarity", "reverse", "transrot"]
     acc = main(
         {"transforms": tran, "ssl_loss": "vicreg", "mode": mode, "output_all": False}
@@ -155,7 +155,17 @@ def compare(mode):
     acc = main(
         {"transforms": tran, "ssl_loss": "vicreg", "mode": mode, "output_all": False}
     )
-
+    
+    tran = ["background_activity", "flip_polarity", "reverse", "transrot", "event_drop_2"]
+    acc = main(
+        {"transforms": tran, "ssl_loss": "vicreg", "mode": mode, "output_all": False}
+    )
+    
+    tran = ["background_activity", "flip_polarity", "reverse", "event_drop_2"]
+    acc = main(
+        {"transforms": tran, "ssl_loss": "vicreg", "mode": mode, "output_all": False}
+    )
+    
 
 if __name__ == "__main__":
     compare(mode="snn")
