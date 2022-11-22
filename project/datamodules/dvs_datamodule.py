@@ -4,11 +4,12 @@ import pytorch_lightning as pl
 import torch
 from torch import save
 from torch.utils import data
-from torch.utils.data import random_split, DataLoader
+from torch.utils.data import random_split, DataLoader, Subset
 from torch.nn import functional as F
 import tonic
 import os
 import numpy as np
+import copy
 
 from project.datamodules.cifar10dvs import CIFAR10DVS
 from project.datamodules.dvs_lips import DVSLip
@@ -30,7 +31,8 @@ class DVSDataModule(pl.LightningDataModule):
         barlow_transf=None,
         mode="cnn",
         in_memory: bool = False,
-        use_barlow_trans = True,
+        use_barlow_trans=True,
+        subset_len=None,
         **kwargs
     ):
         super().__init__()
@@ -40,6 +42,7 @@ class DVSDataModule(pl.LightningDataModule):
         self.timesteps = timesteps
         self.num_workers = num_workers
         self.in_memory = in_memory
+        self.subset_len = subset_len
 
         # create the directory if not exist
         os.makedirs(data_dir, exist_ok=True)
@@ -193,6 +196,42 @@ class DVSDataModule(pl.LightningDataModule):
                 train=False,
             )
 
+        if self.subset_len is not None:
+            print("CREATE SUBSET FOR SEMI-SUPERVISED!!!")
+            print("looking for classewise len")
+            classewise_len = {}
+            for (inp, target) in self.train_set:
+                target = str(target)
+                print(target)
+                if target in classewise_len:
+                    classewise_len[target] += 1
+                else:
+                    classewise_len[target] = 0
+
+            if self.subset_len == "10%":
+                sublen = 0.1 * len(self.train_set)
+            elif self.subset_len == "25%":
+                sublen = 0.25 * len(self.train_set)
+
+            curr_len = copy.deepcopy(classewise_len)
+            for key in curr_len:
+                curr_len[key] = curr_len[key] * sublen
+
+            indices = []
+            print("looking for indices")
+            indi = 0
+            for inp, target in self.train_set:
+                target = str(target)
+                if curr_len[target] > 0:
+                    indices.append(indi)
+                    curr_len[target] -= 1
+
+                indi += 1
+
+            self.train_set = Subset(self.train_set, indices=indices)
+
+            print('DONE')
+            
         print(len(self.train_set), len(self.val_set))
 
         if self.in_memory:
