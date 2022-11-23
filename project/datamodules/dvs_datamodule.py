@@ -166,15 +166,9 @@ class DVSDataModule(pl.LightningDataModule):
                 save_to=self.data_dir, transform=self.train_transform
             )
             full_length = len(dataset)
-            self.train_set, _ = random_split(
-                dataset, [0.8 * full_length, full_length - (0.8 * full_length)]
-            )
-            dataset = tonic.datasets.ASLDVS(
-                save_to=self.data_dir, transform=self.train_transform
-            )
-            _, self.val_set = random_split(
-                dataset, [0.8 * full_length, full_length - (0.8 * full_length)]
-            )
+            train_len = int(0.9 * full_length)
+            val_len = full_length - train_len
+            self.train_set, self.val_set = random_split(dataset, [train_len, val_len])
         elif self.dataset == "ncars":
             self.train_set = NCARS(
                 self.data_dir, train=True, transform=self.train_transform
@@ -213,7 +207,7 @@ class DVSDataModule(pl.LightningDataModule):
                 sublen = 0.25
             else:
                 raise ValueError('subset_len must be either "10%" or "25%"')
-            
+
             print(classewise_len, len(self.train_set))
 
             curr_len = copy.deepcopy(classewise_len)
