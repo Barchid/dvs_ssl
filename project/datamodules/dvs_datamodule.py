@@ -202,20 +202,23 @@ class DVSDataModule(pl.LightningDataModule):
             classewise_len = {}
             for (inp, target) in self.train_set:
                 target = str(target)
-                print(target)
                 if target in classewise_len:
                     classewise_len[target] += 1
                 else:
                     classewise_len[target] = 0
 
             if self.subset_len == "10%":
-                sublen = 0.1 * len(self.train_set)
+                sublen = 0.1
             elif self.subset_len == "25%":
-                sublen = 0.25 * len(self.train_set)
+                sublen = 0.25
+            else:
+                raise ValueError('subset_len must be either "10%" or "25%"')
+            
+            print(classewise_len, len(self.train_set))
 
             curr_len = copy.deepcopy(classewise_len)
             for key in curr_len:
-                curr_len[key] = curr_len[key] * sublen
+                curr_len[key] = int(curr_len[key] * sublen)
 
             indices = []
             print("looking for indices")
@@ -230,8 +233,8 @@ class DVSDataModule(pl.LightningDataModule):
 
             self.train_set = Subset(self.train_set, indices=indices)
 
-            print('DONE')
-            
+            print("DONE")
+
         print(len(self.train_set), len(self.val_set))
 
         if self.in_memory:
