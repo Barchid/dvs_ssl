@@ -112,11 +112,11 @@ def main(args):
 
 
 def compare(mode):
-    main({"mode": mode, "subset_len": "10%"})
+    main({"mode": mode, "subset_len": "10%", "ckpt":None})
 
-    main({"mode": mode, "subset_len": "25%"})
+    main({"mode": mode, "subset_len": "25%", "ckpt":None})
     
-    main({"mode": mode, "subset_len": None})
+    main({"mode": mode, "subset_len": None, "ckpt":None})
 
 
 if __name__ == "__main__":
