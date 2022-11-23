@@ -55,16 +55,6 @@ def main(args):
         use_barlow_trans=True,
         subset_len=subset_len,
     )
-    
-    if ckpt is not None:
-        modu = SSLModule.load_from_checkpoint(
-            ckpt, strict=False, n_classes=datamodule.num_classes, epochs=epochs, timesteps=timesteps
-        )
-        
-        if modu.encoder1 is not None:
-            enco = modu.encoder1
-        else:
-            enco = modu.encoder
 
 
     module = ClassifModule(
@@ -75,6 +65,16 @@ def main(args):
         mode=mode,
     )
     module.encoder = enco
+    
+    if ckpt is not None:
+        modu = SSLModule.load_from_checkpoint(
+            ckpt, strict=False, n_classes=datamodule.num_classes, epochs=epochs, timesteps=timesteps
+        )
+        
+        if modu.encoder1 is not None:
+            enco = modu.encoder1
+        else:
+            enco = modu.encoder
 
     name = f"semisup_{dataset}_{mode}"
     for tr in trans:
