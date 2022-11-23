@@ -113,7 +113,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     ckpt = args.ckpt_path
+    modu = SSLModule.load_from_checkpoint(ckpt)
+    
+    print(modu)
     print(ckpt)
+    print(modu.encoder)
     exit()
     
     compare(mode="cnn")
