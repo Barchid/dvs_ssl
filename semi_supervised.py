@@ -15,7 +15,6 @@ from project.utils.eval_callback import OnlineFineTuner
 import traceback
 from datetime import datetime
 
-DISP = "snn2"
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 epochs = 500
 learning_rate = 3e-3  # barlowsnn=0.1, vicregsnn=0.01, dvs=1e-3
