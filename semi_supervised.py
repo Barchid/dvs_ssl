@@ -115,6 +115,8 @@ def compare(mode):
     main({"mode": mode, "subset_len": "10%"})
 
     main({"mode": mode, "subset_len": "25%"})
+    
+    main({"mode": mode, "subset_len": None})
 
 
 if __name__ == "__main__":
