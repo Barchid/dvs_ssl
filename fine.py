@@ -58,7 +58,7 @@ def main(args):
     
     if ckpt is not None:
         modu = SSLModule.load_from_checkpoint(
-            ckpt, n_classes=datamodule.num_classes, epochs=epochs, timesteps=timesteps
+            ckpt, strict=False, n_classes=datamodule.num_classes, epochs=epochs, timesteps=timesteps
         )
         
         print(modu)
