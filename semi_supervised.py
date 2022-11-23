@@ -51,7 +51,7 @@ def main(args):
         in_memory=False,
         num_workers=0,
         mode=mode,
-        use_barlow_trans=False,
+        use_barlow_trans=True,
         subset_len="10%",
     )
 
