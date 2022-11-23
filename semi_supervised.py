@@ -63,7 +63,7 @@ def main(args):
         mode=mode,
     )
 
-    name = f"simptrain_{dataset}_{mode}"
+    name = f"semisup_{dataset}_{mode}"
     for tr in trans:
         name += f"_{tr}"
 
@@ -71,8 +71,8 @@ def main(args):
         max_epochs=epochs,
         gpus=torch.cuda.device_count(),
         callbacks=[checkpoint_callback],
-        logger=pl.loggers.TensorBoardLogger("experiments/simpletrains", name=f"{name}"),
-        default_root_dir=f"experiments/simpletrains/{name}",
+        logger=pl.loggers.TensorBoardLogger("experiments/semisups", name=f"{name}"),
+        default_root_dir=f"experiments/semisups/{name}",
         precision=16,
     )
 
