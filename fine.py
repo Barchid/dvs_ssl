@@ -64,7 +64,6 @@ def main(args):
         timesteps=timesteps,
         mode=mode,
     )
-    module.encoder = enco
     
     if ckpt is not None:
         modu = SSLModule.load_from_checkpoint(
@@ -75,6 +74,8 @@ def main(args):
             enco = modu.encoder1
         else:
             enco = modu.encoder
+            
+    module.encoder = enco
 
     name = f"semisup_{dataset}_{mode}"
     for tr in trans:
