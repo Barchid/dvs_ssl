@@ -75,7 +75,7 @@ def main(args):
         else:
             enco = modu.encoder
             
-    module.encoder = enco
+        module.encoder = enco
 
     name = f"semisup_{dataset}_{mode}"
     for tr in trans:
