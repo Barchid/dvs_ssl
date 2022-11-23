@@ -52,7 +52,7 @@ def main(args):
         num_workers=0,
         mode=mode,
         use_barlow_trans=True,
-        subset_len="10%",
+        subset_len=subset_len,
     )
 
     module = ClassifModule(
@@ -94,7 +94,7 @@ def main(args):
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     report.write(
-        f"{dt_string} {dataset} {checkpoint_callback.best_model_score} {mode} {trans}\n"
+        f"{dt_string} {dataset} {subset_len} {checkpoint_callback.best_model_score} {mode} {trans}\n"
     )
     report.flush()
     report.close()
