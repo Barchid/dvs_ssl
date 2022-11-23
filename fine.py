@@ -107,7 +107,7 @@ def main(args):
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     report.write(
-        f"{dt_string} {dataset} {subset_len} {checkpoint_callback.best_model_score} {mode} {trans}\n"
+        f"{dt_string} {dataset} {subset_len} {checkpoint_callback.best_model_score} {mode} {trans} {type(ckpt)}\n"
     )
     report.flush()
     report.close()
@@ -115,9 +115,13 @@ def main(args):
 
 
 def compare(mode, ckpt=None):
-    main({"mode": mode, "subset_len": None, "ckpt": ckpt})
+    main({"mode": mode, "subset_len": "10%", "ckpt": None})
 
-    main({"mode": mode, "subset_len": None, "ckpt": ckpt})
+    main({"mode": mode, "subset_len": "25%", "ckpt": None})
+    
+    main({"mode": mode, "subset_len": "10%", "ckpt": ckpt})
+    
+    main({"mode": mode, "subset_len": "25%", "ckpt": ckpt})
 
 
 if __name__ == "__main__":
