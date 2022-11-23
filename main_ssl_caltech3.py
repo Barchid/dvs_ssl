@@ -60,7 +60,7 @@ def main(args):
         barlow_transf=trans,
         in_memory=False,
         num_workers=0,
-        mode=mode,
+        mode="snn" if mode=="cnn" else mode,
     )
 
     lr = learning_rate
