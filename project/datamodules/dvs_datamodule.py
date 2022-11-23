@@ -205,7 +205,7 @@ class DVSDataModule(pl.LightningDataModule):
                 if target in classewise_len:
                     classewise_len[target] += 1
                 else:
-                    classewise_len[target] = 0
+                    classewise_len[target] = 1
 
             if self.subset_len == "10%":
                 sublen = 0.1
@@ -218,7 +218,7 @@ class DVSDataModule(pl.LightningDataModule):
 
             curr_len = copy.deepcopy(classewise_len)
             for key in curr_len:
-                curr_len[key] = int(curr_len[key] * sublen)
+                curr_len[key] = round(curr_len[key] * sublen)
 
             indices = []
             print("looking for indices")
