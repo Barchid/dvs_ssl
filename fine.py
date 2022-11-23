@@ -21,7 +21,7 @@ learning_rate = 3e-3  # barlowsnn=0.1, vicregsnn=0.01, dvs=1e-3
 timesteps = 6
 batch_size = 128
 dataset = "dvsgesture"
-data_dir = "/data/fox-data/datasets/spiking_camera_datasets/"
+data_dir = "data"  # "/data/fox-data/datasets/spiking_camera_datasets/"
 
 
 def powerset(iterable):
@@ -52,7 +52,7 @@ def main(args):
         num_workers=0,
         mode=mode,
         use_barlow_trans=True,
-        subset_len="10%",
+        subset_len=subset_len,
     )
 
     module = ClassifModule(
@@ -63,7 +63,7 @@ def main(args):
         mode=mode,
     )
 
-    name = f"simptrain_{dataset}_{mode}"
+    name = f"semisup_{dataset}_{mode}"
     for tr in trans:
         name += f"_{tr}"
 
@@ -71,8 +71,8 @@ def main(args):
         max_epochs=epochs,
         gpus=torch.cuda.device_count(),
         callbacks=[checkpoint_callback],
-        logger=pl.loggers.TensorBoardLogger("experiments/simpletrains", name=f"{name}"),
-        default_root_dir=f"experiments/simpletrains/{name}",
+        logger=pl.loggers.TensorBoardLogger("experiments/semisups", name=f"{name}"),
+        default_root_dir=f"experiments/semisups/{name}",
         precision=16,
     )
 
@@ -94,32 +94,26 @@ def main(args):
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     report.write(
-        f"{dt_string} {dataset} {checkpoint_callback.best_model_score} {mode} {trans}\n"
+        f"{dt_string} {dataset} {subset_len} {checkpoint_callback.best_model_score} {mode} {trans}\n"
     )
     report.flush()
     report.close()
     return checkpoint_callback.best_model_score
 
 
-def compare(mode):
-    main({"mode": mode, "subset_len": "10%"})
+def compare(mode, ckpt=None):
+    main({"mode": mode, "subset_len": "10%", "ckpt": ckpt})
 
-    main({"mode": mode, "subset_len": "25%"})
+    main({"mode": mode, "subset_len": "25%", "ckpt": ckpt})
 
 
 if __name__ == "__main__":
-    parser = ArgumentParser('Finetune')
-    parser.add_argument('ckpt_path', default=None, type=str)
+    parser = ArgumentParser("Finetune")
+    parser.add_argument("ckpt_path", default=None, type=str)
     args = parser.parse_args()
-    
+
     ckpt = args.ckpt_path
-    modu = SSLModule.load_from_checkpoint(ckpt)
-    
-    print(modu)
-    print(ckpt)
-    print(modu.encoder)
-    exit()
-    
-    compare(mode="cnn")
+
+    compare(mode="cnn", ckpt=ckpt)
     # compare(mode="snn")
     # compare(mode="3dcnn")
