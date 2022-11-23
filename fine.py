@@ -61,9 +61,10 @@ def main(args):
             ckpt, strict=False, n_classes=datamodule.num_classes, epochs=epochs, timesteps=timesteps
         )
         
-        print(modu)
-        print(modu.encoder)
-        exit()
+        if modu.encoder1 is not None:
+            enco = modu.encoder1
+        else:
+            enco = modu.encoder
 
 
     module = ClassifModule(
@@ -73,6 +74,7 @@ def main(args):
         timesteps=timesteps,
         mode=mode,
     )
+    module.encoder = enco
 
     name = f"semisup_{dataset}_{mode}"
     for tr in trans:
