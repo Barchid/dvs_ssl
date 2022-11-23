@@ -34,6 +34,7 @@ def main(args):
     trans = []
     mode = args["mode"]
     subset_len = args["subset_len"]
+    ckpt = args["ckpt"]
 
     checkpoint_callback = pl.callbacks.ModelCheckpoint(
         monitor="val_acc",  # TODO: select the logged metric to monitor the checkpoint saving
@@ -54,6 +55,16 @@ def main(args):
         use_barlow_trans=True,
         subset_len=subset_len,
     )
+    
+    if ckpt is not None:
+        modu = SSLModule.load_from_checkpoint(
+            ckpt, n_classes=datamodule.num_classes, epochs=epochs, timesteps=timesteps
+        )
+        
+        print(modu)
+        print(modu.encoder)
+        exit()
+
 
     module = ClassifModule(
         n_classes=datamodule.num_classes,
@@ -102,9 +113,9 @@ def main(args):
 
 
 def compare(mode, ckpt=None):
-    main({"mode": mode, "subset_len": "10%", "ckpt": ckpt})
+    main({"mode": mode, "subset_len": None, "ckpt": ckpt})
 
-    main({"mode": mode, "subset_len": "25%", "ckpt": ckpt})
+    main({"mode": mode, "subset_len": None, "ckpt": ckpt})
 
 
 if __name__ == "__main__":
