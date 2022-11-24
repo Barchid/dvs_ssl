@@ -53,7 +53,7 @@ def main(args):
         num_workers=0,
         mode=mode,
         use_barlow_trans=True,
-        subset_len=None,
+        subset_len=subset_len,
     )
 
 
@@ -66,11 +66,6 @@ def main(args):
     )
     
     if ckpt is not None:
-        chek = torch.load(ckpt)
-        state_dict = chek['state_dict']
-        print(state_dict)
-        exit()
-        
         modu = SSLModule.load_from_checkpoint(
             ckpt, strict=False, n_classes=datamodule.num_classes, epochs=epochs, timesteps=timesteps
         )
@@ -121,9 +116,9 @@ def main(args):
 
 
 def compare(mode, ckpt=None):
-    # main({"mode": mode, "subset_len": "10%", "ckpt": None})
+    main({"mode": mode, "subset_len": "10%", "ckpt": None})
 
-    # main({"mode": mode, "subset_len": "25%", "ckpt": None})
+    main({"mode": mode, "subset_len": "25%", "ckpt": None})
     
     main({"mode": mode, "subset_len": "10%", "ckpt": ckpt})
     
