@@ -53,7 +53,7 @@ def main(args):
         num_workers=0,
         mode=mode,
         use_barlow_trans=True,
-        subset_len=subset_len,
+        subset_len=None,
     )
 
 
