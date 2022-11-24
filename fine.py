@@ -66,6 +66,11 @@ def main(args):
     )
     
     if ckpt is not None:
+        chek = torch.load(ckpt)
+        state_dict = chek['state_dict']
+        print(state_dict)
+        exit()
+        
         modu = SSLModule.load_from_checkpoint(
             ckpt, strict=False, n_classes=datamodule.num_classes, epochs=epochs, timesteps=timesteps
         )
