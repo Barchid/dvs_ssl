@@ -121,9 +121,9 @@ def main(args):
 
 
 def compare(mode, ckpt=None):
-    main({"mode": mode, "subset_len": "10%", "ckpt": None})
+    # main({"mode": mode, "subset_len": "10%", "ckpt": None})
 
-    main({"mode": mode, "subset_len": "25%", "ckpt": None})
+    # main({"mode": mode, "subset_len": "25%", "ckpt": None})
     
     main({"mode": mode, "subset_len": "10%", "ckpt": ckpt})
     
