@@ -45,6 +45,8 @@ def main(args):
         src_num_classes = 101
     elif src_dataset == "ncars":
         src_num_classes = 2
+    elif src_dataset == "dvsgesture":
+        src_num_classes = 11
     # elif src_dataset == "ncars":
     #     src_num_classes = 2
 
@@ -55,6 +57,8 @@ def main(args):
         dest_num_classes = 101
     elif dest_dataset == "ncars":
         dest_num_classes = 2
+    elif dest_dataset == "dvsgesture":
+        dest_num_classes = 11
     # elif dest_dataset == "ncars":
     #     dest_num_classes = 2
 
