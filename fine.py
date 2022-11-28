@@ -57,7 +57,7 @@ def main(args):
         dest_num_classes = 2
     # elif dest_dataset == "ncars":
     #     dest_num_classes = 2
-    
+
     if ckpt is not None:
         modu = SSLModule.load_from_checkpoint(
             ckpt,
@@ -74,7 +74,7 @@ def main(args):
         timesteps=timesteps,
         mode=modu.enc1,
     )
-    
+
     datamodule = DVSDataModule(
         batch_size,
         dest_dataset,
@@ -104,7 +104,7 @@ def main(args):
 
         module.encoder = enco
 
-    name = f"semisup_{src_dataset}_{dest_dataset}_{mode}"
+    name = f"semisup_{src_dataset}_{dest_dataset}_{modu.enc1}_{modu.enc2}"
     for tr in trans:
         name += f"_{tr}"
 
@@ -131,11 +131,11 @@ def main(args):
         return -1
 
     # write in score
-    report = open(f"report_semisupervised_{mode}.txt", "a")
+    report = open(f"report_semisupervised_{modu.enc1}_{modu.enc2}.txt", "a")
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     report.write(
-        f"{dt_string} {src_dataset} {dest_dataset} {subset_len} {checkpoint_callback.best_model_score} {mode} {trans} {type(ckpt)}\n"
+        f"{dt_string} {src_dataset} {dest_dataset} {subset_len} {checkpoint_callback.best_model_score} {modu.enc1} {modu.enc2} {trans} {type(ckpt)}\n"
     )
     report.flush()
     report.close()
@@ -156,16 +156,25 @@ if __name__ == "__main__":
     parser = ArgumentParser("Finetune")
     parser.add_argument("ckpt_path", default=None, type=str)
     parser.add_argument("--src_dataset", required=True, type=str)
-    parser.add_argument("--dest_dataset", required=True, type=str)
+    parser.add_argument("--dest_dataset", default=None, type=str)
     parser.add_argument("--subset_len", default=None, type=str, choices=["10%", "25%"])
     args = parser.parse_args()
 
     ckpt = args.ckpt_path
     src_dataset = args.src_dataset
     dest_dataset = args.dest_dataset
+    if dest_dataset is None:
+        dest_dataset = src_dataset
     subset_len = args.subset_len
-    
-    main({"subset_len": subset_len, "ckpt": ckpt, 'src_dataset': src_dataset, 'dest_dataset': dest_dataset})
+
+    main(
+        {
+            "subset_len": subset_len,
+            "ckpt": ckpt,
+            "src_dataset": src_dataset,
+            "dest_dataset": dest_dataset,
+        }
+    )
 
     # compare(mode="cnn", ckpt=ckpt, src_dataset=src_dataset, dest_dataset=dest_dataset, subs)
     # compare(mode="snn")
