@@ -161,7 +161,7 @@ if __name__ == "__main__":
     parser.add_argument("ckpt_path", default=None, type=str)
     parser.add_argument("--src_dataset", required=True, type=str)
     parser.add_argument("--dest_dataset", default=None, type=str)
-    parser.add_argument("--subset_len", default=None, type=str, choices=["10%", "25%"])
+    parser.add_argument("--subset_len", default=None, type=str, choices=["10", "25"])
     args = parser.parse_args()
 
     ckpt = args.ckpt_path
@@ -170,6 +170,8 @@ if __name__ == "__main__":
     if dest_dataset is None:
         dest_dataset = src_dataset
     subset_len = args.subset_len
+    if subset_len is not None:
+        subset_len = subset_len + "%"
 
     main(
         {
