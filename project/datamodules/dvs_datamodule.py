@@ -18,6 +18,7 @@ from project.datamodules.ncaltech101 import NCALTECH101
 from project.datamodules.ncars import NCARS
 from project.utils.barlow_transforms import BarlowTwinsTransform
 from project.utils.supervised_transforms import SupervisedTransform
+from project.datamodules.daily_action_dvs import DailyActionDVS
 
 
 class DVSDataModule(pl.LightningDataModule):
@@ -93,6 +94,8 @@ class DVSDataModule(pl.LightningDataModule):
             return NCARS.sensor_size, len(NCARS.classes)
         elif self.dataset == "dvs_lips":
             return DVSLip.sensor_size, len(DVSLip.classes)
+        elif self.dataset == "daily_action_dvs":
+            return DailyActionDVS.sensor_size, len(DailyActionDVS.classes)
 
     def prepare_data(self) -> None:
         # downloads the dataset if it does not exist
@@ -111,6 +114,8 @@ class DVSDataModule(pl.LightningDataModule):
             NCARS(save_to=self.data_dir, download=True)
         elif self.dataset == "dvs_lips":
             DVSLip(save_to=self.data_dir)
+        elif self.dataset == "daily_action_dvs":
+            DailyActionDVS(save_to=self.data_dir)
 
     def setup(self, stage: Optional[str] = None) -> None:
         if self.dataset == "n-mnist":
@@ -189,6 +194,14 @@ class DVSDataModule(pl.LightningDataModule):
                 target_transform=None,
                 train=False,
             )
+        elif self.dataset == "daily_action_dvs":
+            dataset = DailyActionDVS(
+                save_to=self.data_dir, transform=self.train_transform
+            )
+            full_length = len(dataset)
+            train_len = int(0.9 * full_length)
+            val_len = full_length - train_len
+            self.train_set, self.val_set = random_split(dataset, [train_len, val_len])
 
         if self.subset_len is not None:
             print("CREATE SUBSET FOR SEMI-SUPERVISED!!!")

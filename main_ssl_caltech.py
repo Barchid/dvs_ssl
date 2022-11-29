@@ -24,7 +24,7 @@ epochs = 500
 learning_rate = 1e-2  # barlowsnn=0.1, vicregsnn=0.01, dvs=1e-3
 timesteps = 12
 batch_size = 128
-dataset = "n-caltech101"
+dataset = "daily_action_dvs"
 
 
 def main(args):
@@ -138,6 +138,24 @@ def compare(mode):
 
 
 if __name__ == "__main__":
+    tran = ["background_activity", "flip_polarity", "crop", "transrot", "event_drop_2"]
+    acc = main(
+        {"transforms": tran, "ssl_loss": "vicreg", "mode": "cnn", "output_all": False}
+    )
+    
+    tran = ["background_activity", "flip_polarity", "crop", "transrot", "event_drop_2"]
+    acc = main(
+        {"transforms": tran, "ssl_loss": "vicreg", "mode": "3dcnn", "output_all": False}
+    )
+    
+    tran = ["background_activity", "flip_polarity", "crop", "transrot", "event_drop_2"]
+    acc = main(
+        {"transforms": tran, "ssl_loss": "vicreg", "mode": "snn", "output_all": False}
+    )
+    
+    
+    exit()
+    
     compare(mode="snn")
     compare(mode="3dcnn")
 
