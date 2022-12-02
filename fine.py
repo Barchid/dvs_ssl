@@ -107,6 +107,9 @@ def main(args):
             enco = modu.encoder
 
         module.encoder = enco
+        
+        if src_dataset != dest_dataset:
+            module.encoder.requires_grad_(False)
 
     name = f"semisup_{src_dataset}_{dest_dataset}_{modu.enc1}_{modu.enc2}"
     for tr in trans:
