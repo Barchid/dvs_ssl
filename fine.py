@@ -39,7 +39,7 @@ def main(args):
     )
 
     src_num_classes = 10
-    if src_dataset == "daily-action-dvs":
+    if src_dataset == "daily_action_dvs":
         src_num_classes = 12
     elif src_dataset == "n-caltech101":
         src_num_classes = 101
@@ -51,7 +51,7 @@ def main(args):
     #     src_num_classes = 2
 
     dest_num_classes = 10
-    if dest_dataset == "daily-action-dvs":
+    if dest_dataset == "daily_action_dvs":
         dest_num_classes = 12
     elif dest_dataset == "n-caltech101":
         dest_num_classes = 101
