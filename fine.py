@@ -30,6 +30,7 @@ def main(args):
     ckpt = args["ckpt"]
     src_dataset = args["src_dataset"]
     dest_dataset = args["dest_dataset"]
+    use_enc2 = args["use_enc2"]
 
     checkpoint_callback = pl.callbacks.ModelCheckpoint(
         monitor="val_acc",  # TODO: select the logged metric to monitor the checkpoint saving
@@ -102,7 +103,10 @@ def main(args):
         )
 
         if modu.encoder1 is not None:
-            enco = modu.encoder1
+            if use_enc2:
+                enco = modu.encoder1
+            else:
+                enco = modu.encoder2
         else:
             enco = modu.encoder
 
@@ -165,6 +169,7 @@ if __name__ == "__main__":
     parser.add_argument("--src_dataset", required=True, type=str)
     parser.add_argument("--dest_dataset", default=None, type=str)
     parser.add_argument("--subset_len", default=None, type=str, choices=["10", "25"])
+    parser.add_argument('--use_enc2', action="store_true", type=bool, default=False)
     args = parser.parse_args()
 
     ckpt = args.ckpt_path
@@ -175,6 +180,8 @@ if __name__ == "__main__":
     subset_len = args.subset_len
     if subset_len is not None:
         subset_len = subset_len + "%"
+        
+    use_enc2 = args.use_enc2
 
     main(
         {
@@ -182,6 +189,7 @@ if __name__ == "__main__":
             "ckpt": ckpt,
             "src_dataset": src_dataset,
             "dest_dataset": dest_dataset,
+            "use_enc2": use_enc2
         }
     )
 
