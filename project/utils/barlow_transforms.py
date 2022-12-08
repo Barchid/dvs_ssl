@@ -45,7 +45,7 @@ class BarlowTwinsTransform:
         trans_a = []
         trans_b = []
 
-        representation = get_frame_representation(sensor_size, timesteps)
+        representation = get_frame_representation(sensor_size, timesteps, dataset=dataset)
 
         # BEFORE TENSOR TRANSFORMATION
         if "flip" in transforms_list:
