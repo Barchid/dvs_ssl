@@ -169,7 +169,7 @@ if __name__ == "__main__":
     parser.add_argument("--src_dataset", required=True, type=str)
     parser.add_argument("--dest_dataset", default=None, type=str)
     parser.add_argument("--subset_len", default=None, type=str, choices=["10", "25"])
-    parser.add_argument('--use_enc2', action="store_true", type=bool, default=False)
+    parser.add_argument('--use_enc2', action="store_true", default=False)
     args = parser.parse_args()
 
     ckpt = args.ckpt_path
