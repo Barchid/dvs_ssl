@@ -165,27 +165,32 @@ class BarlowTwinsTransform:
         trans_a.append(representation)
         trans_b.append(representation)
 
+        if dataset == "dvs_lips":
+            out_size = (200, 200)
+        else:
+            out_size = (128, 128)
+            
         # if 'crop' in transforms_list:
         if "crop" in transforms_list:
             trans_a.append(
                 transforms.RandomResizedCrop(
-                    (128, 128), interpolation=transforms.InterpolationMode.NEAREST
+                    out_size, interpolation=transforms.InterpolationMode.NEAREST
                 )
             )
             trans_b.append(
                 transforms.RandomResizedCrop(
-                    (128, 128), interpolation=transforms.InterpolationMode.NEAREST
+                    out_size, interpolation=transforms.InterpolationMode.NEAREST
                 )
             )
         else:
             trans_a.append(
                 transforms.Resize(
-                    (128, 128), interpolation=transforms.InterpolationMode.NEAREST
+                    out_size, interpolation=transforms.InterpolationMode.NEAREST
                 )
             )
             trans_b.append(
                 transforms.Resize(
-                    (128, 128), interpolation=transforms.InterpolationMode.NEAREST
+                    out_size, interpolation=transforms.InterpolationMode.NEAREST
                 )
             )  # debug
 
@@ -241,7 +246,7 @@ class BarlowTwinsTransform:
                 [
                     representation,
                     transforms.Resize(
-                        (128, 128), interpolation=transforms.InterpolationMode.NEAREST
+                        out_size, interpolation=transforms.InterpolationMode.NEAREST
                     ),
                     ConcatTimeChannels(),
                 ]
@@ -251,7 +256,7 @@ class BarlowTwinsTransform:
                 [
                     representation,
                     transforms.Resize(
-                        (128, 128), interpolation=transforms.InterpolationMode.NEAREST
+                        out_size, interpolation=transforms.InterpolationMode.NEAREST
                     ),
                 ]
             )
