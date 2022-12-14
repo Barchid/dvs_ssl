@@ -129,4 +129,4 @@ class FerDVS(Dataset):
             os.path.join(
                 self.location_on_system, self.folder_name
             )  # check if directory exists
-        ) and self._folder_contains_at_least_n_files_of_type(100, ".npy")
+        ) and self._folder_contains_at_least_n_files_of_type(100, ".h5")

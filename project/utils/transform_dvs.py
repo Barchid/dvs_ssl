@@ -204,7 +204,8 @@ def get_frame_representation(sensor_size, timesteps, dataset=None):
     elif dataset == "dvs_lips":
         return transforms.Compose(
             [
-                CustomToFrame(timesteps=timesteps, sensor_size=sensor_size),
+                ToFrame(sensor_size=sensor_size, n_time_bins=timesteps),
+                # CustomToFrame(timesteps=timesteps, sensor_size=sensor_size),
                 BinarizeFrame(),
             ]
         )
@@ -214,7 +215,7 @@ def get_frame_representation(sensor_size, timesteps, dataset=None):
                 # ToFrame(sensor_size=sensor_size, n_time_bins=timesteps),
                 # ToFrame(sensor_size=sensor_size, event_count=2500),
                 # TakeFrames(timesteps=timesteps),
-                CustomToFrame(timesteps=timesteps, sensor_size=sensor_size),
+                CustomToFrame(timesteps=timesteps, sensor_size=sensor_size, event_count=2500),
                 # transforms.Lambda(lambda x: (x > 0).astype(np.float32)),
                 # transforms.Lambda(lambda x: torch.from_numpy(x))
                 BinarizeFrame(),
