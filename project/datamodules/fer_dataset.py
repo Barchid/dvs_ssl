@@ -4,11 +4,12 @@ from tonic.dataset import Dataset
 import pandas as pd
 import h5py
 
+
 class FerDVS(Dataset):
     sensor_size = (200, 200, 2)
     dtype = np.dtype([("x", np.int16), ("y", np.int16), ("p", bool), ("t", np.int64)])
     ordering = dtype.names
-    available_datasets = ("CKPlus_DVS", "ADFES_DVS", "CASIA_DVS", "MMI_DVS", "SNAP_DVS")
+    available_datasets = ("CKPlusDVS", "ADFESDVS", "CASIADVS", "MMIDVS", "SNAPDVS")
     classes = {
         "CKPlusDVS": [
             "happy",
@@ -42,29 +43,41 @@ class FerDVS(Dataset):
             raise ValueError(
                 f"dataset must be one of the values {self.available_datasets}. Got: {dataset}"
             )
-            
+
         self.fold = fold
         self.train = train
         self.dataset = dataset
 
-        self.dir_path = os.path.join(
-            self.location_on_system, self.dataset
-        )
-        
+        self.dir_path = os.path.join(self.location_on_system, self.dataset)
+
         # load csv file
-        self.targets = self._load_csv_file()
-        
+        self.targets: pd.DataFrame = self._load_csv_file()
+
     def _load_csv_file(self):
         csv_path = os.path.join(self.dir_path, "folds.csv")
         folds = pd.read_csv(
             csv_path,
             delimiter=";",
             header=None,
-            names=["subject", "sequence", "label", "fold0", "fold1", "fold2", "fold3", "fold4", "fold5", "fold6", "fold7", "fold8", "fold9"],
+            names=[
+                "subject",
+                "sequence",
+                "label",
+                "fold0",
+                "fold1",
+                "fold2",
+                "fold3",
+                "fold4",
+                "fold5",
+                "fold6",
+                "fold7",
+                "fold8",
+                "fold9",
+            ],
             dtype={
-                "subject":int,
-                "sequence":int,
-                "label":int,
+                "subject": str,
+                "sequence": int,
+                "label": int,
                 "fold0": bool,
                 "fold1": bool,
                 "fold2": bool,
@@ -74,35 +87,34 @@ class FerDVS(Dataset):
                 "fold6": bool,
                 "fold7": bool,
                 "fold8": bool,
-                "fold9": bool
-            }
+                "fold9": bool,
+            },
         )
-        
+
         # only keep the relevant data (i.e. the train or test split for the specified fold)
-        fold_key = f"fold{self.fold}" # key of the fold
-        filter = folds[fold_key] == self.train
+        fold_key = f"fold{self.fold}"  # key of the fold
+        filter = folds[fold_key] == (not self.train)
         return folds[filter]
-        
+
     def __getitem__(self, index):
         """
         Returns:
             a tuple of (events, target) where target is the index of the target class.
         """
-        entry = self.targets[index]
+        entry = self.targets.iloc[index]
         subject = entry["subject"]
         sequence = entry["sequence"]
-        label = entry["label"] - 1 # start at 0
-        
-        data_path = os.path.join(self.dir_path, subject, f"{sequence}.h5")
-        data = h5py.File(data_path, 'r')
+        target = entry["label"] - 1  # start at 0
 
-        events = np.empty(orig_events.shape, dtype=self.dtype)
-        events["x"] = orig_events["x"]
-        events["y"] = orig_events["y"]
-        events["t"] = orig_events["t"]
-        events["p"] = orig_events["p"]
+        data_path = os.path.join(self.dir_path, subject, f"{str(sequence).zfill(3)}.h5")
+        data = h5py.File(data_path, "r")
+        orig_events = np.array(data['events'])
+        events = np.empty(len(orig_events), dtype=self.dtype)
+        events["x"] = orig_events[:, 1]
+        events["y"] = orig_events[:, 2]
+        events["t"] = orig_events[:, 0]
+        events["p"] = orig_events[:, 3]
 
-        target = self.targets[index]
         if self.transform is not None:
             events = self.transform(events)
         if self.target_transform is not None:
