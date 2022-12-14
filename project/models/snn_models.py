@@ -5,6 +5,7 @@ import torch.optim as optim
 import torchvision.models as models
 from project.models import sew_resnet, sew_resnet2
 from spikingjelly.clock_driven import neuron, functional, surrogate, layer
+from einops import rearrange
 
 from project.models.utils import (
     LinearBnSpike,

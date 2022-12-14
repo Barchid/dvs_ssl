@@ -44,12 +44,12 @@ class Gen1Detection(Dataset):
         """
         input_path = self.data[index]
         events = np.load(input_path)
-
-        target = self.targets[index]
+        target = np.load(input_path.replace('.npy', '_bbox.npy'))
         if self.transform is not None:
             events = self.transform(events)
         if self.target_transform is not None:
             target = self.target_transform(target)
+            
         return events, target
 
     def __len__(self):
@@ -61,8 +61,28 @@ class Gen1Detection(Dataset):
                 self.location_on_system, self.base_folder
             )  # check if directory exists
         ) and self._folder_contains_at_least_n_files_of_type(100, ".npy")
+        
+    def _to_gt(target: dict):
+        return {
+            'boxes': [],
+            'labels': []
+        }
 
-
+def to_gt(target):
+    """
+        >>> images, boxes = torch.rand(4, 3, 600, 1200), torch.rand(4, 11, 4)
+        >>> labels = torch.randint(1, 91, (4, 11))
+        >>> images = list(image for image in images)
+        >>> targets = []
+        >>> for i in range(len(images)):
+        >>>     d = {}
+        >>>     d['boxes'] = boxes[i]
+        >>>     d['labels'] = labels[i]
+        >>>     targets.append(d)
+    """
+    
+    return {}
+    
 def getDVSeventsDavis(file, numEvents=1e10, startTime=0):
     """DESCRIPTION: This function reads a given aedat file and converts it into four lists indicating
                      timestamps, x-coordinates, y-coordinates and polarities of the event stream.
