@@ -166,7 +166,7 @@ class BarlowTwinsTransform:
         trans_b.append(representation)
 
         if dataset == "dvs_lips":
-            out_size = (200, 200)
+            out_size = (128, 128)
         else:
             out_size = (128, 128)
             
