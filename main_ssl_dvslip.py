@@ -49,7 +49,7 @@ def main(args):
         batch_size,
         dataset,
         timesteps,
-        data_dir="data",
+        data_dir="/datas/sandbox",
         barlow_transf=trans,
         in_memory=False,
         num_workers=0,
