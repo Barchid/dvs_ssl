@@ -204,7 +204,7 @@ def get_frame_representation(sensor_size, timesteps, dataset=None):
     elif dataset == "dvs_lips":
         return transforms.Compose(
             [
-                CustomToFrame(timesteps=timesteps, sensor_size=sensor_size, event_count=4000),
+                CustomToFrame(timesteps=timesteps, sensor_size=sensor_size),
                 BinarizeFrame(),
             ]
         )
