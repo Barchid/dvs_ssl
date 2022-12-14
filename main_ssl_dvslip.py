@@ -22,7 +22,7 @@ def powerset(iterable):
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 epochs = 500
 learning_rate = 1e-2  # barlowsnn=0.1, vicregsnn=0.01, dvs=1e-3
-timesteps = 12
+timesteps = 8
 batch_size = 128
 dataset = "dvs_lips"
 
