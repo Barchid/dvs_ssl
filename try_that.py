@@ -54,7 +54,7 @@ def main():
     print(len(datas))
     ev, tar = datas[0]
     _, frame, _ = ev
-    animate(frame)
+    animate(frame, tar)
     print(tar)
 
 if __name__ == "__main__":
