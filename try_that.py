@@ -45,6 +45,8 @@ def main():
     datas = Gen1Detection(save_to="/datas/sandbox", subset="train", transform=BarlowTwinsTransform(None, timesteps=50, transforms_list=[], concat_time_channels=False))
     print(len(datas))
     ev, tar = datas[0]
+    _, frame, _ = ev
+    animate(frame)
     print(ev.shape)
     print(tar)
 
