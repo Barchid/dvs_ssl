@@ -60,7 +60,7 @@ def main():
         save_to="/datas/sandbox",
         subset="train",
         transform=BarlowTwinsTransform(
-            None, timesteps=12, transforms_list=[], concat_time_channels=False
+            None, timesteps=12, transforms_list=[], concat_time_channels=False, dataset="gen1"
         ),
     )
     # ev, tar = datas[0]
