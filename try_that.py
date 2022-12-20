@@ -6,7 +6,6 @@ import torch.nn.functional as F
 import torch.optim as optim
 import tonic
 from torchvision import models
-import loris
 from project.utils.transform_dvs import (
     CustomToFrame,
     CutMixEvents,
