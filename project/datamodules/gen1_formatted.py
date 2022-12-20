@@ -32,7 +32,7 @@ class Gen1Detection(Dataset):
         else:
             file_path = os.path.join(self.location_on_system, "test")
 
-        for fil in file_path:
+        for fil in os.path.listdir(file_path):
             if fil.endswith("_bbox.npy"):
                 # self.targets.append(os.path.join(file_path, fil))
                 self.data.append(

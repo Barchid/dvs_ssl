@@ -42,7 +42,7 @@ def animate(spikes: torch.Tensor):
     exit()
     
 def main():
-    datas = Gen1Detection(save_to="/datas/sandbox")
+    datas = Gen1Detection(save_to="/datas/sandbox", subset="test")
     print(len(datas))
 
 if __name__ == "__main__":
