@@ -16,11 +16,19 @@ class Gen1Detection(Dataset):
 
     classes = ["car", "pedestrian"]
 
-    def __init__(self, save_to, subset="train", transform=None, target_transform=None):
+    def __init__(
+        self,
+        save_to,
+        subset="train",
+        transform=None,
+        target_transform=None,
+        target_size=(128, 128),
+    ):
         super(Gen1Detection, self).__init__(
             save_to, transform=transform, target_transform=target_transform
         )
         self.subset = subset
+        self.target_size = target_size
 
         if not self._check_exists():
             raise ValueError("The formatted Gen1 dataset does not exist.")
@@ -60,9 +68,7 @@ class Gen1Detection(Dataset):
 
     def _check_exists(self):
         return os.path.isdir(
-            os.path.join(
-                self.location_on_system
-            )  # check if directory exists
+            os.path.join(self.location_on_system)  # check if directory exists
         ) and self._folder_contains_at_least_n_files_of_type(100, ".npy")
 
     def _to_gt(self, boxes):
@@ -76,6 +82,13 @@ class Gen1Detection(Dataset):
             y1 = np.clip(y1, 0, self.sensor_size[1])
             x2 = np.clip(x1 + boxe["w"], 0, self.sensor_size[0])
             y2 = np.clip(y1 + boxe["h"], 0, self.sensor_size[1])
+
+            if self.target_size is not None:
+                x1 = (x1 / self.sensor_size[0]) * self.target_size[0]
+                x2 = (x2 / self.sensor_size[0]) * self.target_size[0]
+                y1 = (y1 / self.sensor_size[1]) * self.target_size[1]
+                y2 = (y2 / self.sensor_size[1]) * self.target_size[1]
+
             label = boxe["class_id"]
             gt_boxes[i] = torch.tensor((x1, y1, x2, y2))
             gt_labels[i] = label
