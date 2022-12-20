@@ -84,10 +84,10 @@ class Gen1Detection(Dataset):
             y2 = np.clip(y1 + boxe["h"], 0, self.sensor_size[1])
 
             if self.target_size is not None:
-                x1 = (x1 / self.sensor_size[0]) * self.target_size[0]
-                x2 = (x2 / self.sensor_size[0]) * self.target_size[0]
-                y1 = (y1 / self.sensor_size[1]) * self.target_size[1]
-                y2 = (y2 / self.sensor_size[1]) * self.target_size[1]
+                x1 = round((x1 / self.sensor_size[0]) * self.target_size[0])
+                x2 = round((x2 / self.sensor_size[0]) * self.target_size[0])
+                y1 = round((y1 / self.sensor_size[1]) * self.target_size[1])
+                y2 = round((y2 / self.sensor_size[1]) * self.target_size[1])
 
             label = boxe["class_id"]
             gt_boxes[i] = torch.tensor((x1, y1, x2, y2))

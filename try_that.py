@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 from project.datamodules.gen1_formatted import Gen1Detection
 
 
-def animate(spikes: torch.Tensor, target: dict):
+def animate(spikes: torch.Tensor, target: dict, title="example"):
     fig, ax = plt.subplots()
     camera = Camera(fig)
     plt.axis("off")
@@ -44,7 +44,7 @@ def animate(spikes: torch.Tensor, target: dict):
         camera.snap()
 
     anim = camera.animate(interval=50)
-    anim.save("examples/example.gif")
+    anim.save(f"examples/{title}.gif")
     plt.close("all")
 
 
@@ -52,21 +52,22 @@ def main():
     datas = Gen1Detection(
         save_to="/datas/sandbox",
         subset="train",
-        # transform=BarlowTwinsTransform(
-        #     None, timesteps=50, transforms_list=[], concat_time_channels=False
-        # ),
+        transform=BarlowTwinsTransform(
+            None, timesteps=12, transforms_list=[], concat_time_channels=False
+        ),
     )
     # ev, tar = datas[0]
     # _, frame, _ = ev
     # animate(frame, tar)
     # print(tar)
     
-    for _ in range(10):
+    for i in range(10):
         ev, tar = random.choice(datas)
-        print(len(ev))
-        print(tar)
-        print()
-        # _, frame, _ = ev
+        # print(len(ev))
+        # print(tar)
+        # print()
+        _, frame, _ = ev
+        animate(frame, tar, title=f"{i}")
 
 
 if __name__ == "__main__":
