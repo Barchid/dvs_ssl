@@ -39,7 +39,6 @@ def animate(spikes: torch.Tensor):
     anim = camera.animate(interval=50)
     anim.save('examples/example.gif')
     plt.close('all')
-    exit()
     
 def main():
     datas = Gen1Detection(save_to="/datas/sandbox", subset="train", transform=BarlowTwinsTransform(None, timesteps=50, transforms_list=[], concat_time_channels=False))
