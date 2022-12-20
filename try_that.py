@@ -37,10 +37,10 @@ def animate(spikes: torch.Tensor, target: dict):
         
         boxes = target["boxes"]
         for boxe in boxes:
-            x1 = boxe[0]
-            y1 = boxe[1]
-            x2 = boxe[2]
-            y2 = boxe[3]
+            x1 = int(boxe[0])
+            y1 = int(boxe[1])
+            x2 = int(boxe[2])
+            y2 = int(boxe[3])
             frm[y1:y2, x1:x2] = 200
         ax.imshow(frm, cmap="Greys")  # noqa: F841
         camera.snap()
