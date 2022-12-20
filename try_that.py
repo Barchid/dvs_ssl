@@ -6,10 +6,6 @@ import torch.nn.functional as F
 import torch.optim as optim
 import tonic
 from torchvision import models
-import torchsummary
-from plif import CIFAR10DVSNet, NMNISTNet
-from project.losses.snn_loss import SnnLoss, emd_loss
-from project.losses.vibcreg_loss import VIbCRegLoss
 import loris
 from project.utils.transform_dvs import (
     CustomToFrame,
@@ -22,10 +18,7 @@ from project.utils.barlow_transforms import BarlowTwinsTransform
 import numpy as np
 from celluloid import Camera
 import matplotlib.pyplot as plt
-from project.datamodules.paf_benchmark import PAFActionRecognition
-from project.datamodules.daily_action_dvs import DailyActionDVS
-from project.datamodules.fer_dvs import FerDVS
-import h5py
+from project.datamodules.gen1_formatted import Gen1Detection
 
 def animate(spikes: torch.Tensor):
     fig, ax = plt.subplots()
@@ -50,7 +43,8 @@ def animate(spikes: torch.Tensor):
     exit()
     
 def main():
-    pass
+    datas = Gen1Detection(save_to="/datas/sandbox")
+    print(len(datas))
 
 if __name__ == "__main__":
     main()
