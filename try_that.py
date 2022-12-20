@@ -39,7 +39,14 @@ def animate(spikes: torch.Tensor, target: dict, title="example"):
             y1 = int(boxe[1])
             x2 = int(boxe[2])
             y2 = int(boxe[3])
-            frm[y1:y2, x1:x2] = 0
+            #up
+            frm[y1:y1+10, x1:x2] = 0
+            # left
+            frm[y1:y2, x1:x1+10] = 0
+            # right
+            frm[y1:y2, x2:x2+10] = 0
+            # bot
+            frm[y2:y2+10, x1:x2] = 0
         ax.imshow(frm, cmap="Greys")  # noqa: F841
         camera.snap()
 
