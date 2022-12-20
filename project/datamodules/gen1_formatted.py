@@ -10,8 +10,6 @@ import torch.optim as optim
 
 
 class Gen1Detection(Dataset):
-    base_folder = "DailyAction-DVS"
-
     sensor_size = (304, 240, 2)  # DVS 128
     dtype = np.dtype([("x", np.int16), ("y", np.int16), ("p", bool), ("t", np.int64)])
     ordering = dtype.names
@@ -63,7 +61,7 @@ class Gen1Detection(Dataset):
     def _check_exists(self):
         return os.path.isdir(
             os.path.join(
-                self.location_on_system, self.base_folder
+                self.location_on_system
             )  # check if directory exists
         ) and self._folder_contains_at_least_n_files_of_type(100, ".npy")
 
