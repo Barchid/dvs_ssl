@@ -72,6 +72,8 @@ class Gen1Detection(Dataset):
         for boxe in boxes:
             x1 = boxe["x"]
             y1 = boxe["y"]
+            x1 = np.clip(x1, 0, self.sensor_size[0])
+            y1 = np.clip(y1, 0, self.sensor_size[1])
             x2 = np.clip(x1 + boxe["w"], 0, self.sensor_size[0])
             y2 = np.clip(y1 + boxe["h"], 0, self.sensor_size[1])
             label = boxe["class_id"]
