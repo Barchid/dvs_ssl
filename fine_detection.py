@@ -1,21 +1,22 @@
-from itertools import chain, combinations
-from operator import mod
 import pytorch_lightning as pl
-from project.classif_module import ClassifModule
-from project.datamodules.dvs_datamodule import DVSDataModule
-from project.finetune_module import FinetuneModule
-from project.utils.barlow_transforms import BarlowTwinsTransform
 from project.ssl_module import SSLModule
+from project.datamodules.gen1_formatted import Gen1Detection
 import torch
+from torch.utils.data import DataLoader
 import os
 from matplotlib import pyplot as plt
 from argparse import ArgumentParser
-from project.utils.eval_callback import OnlineFineTuner
+from project.models.detection import SNNModule
+from project.models.models import get_encoder, get_encoder_3d
+from project.models.snn_models import get_encoder_snn
+from project.utils.transform_dvs import get_frame_representation, ConcatTimeChannels
+from torchvision import transforms
 
 import traceback
 from datetime import datetime
 
 from pl_bolts.models.detection.faster_rcnn.faster_rcnn_module import FasterRCNN
+from pl_bolts.datamodules.vocdetection_datamodule import _collate_fn
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 epochs = 500
@@ -28,11 +29,9 @@ data_dir = "data"  # "/data/fox-data/datasets/spiking_camera_datasets/"
 
 def main(args):
     trans = []
-    subset_len = args["subset_len"]
     ckpt = args["ckpt"]
-    src_dataset = args["src_dataset"]
-    dest_dataset = args["dest_dataset"]
     use_enc2 = args["use_enc2"]
+    mode = args["mode"]
 
     checkpoint_callback = pl.callbacks.ModelCheckpoint(
         monitor="val_acc",  # TODO: select the logged metric to monitor the checkpoint saving
@@ -41,97 +40,83 @@ def main(args):
         mode="max",
     )
 
-    src_num_classes = 10
-    if src_dataset == "daily_action_dvs":
-        src_num_classes = 12
-    elif src_dataset == "n-caltech101":
-        src_num_classes = 101
-    elif src_dataset == "ncars":
-        src_num_classes = 2
-    elif src_dataset == "dvsgesture":
-        src_num_classes = 11
-    # elif src_dataset == "ncars":
-    #     src_num_classes = 2
-
-    dest_num_classes = 10
-    if dest_dataset == "daily_action_dvs":
-        dest_num_classes = 12
-    elif dest_dataset == "n-caltech101":
-        dest_num_classes = 101
-    elif dest_dataset == "ncars":
-        dest_num_classes = 2
-    elif dest_dataset == "dvsgesture":
-        dest_num_classes = 11
-    # elif dest_dataset == "ncars":
-    #     dest_num_classes = 2
-
-    if ckpt is not None:
-        modu = SSLModule.load_from_checkpoint(
-            ckpt,
-            strict=False,
-            n_classes=src_num_classes,
-            epochs=epochs,
-            timesteps=timesteps,
-        )
-
-    module = ClassifModule(
-        n_classes=dest_num_classes,
-        learning_rate=learning_rate,
-        epochs=epochs,
-        timesteps=timesteps,
-        mode=modu.enc1,
+    representation = get_frame_representation(
+        Gen1Detection.sensor_size, timesteps, dataset="gen1"
     )
+    trans = [
+        representation,
+        transforms.Resize(
+            (128, 128), interpolation=transforms.InterpolationMode.NEAREST
+        ),
+    ]
+    if mode == "cnn":
+        trans.append(ConcatTimeChannels())
 
-    datamodule = DVSDataModule(
-        batch_size,
-        dest_dataset,
-        timesteps,
-        data_dir=data_dir,
-        barlow_transf=trans,
-        in_memory=False,
-        num_workers=0,
-        mode=modu.enc1,
-        use_barlow_trans=True,
-        subset_len=subset_len,
+    trans = transforms.Compose(trans)
+
+    train_set = Gen1Detection(save_to="/datas/sandbox", subset="train", transform=trans)
+    train_loader = DataLoader(
+        train_set,
+        batch_size=batch_size,
+        shuffle=True,
+        num_workers=8,
+        collate_fn=_collate_fn,
+    )
+    val_set = Gen1Detection(save_to="/datas/sandbox", subset="test", transform=trans)
+    val_loader = DataLoader(
+        val_set,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=8,
+        collate_fn=_collate_fn,
     )
 
     if ckpt is not None:
         modu = SSLModule.load_from_checkpoint(
             ckpt,
             strict=False,
-            n_classes=src_num_classes,
+            n_classes=0,  # useless
             epochs=epochs,
             timesteps=timesteps,
         )
 
         if modu.encoder1 is not None:
             if use_enc2:
-                enco = modu.encoder1
+                backbone = modu.encoder2
+                mode = modu.enc2
             else:
-                enco = modu.encoder2
+                backbone = modu.encoder1
+                mode = modu.enc1
         else:
-            enco = modu.encoder
+            backbone = modu.encoder
+            mode = modu.enc1
+    else:
+        if mode == "snn":
+            backbone = get_encoder_snn(2, timesteps, output_all=False)
+        elif mode == "cnn":
+            backbone = get_encoder(2 * timesteps)
+        else:
+            backbone = get_encoder_3d(2)
 
-        module.encoder = enco
-        
-        if src_dataset != dest_dataset:
-            module.encoder.requires_grad_(False)
+    encoder = SNNModule(backbone, mode=mode)
 
-    name = f"semisup_{src_dataset}_{dest_dataset}_{modu.enc1}_{modu.enc2}"
-    for tr in trans:
-        name += f"_{tr}"
+    module = FasterRCNN(num_classes=2, backbone=encoder)
+
+    name = f"detection_{mode}"
+    if ckpt is not None:
+        name += "_pretrained"
 
     trainer = pl.Trainer(
         max_epochs=epochs,
         gpus=torch.cuda.device_count(),
         callbacks=[checkpoint_callback],
-        logger=pl.loggers.TensorBoardLogger("experiments/semisups", name=f"{name}"),
-        default_root_dir=f"experiments/semisups/{name}",
+        logger=pl.loggers.TensorBoardLogger("experiments/detection", name=f"{name}"),
+        default_root_dir=f"experiments/detection/{name}",
         precision=16,
     )
 
     try:
-        trainer.fit(module, datamodule=datamodule)
+        trainer.fit(module, train_loader, val_loader)
     except:
         # traceback.print_exc()
         mess = traceback.format_exc()
@@ -144,51 +129,28 @@ def main(args):
         return -1
 
     # write in score
-    report = open(f"report_semisupervised_{modu.enc1}_{modu.enc2}.txt", "a")
+    report = open(f"report_detection.txt", "a")
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     report.write(
-        f"{dt_string} {src_dataset} {dest_dataset} {subset_len} {checkpoint_callback.best_model_score} {modu.enc1} {modu.enc2} {trans} {type(ckpt)}\n"
+        f"{dt_string} {mode} {checkpoint_callback.best_model_score} {type(ckpt)}\n"
     )
     report.flush()
     report.close()
     return checkpoint_callback.best_model_score
 
 
-def compare(mode, ckpt=None):
-    pass
-
-
 if __name__ == "__main__":
     parser = ArgumentParser("Finetune")
     parser.add_argument("ckpt_path", default=None, type=str)
-    parser.add_argument("--src_dataset", required=True, type=str)
-    parser.add_argument("--dest_dataset", default=None, type=str)
-    parser.add_argument("--subset_len", default=None, type=str, choices=["10", "25"])
-    parser.add_argument('--use_enc2', action="store_true", default=False)
+    parser.add_argument(
+        "--mode", choices=["snn", "cnn", "3dcnn"], type=str, default="snn"
+    )
+    parser.add_argument("--use_enc2", action="store_true", default=False)
     args = parser.parse_args()
 
     ckpt = args.ckpt_path
-    src_dataset = args.src_dataset
-    dest_dataset = args.dest_dataset
-    if dest_dataset is None:
-        dest_dataset = src_dataset
-    subset_len = args.subset_len
-    if subset_len is not None:
-        subset_len = subset_len + "%"
-        
     use_enc2 = args.use_enc2
+    mode = args.mode
 
-    main(
-        {
-            "subset_len": subset_len,
-            "ckpt": ckpt,
-            "src_dataset": src_dataset,
-            "dest_dataset": dest_dataset,
-            "use_enc2": use_enc2
-        }
-    )
-
-    # compare(mode="cnn", ckpt=ckpt, src_dataset=src_dataset, dest_dataset=dest_dataset, subs)
-    # compare(mode="snn")
-    # compare(mode="3dcnn")
+    main({"ckpt": ckpt, "use_enc2": use_enc2, "mode": mode})
