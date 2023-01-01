@@ -109,6 +109,9 @@ def main(args):
         max_size=304,
         min_size=128,
     )
+    module.model.transform = GeneralizedRCNNTransform(
+        128, 304, image_mean=(0.0, 0.0, 0.0), image_std=(1.0, 1.0, 1.0)
+    )
 
     name = f"detection_{mode}"
     if ckpt is not None:

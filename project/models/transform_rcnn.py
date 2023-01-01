@@ -280,7 +280,7 @@ class GeneralizedRCNNTransform(nn.Module):
             _indent, self.image_mean, self.image_std
         )
         format_string += (
-            "{0}Resize(min_size={1}, max_size={2}, mode='bilinear')".format(
+            "{0}Resize(min_size={1}, max_size={2}, mode='nearest')".format(
                 _indent, self.min_size, self.max_size
             )
         )
