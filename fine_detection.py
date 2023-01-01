@@ -153,7 +153,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = ArgumentParser("Finetune")
-    parser.add_argument("ckpt_path", default=None, type=str)
+    parser.add_argument("--ckpt_path", default=None, type=str)
     parser.add_argument(
         "--mode", choices=["snn", "cnn", "3dcnn"], type=str, default="snn"
     )
