@@ -11,6 +11,7 @@ from project.models.models import get_encoder, get_encoder_3d
 from project.models.snn_models import get_encoder_snn
 from project.utils.transform_dvs import get_frame_representation, ConcatTimeChannels
 from torchvision import transforms
+from project.models.transform_rcnn import GeneralizedRCNNTransform
 
 import traceback
 from datetime import datetime
@@ -45,9 +46,9 @@ def main(args):
     )
     trans = [
         representation,
-        transforms.Resize(
-            (128, 128), interpolation=transforms.InterpolationMode.NEAREST
-        ),
+        # transforms.Resize(
+        #     (128, 128), interpolation=transforms.InterpolationMode.NEAREST
+        # ),
     ]
     if mode == "cnn":
         trans.append(ConcatTimeChannels())
@@ -100,7 +101,17 @@ def main(args):
 
     encoder = SNNModule(backbone, mode=mode)
 
-    module = FasterRCNN(num_classes=2, backbone=encoder)
+    module = FasterRCNN(
+        num_classes=2,
+        backbone=encoder,
+        image_mean=(0.0, 0.0, 0.0),
+        image_std=(1.0, 1.0, 1.0),
+        max_size=304,
+        min_size=128,
+    )
+    module.transform = GeneralizedRCNNTransform(
+        128, 304, image_mean=(0.0, 0.0, 0.0), image_std=(1.0, 1.0, 1.0)
+    )
 
     name = f"detection_{mode}"
     if ckpt is not None:
@@ -133,7 +144,7 @@ def main(args):
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     report.write(
-        f"{dt_string} {mode} {checkpoint_callback.best_model_score} {type(ckpt)}\n"
+        f"{dt_string} {mode} {checkpoint_callback.best_model_score} {type(ckpt)} {ckpt}\n"
     )
     report.flush()
     report.close()

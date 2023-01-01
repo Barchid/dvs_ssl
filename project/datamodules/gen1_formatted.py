@@ -28,7 +28,8 @@ class Gen1Detection(Dataset):
             save_to, transform=transform, target_transform=target_transform
         )
         self.subset = subset
-        self.target_size = target_size
+        # self.target_size = target_size
+        self.target_size = None
 
         if not self._check_exists():
             raise ValueError("The formatted Gen1 dataset does not exist.")
