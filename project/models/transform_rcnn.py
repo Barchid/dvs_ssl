@@ -54,7 +54,7 @@ def _resize_image_and_masks(image, self_min_size, self_max_size, target):
         scale_factor=scale_factor,
         mode="nearest",
         recompute_scale_factor=True,
-        align_corners=False,
+        align_corners=True,
     )[0]
 
     if target is None:
