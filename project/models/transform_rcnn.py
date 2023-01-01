@@ -120,7 +120,7 @@ class GeneralizedRCNNTransform(nn.Module):
             #         "images is expected to be a list of 3d tensors "
             #         "of shape [C, H, W], got {}".format(image.shape)
             #     )
-            image = self.normalize(image)
+            # image = self.normalize(image)
             image, target_index = self.resize(image, target_index)
             images[i] = image
             if targets is not None and target_index is not None:
