@@ -81,7 +81,9 @@ class TransformDetection(nn.Module):
     def forward(
         self, images: List[Tensor], targets: Optional[List[Dict[str, Tensor]]] = None
     ):
-        result_images = []
+        len_im = len(images)
+        result_images = torch.zeros((len_im, *images[0].shape))
+        sizes = []
         for i in range(len(images)):
             image = images[i]
             im = F.interpolate(
@@ -92,9 +94,10 @@ class TransformDetection(nn.Module):
             )
             im[im < 0.5] = 0.0
             im[im >= 0.5] = 1.0
-            result_images.append(im)
+            result_images[i] = im
+            sizes.append((128,128))
 
-        return result_images, targets
+        return ImageList(result_images, sizes), targets
 
     def postprocess(
         self,
