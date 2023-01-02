@@ -88,7 +88,7 @@ class TransformDetection(nn.Module):
                 image,
                 size=(self.height, self.width),
                 align_corners=True,
-                mode="nearest",
+                mode="bilinear",
             )
             im[im < 0.5] = 0.0
             im[im >= 0.5] = 1.0
