@@ -73,7 +73,7 @@ def _resize_image_and_masks(image, self_min_size, self_max_size, target):
 class TransformDetection(nn.Module):
     """Some Information about TransformDetection"""
 
-    def __init__(self, height: int = 128, width: int = 128, timesteps = None):
+    def __init__(self, height: int = 128, width: int = 128, timesteps=None):
         super(TransformDetection, self).__init__()
         self.height = height
         self.width = width
@@ -84,9 +84,17 @@ class TransformDetection(nn.Module):
     ):
         len_im = len(images)
         if self.timesteps is not None:
-            result_images = torch.zeros((len_im, self.timesteps, 2, self.height, self.width))
+            result_images = torch.zeros(
+                (len_im, self.timesteps, 2, self.height, self.width),
+                dtype=torch.float16,
+                device=images[0].device,
+            )
         else:
-            result_images = torch.zeros((len_im, images[0].shape[0], self.height, self.width))
+            result_images = torch.zeros(
+                (len_im, images[0].shape[0], self.height, self.width),
+                dtype=torch.float16,
+                device=images[0].device,
+            )
         sizes = []
         for i in range(len(images)):
             image = images[i]
@@ -99,7 +107,7 @@ class TransformDetection(nn.Module):
             im[im < 0.5] = 0.0
             im[im >= 0.5] = 1.0
             result_images[i] = im
-            sizes.append((128,128))
+            sizes.append((128, 128))
 
         return ImageList(result_images, sizes), targets
 
