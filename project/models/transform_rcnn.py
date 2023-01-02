@@ -82,7 +82,7 @@ class TransformDetection(nn.Module):
         self, images: List[Tensor], targets: Optional[List[Dict[str, Tensor]]] = None
     ):
         len_im = len(images)
-        result_images = torch.zeros((len_im, *images[0].shape))
+        result_images = torch.zeros((len_im, 2, self.height, self.width))
         sizes = []
         for i in range(len(images)):
             image = images[i]
