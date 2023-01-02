@@ -11,7 +11,7 @@ from project.models.models import get_encoder, get_encoder_3d
 from project.models.snn_models import get_encoder_snn
 from project.utils.transform_dvs import get_frame_representation, ConcatTimeChannels
 from torchvision import transforms
-from project.models.transform_rcnn import GeneralizedRCNNTransform
+from project.models.transform_rcnn import TransformDetection
 
 import traceback
 from datetime import datetime
@@ -109,9 +109,7 @@ def main(args):
         max_size=304,
         min_size=128,
     )
-    module.model.transform = GeneralizedRCNNTransform(
-        128, 304, image_mean=(0.0, 0.0, 0.0), image_std=(1.0, 1.0, 1.0)
-    )
+    module.model.transform = TransformDetection(128, 128)
 
     name = f"detection_{mode}"
     if ckpt is not None:

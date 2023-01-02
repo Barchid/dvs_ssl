@@ -70,6 +70,41 @@ def _resize_image_and_masks(image, self_min_size, self_max_size, target):
     return image, target
 
 
+class TransformDetection(nn.Module):
+    """Some Information about TransformDetection"""
+
+    def __init__(self, height: int = 128, width: int = 128):
+        super(TransformDetection, self).__init__()
+        self.height = height
+        self.width = width
+
+    def forward(
+        self, images: List[Tensor], targets: Optional[List[Dict[str, Tensor]]] = None
+    ):
+        result_images = []
+        for i in range(len(images)):
+            image = images[i]
+            im = F.interpolate(
+                image,
+                size=(self.height, self.width),
+                align_corners=True,
+                mode="nearest",
+            )
+            im[im < 0.5] = 0.0
+            im[im >= 0.5] = 1.0
+            result_images.append(im)
+
+        return result_images, targets
+
+    def postprocess(
+        self,
+        result,  # type: List[Dict[str, Tensor]]
+        image_shapes,  # type: List[Tuple[int, int]]
+        original_image_sizes,  # type: List[Tuple[int, int]]
+    ):
+        return result
+
+
 class GeneralizedRCNNTransform(nn.Module):
     """
     Performs input / target transformation before feeding the data to a GeneralizedRCNN
@@ -278,10 +313,8 @@ class GeneralizedRCNNTransform(nn.Module):
         format_string += "{0}Normalize(mean={1}, std={2})".format(
             _indent, self.image_mean, self.image_std
         )
-        format_string += (
-            "{0}Resize(min_size={1}, max_size={2}, mode='nearest')".format(
-                _indent, self.min_size, self.max_size
-            )
+        format_string += "{0}Resize(min_size={1}, max_size={2}, mode='nearest')".format(
+            _indent, self.min_size, self.max_size
         )
         format_string += "\n)"
         return format_string
