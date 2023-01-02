@@ -109,7 +109,9 @@ def main(args):
         max_size=304,
         min_size=128,
     )
-    module.model.transform = TransformDetection(128, 128)
+    module.model.transform = TransformDetection(
+        128, 128, timesteps=None if mode == "cnn" else timesteps
+    )
 
     name = f"detection_{mode}"
     if ckpt is not None:
