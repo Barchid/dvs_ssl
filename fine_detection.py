@@ -26,7 +26,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 epochs = 15
 learning_rate = 3e-3  # barlowsnn=0.1, vicregsnn=0.01, dvs=1e-3
 timesteps = 12
-batch_size = 256
+batch_size = 128
 # dataset = "dvsgesture"
 data_dir = "data"  # "/data/fox-data/datasets/spiking_camera_datasets/"
 
