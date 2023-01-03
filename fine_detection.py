@@ -38,8 +38,8 @@ def main(args):
     mode = args["mode"]
 
     checkpoint_callback = pl.callbacks.ModelCheckpoint(
-        monitor="val_acc",  # TODO: select the logged metric to monitor the checkpoint saving
-        filename="{epoch:03d}-{val_acc:.4f}",
+        monitor="avg_val_iou",  # TODO: select the logged metric to monitor the checkpoint saving
+        filename="{epoch:03d}-{avg_val_iou:.4f}",
         save_top_k=1,
         mode="max",
     )
