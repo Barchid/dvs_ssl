@@ -18,6 +18,9 @@ from datetime import datetime
 
 from pl_bolts.models.detection.faster_rcnn.faster_rcnn_module import FasterRCNN
 from pl_bolts.datamodules.vocdetection_datamodule import _collate_fn
+from torchvision.models.detection.anchor_utils import AnchorGenerator
+from torchvision.ops import MultiScaleRoIAlign
+
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 epochs = 500
@@ -100,14 +103,18 @@ def main(args):
             backbone = get_encoder_3d(2)
 
     encoder = SNNModule(backbone, mode=mode)
-
+    anchor_generator = AnchorGenerator(sizes=((8, 16, 32, 64, 128),), aspect_ratios=((0.5, 1.0, 2.0),))
+    roialign = MultiScaleRoIAlign("[0]", output_size=4, sampling_ratio=2)
     module = FasterRCNN(
         num_classes=2,
         backbone=encoder,
         image_mean=(0.0, 0.0, 0.0),
         image_std=(1.0, 1.0, 1.0),
-        max_size=304,
+        max_size=128,
         min_size=128,
+        rpn_anchor_generator=anchor_generator, 
+        box_roi_pool=roialign,
+        fpn=False
     )
     module.model.transform = TransformDetection(
         128, 128, timesteps=None if mode == "cnn" else timesteps
@@ -123,7 +130,7 @@ def main(args):
         callbacks=[checkpoint_callback],
         logger=pl.loggers.TensorBoardLogger("experiments/detection", name=f"{name}"),
         default_root_dir=f"experiments/detection/{name}",
-        precision=16,
+        # precision=16,
     )
 
     try:

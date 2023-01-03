@@ -86,18 +86,20 @@ class TransformDetection(nn.Module):
         if self.timesteps is not None:
             result_images = torch.zeros(
                 (len_im, self.timesteps, 2, self.height, self.width),
-                dtype=torch.float16,
+                dtype=images[0].dtype,
                 device=images[0].device,
             )
         else:
             result_images = torch.zeros(
                 (len_im, images[0].shape[0], self.height, self.width),
-                dtype=torch.float16,
+                dtype=images[0].dtype,
                 device=images[0].device,
             )
         sizes = []
         for i in range(len(images)):
             image = images[i]
+            if self.timesteps is None:
+                image = image[None]
             im = F.interpolate(
                 image,
                 size=(self.height, self.width),
