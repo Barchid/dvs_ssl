@@ -16,7 +16,7 @@ from project.models.transform_rcnn import TransformDetection
 import traceback
 from datetime import datetime
 
-from pl_bolts.models.detection.faster_rcnn.faster_rcnn_module import FasterRCNN
+from project.faster_rcnn_module import FasterRCNN
 from pl_bolts.datamodules.vocdetection_datamodule import _collate_fn
 from torchvision.models.detection.anchor_utils import AnchorGenerator
 from torchvision.ops import MultiScaleRoIAlign
