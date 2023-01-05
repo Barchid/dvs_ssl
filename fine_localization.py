@@ -32,8 +32,8 @@ def main(args):
     mode = args["mode"]
 
     checkpoint_callback = pl.callbacks.ModelCheckpoint(
-        monitor="avg_val_iou",  # TODO: select the logged metric to monitor the checkpoint saving
-        filename="{epoch:03d}-{avg_val_iou:.4f}",
+        monitor="val_iou",  # TODO: select the logged metric to monitor the checkpoint saving
+        filename="{epoch:03d}-{val_iou:.4f}",
         save_top_k=1,
         mode="max",
     )
@@ -58,17 +58,18 @@ def main(args):
     train_len = int(len(full_set) * 0.8)
     val_len = len(full_set) - train_len # 20% of dataset
     train_set, val_set = random_split(full_set, [train_len, val_len])
+    print(train_len, val_len)
     train_loader = DataLoader(
         train_set,
         batch_size=batch_size,
         shuffle=True,
-        num_workers=0,
+        num_workers=8,
     )
     val_loader = DataLoader(
         val_set,
         batch_size=batch_size,
         shuffle=False,
-        num_workers=0,
+        num_workers=5,
     )
 
     if ckpt is not None:
