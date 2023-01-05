@@ -8,12 +8,12 @@ from tonic.download_utils import extract_archive
 from tonic import functional as TF
 import torch.nn.functional as F
 import torch
+from torch.utils.data import random_split
 import cv2
 from celluloid import Camera
 import random
 import matplotlib.pyplot as plt
 import pytorch_lightning as pl
-import scipy.io as sio
 
 
 class NCALTECH101Localization(Dataset):
@@ -42,7 +42,7 @@ class NCALTECH101Localization(Dataset):
     data_filename = "Caltech101.zip"
     folder_name = "Caltech101"
     annotation_filename = "Caltech101_annotations.zip"
-    annotation_folder = "Annotations"
+    annotation_folder = "Caltech101_annotations"
 
     CLASSES_ENABLED = ["Motorbikes", "Faces_easy", "airplanes", "Leopards",
                        "hawksbill", "chandelier", "ketch", "car_side", "bonsai", "watch"]
@@ -86,10 +86,11 @@ class NCALTECH101Localization(Dataset):
                 self.data.append(os.path.join(data_dir, data_file))
 
                 anno_file = os.path.join(
-                    anno_dir, data_file.replace('image_', 'annotation_').replace('.bin', '.mat'))
-                raw_data = sio.loadmat(anno_file)['box_coord'][0]
+                    anno_dir, data_file.replace('image_', 'annotation_'))
+                raw_data = np.fromfile(anno_file, dtype=np.uint16)
+                # read x_min, y_min, x_max, y_max from data in the bin file
                 self.bboxes.append(
-                    np.array([raw_data[0], raw_data[1], raw_data[2], raw_data[3]]))
+                    np.array([raw_data[2], raw_data[3], raw_data[6], raw_data[7]]))
 
     def __getitem__(self, index):
         """
