@@ -44,7 +44,7 @@ class NCALTECH101Localization(Dataset):
     data_filename = "Caltech101.zip"
     folder_name = "Caltech101"
     annotation_filename = "Caltech101_annotations.zip"
-    annotation_folder = "Caltech101_annotations"
+    annotation_folder = "Annotations"
 
     CLASSES_ENABLED = ["Motorbikes", "Faces_easy", "airplanes", "Leopards",
                        "hawksbill", "chandelier", "ketch", "car_side", "bonsai", "watch"]
@@ -53,7 +53,7 @@ class NCALTECH101Localization(Dataset):
     dtype = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])
     ordering = dtype.names
 
-    def __init__(self, save_to='data/n101', transform=None):
+    def __init__(self, save_to='data', transform=None):
         super(NCALTECH101Localization, self).__init__(
             save_to, transform=transform, target_transform=None
         )
