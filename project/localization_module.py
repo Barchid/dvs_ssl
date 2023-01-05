@@ -19,7 +19,7 @@ class LocalizationModule(pl.LightningModule):
         self,
         learning_rate: float,
         epochs: int,
-        encoder: torch.Module,
+        encoder: nn.Module,
         mode: str = "cnn",
         **kwargs
     ):
