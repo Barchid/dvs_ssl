@@ -53,14 +53,10 @@ class NCALTECH101Localization(Dataset):
     dtype = np.dtype([("x", int), ("y", int), ("t", int), ("p", int)])
     ordering = dtype.names
 
-    def __init__(self, save_to='data/n101', transform=None, height=224, width=224, timesteps=16):
+    def __init__(self, save_to='data/n101', transform=None):
         super(NCALTECH101Localization, self).__init__(
             save_to, transform=transform, target_transform=None
         )
-        self.width = width
-        self.height = height
-        self.timesteps = timesteps
-
         if not self._check_exists():
             self.download()
             extract_archive(os.path.join(
@@ -114,9 +110,6 @@ class NCALTECH101Localization(Dataset):
             np.clip(bbox[2], 0, events["x"].max()) / events["x"].max(),
             np.clip(bbox[3], 0, events["y"].max()) / events["y"].max(),
         ]).astype(np.float32)
-
-        # events["x"] -= events["x"].min()
-        # events["y"] -= events["y"].min()
 
         if self.transform is not None:
             events = self.transform(events)
