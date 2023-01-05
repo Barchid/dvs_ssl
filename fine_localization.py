@@ -17,7 +17,7 @@ from datetime import datetime
 from project.localization_module import LocalizationModule
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-epochs = 15
+epochs = 500
 learning_rate = 3e-3  # barlowsnn=0.1, vicregsnn=0.01, dvs=1e-3
 timesteps = 12
 batch_size = 128
