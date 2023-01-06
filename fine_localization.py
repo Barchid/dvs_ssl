@@ -98,7 +98,9 @@ def main(args):
             backbone = get_encoder(2 * timesteps)
         else:
             backbone = get_encoder_3d(2)
-            
+        
+    backbone.requires_grad_(False)
+    
     module = LocalizationModule(
         learning_rate=learning_rate,
         epochs=epochs,
