@@ -12,7 +12,7 @@ from project.models.snn_models import get_encoder_snn
 from project.utils.transform_dvs import get_frame_representation, ConcatTimeChannels
 from torchvision import transforms
 from project.models.transform_rcnn import TransformDetection
-
+import torch.nn as nn
 import traceback
 from datetime import datetime
 
@@ -20,6 +20,7 @@ from project.faster_rcnn_module import FasterRCNN
 from pl_bolts.datamodules.vocdetection_datamodule import _collate_fn
 from torchvision.models.detection.anchor_utils import AnchorGenerator
 from torchvision.ops import MultiScaleRoIAlign
+from torchvision.models.detection.backbone_utils import resnet_fpn_backbone
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -102,8 +103,14 @@ def main(args):
         else:
             backbone = get_encoder_3d(2)
 
+    backbone = resnet_fpn_backbone("resnet50", True)
+    backbone.body.conv1 = nn.Conv2d(
+        2, 64, (7, 7), stride=(2, 2), padding=(3, 3), bias=False
+    )
     encoder = SNNModule(backbone, mode=mode)
-    anchor_generator = AnchorGenerator(sizes=((8, 16, 32, 64, 128),), aspect_ratios=((0.5, 1.0, 2.0),))
+    anchor_generator = AnchorGenerator(
+        sizes=((8, 16, 32, 64, 128),), aspect_ratios=((0.5, 1.0, 2.0),)
+    )
     roialign = MultiScaleRoIAlign("[0]", output_size=4, sampling_ratio=2)
     module = FasterRCNN(
         num_classes=2,
@@ -112,9 +119,9 @@ def main(args):
         image_std=(1.0, 1.0, 1.0),
         max_size=128,
         min_size=128,
-        rpn_anchor_generator=anchor_generator, 
+        rpn_anchor_generator=anchor_generator,
         box_roi_pool=roialign,
-        fpn=False
+        fpn=False,
     )
     module.model.transform = TransformDetection(
         128, 128, timesteps=None if mode == "cnn" else timesteps
