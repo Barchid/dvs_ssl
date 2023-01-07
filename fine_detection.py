@@ -107,20 +107,21 @@ def main(args):
     backbone.body.conv1 = nn.Conv2d(
         2, 64, (7, 7), stride=(2, 2), padding=(3, 3), bias=False
     )
-    encoder = SNNModule(backbone, mode=mode)
+    # encoder = SNNModule(backbone, mode=mode)
     anchor_generator = AnchorGenerator(
         sizes=((8, 16, 32, 64, 128),), aspect_ratios=((0.5, 1.0, 2.0),)
     )
     roialign = MultiScaleRoIAlign("[0]", output_size=4, sampling_ratio=2)
     module = FasterRCNN(
         num_classes=2,
-        backbone=encoder,
+        # backbone=encoder,
+        backbone=backbone,
         image_mean=(0.0, 0.0, 0.0),
         image_std=(1.0, 1.0, 1.0),
         max_size=128,
         min_size=128,
-        rpn_anchor_generator=anchor_generator,
-        box_roi_pool=roialign,
+        # rpn_anchor_generator=anchor_generator,
+        # box_roi_pool=roialign,
         fpn=False,
     )
     module.model.transform = TransformDetection(
