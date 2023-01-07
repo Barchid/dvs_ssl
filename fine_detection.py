@@ -76,32 +76,32 @@ def main(args):
         collate_fn=_collate_fn,
     )
 
-    if ckpt is not None:
-        modu = SSLModule.load_from_checkpoint(
-            ckpt,
-            strict=False,
-            n_classes=0,  # useless
-            epochs=epochs,
-            timesteps=timesteps,
-        )
+    # if ckpt is not None:
+    #     modu = SSLModule.load_from_checkpoint(
+    #         ckpt,
+    #         strict=False,
+    #         n_classes=0,  # useless
+    #         epochs=epochs,
+    #         timesteps=timesteps,
+    #     )
 
-        if modu.encoder1 is not None:
-            if use_enc2:
-                backbone = modu.encoder2
-                mode = modu.enc2
-            else:
-                backbone = modu.encoder1
-                mode = modu.enc1
-        else:
-            backbone = modu.encoder
-            mode = modu.enc1
-    else:
-        if mode == "snn":
-            backbone = get_encoder_snn(2, timesteps, output_all=False)
-        elif mode == "cnn":
-            backbone = get_encoder(2 * timesteps)
-        else:
-            backbone = get_encoder_3d(2)
+    #     if modu.encoder1 is not None:
+    #         if use_enc2:
+    #             backbone = modu.encoder2
+    #             mode = modu.enc2
+    #         else:
+    #             backbone = modu.encoder1
+    #             mode = modu.enc1
+    #     else:
+    #         backbone = modu.encoder
+    #         mode = modu.enc1
+    # else:
+    #     if mode == "snn":
+    #         backbone = get_encoder_snn(2, timesteps, output_all=False)
+    #     elif mode == "cnn":
+    #         backbone = get_encoder(2 * timesteps)
+    #     else:
+    #         backbone = get_encoder_3d(2)
 
     backbone = resnet_fpn_backbone("resnet50", True)
     backbone.body.conv1 = nn.Conv2d(
