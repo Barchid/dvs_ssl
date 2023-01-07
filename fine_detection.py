@@ -105,7 +105,7 @@ def main(args):
 
     backbone = resnet_fpn_backbone("resnet50", True)
     backbone.body.conv1 = nn.Conv2d(
-        2, 64, (7, 7), stride=(2, 2), padding=(3, 3), bias=False
+        24, 64, (7, 7), stride=(2, 2), padding=(3, 3), bias=False
     )
     # encoder = SNNModule(backbone, mode=mode)
     anchor_generator = AnchorGenerator(
