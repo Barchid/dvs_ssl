@@ -45,7 +45,7 @@ def main(args):
             dataset="dsec",
         )
     )
-    train_loader = torch.utils.DataLoader(
+    train_loader = torch.utils.data.DataLoader(
         train_set, batch_size=batch_size, num_workers=12, shuffle=True
     )
 
