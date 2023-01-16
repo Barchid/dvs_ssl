@@ -13,7 +13,7 @@ from project.datamodules.dsec import DSEC
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 epochs = 100
 learning_rate = 1e-2  # barlowsnn=0.1, vicregsnn=0.01, dvs=1e-3
-timesteps = 12
+timesteps = 6
 batch_size = 128
 dataset = "dsec"
 
@@ -46,7 +46,7 @@ def main(args):
         )
     )
     train_loader = torch.utils.DataLoader(
-        dataset, batch_size=batch_size, num_workers=12, shuffle=True
+        train_set, batch_size=batch_size, num_workers=12, shuffle=True
     )
 
     lr = learning_rate
@@ -148,22 +148,21 @@ if __name__ == "__main__":
         "event_drop_2",
     ]
     acc = main(
-        {"transforms": tran, "ssl_loss": "vicreg", "mode": "3dcnn", "output_all": False}
+        {"transforms": tran, "ssl_loss": "vicreg", "mode": "snn", "output_all": False}
     )
-
-    tran = ["background_activity", "flip_polarity", "crop", "transrot", "event_drop_2"]
+    
+    tran = [
+        "background_activity",
+        "flip_polarity",
+        "crop",
+        "reverse",
+        "flip",
+        "transrot",
+        "event_drop_2",
+    ]
     acc = main(
-        {"transforms": tran, "ssl_loss": "vicreg", "mode": "3dcnn", "output_all": False}
+        {"transforms": tran, "ssl_loss": "vicreg", "mode": "cnn", "output_all": False}
     )
-    # tran = ["background_activity", "flip_polarity", "crop", "transrot", "event_drop_2"]
-    # acc = main(
-    #     {"transforms": tran, "ssl_loss": "vicreg", "mode": "cnn", "output_all": False}
-    # )
-
-    # tran = ["background_activity", "flip_polarity", "crop", "transrot", "event_drop_2"]
-    # acc = main(
-    #     {"transforms": tran, "ssl_loss": "vicreg", "mode": "snn", "output_all": False}
-    # )
 
     exit()
 

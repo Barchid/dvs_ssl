@@ -6,6 +6,20 @@ import torchvision.models as models
 from project.models import sew_resnet, sew_resnet2
 from spikingjelly.clock_driven import neuron, functional, surrogate, layer
 from einops import rearrange
+from project.models import densenet
+
+
+def get_densenet_encoder(in_channels: int, timesteps: int):
+    encoder = densenet.MultiStepSpikingDenseNet(
+        growth_rate=24,
+        num_init_channels=in_channels,
+        norm_layer=nn.BatchNorm2d,
+        T=timesteps,
+        neuron_fun=neuron.MultiStepIFNode
+    )
+    return encoder
+
+# def get_densenet_cnn(in_channels: int, timesteps: int)
 
 
 class SNNModule(nn.Module):
