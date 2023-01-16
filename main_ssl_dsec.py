@@ -46,7 +46,7 @@ def main(args):
         )
     )
     train_loader = torch.utils.data.DataLoader(
-        train_set, batch_size=batch_size, num_workers=12, shuffle=True
+        train_set, batch_size=batch_size, num_workers=8, shuffle=True
     )
 
     lr = learning_rate
