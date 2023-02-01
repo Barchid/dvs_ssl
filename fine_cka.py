@@ -21,7 +21,7 @@ learning_rate = 3e-3  # barlowsnn=0.1, vicregsnn=0.01, dvs=1e-3
 timesteps = 12
 batch_size = 128
 # dataset = "dvsgesture"
-data_dir = "data"  # "/data/fox-data/datasets/spiking_camera_datasets/"
+data_dir = "/data/fox-data/datasets/spiking_camera_datasets/"  # "data"
 
 
 def main(args):
@@ -111,7 +111,7 @@ def main(args):
             enco = modu.encoder
 
         module.encoder = enco
-        
+
         module.encoder.requires_grad_(False)
 
     name = f"{src_dataset}_{dest_dataset}_{modu.enc1}_{modu.enc2}"
@@ -149,7 +149,7 @@ def main(args):
     )
     report.flush()
     report.close()
-    
+
     return checkpoint_callback.best_model_score
 
 
@@ -169,7 +169,7 @@ if __name__ == "__main__":
     parser.add_argument("--src_dataset", required=True, type=str)
     parser.add_argument("--dest_dataset", default=None, type=str)
     parser.add_argument("--subset_len", default=None, type=str, choices=["10", "25"])
-    parser.add_argument('--use_enc2', action="store_true", default=False)
+    parser.add_argument("--use_enc2", action="store_true", default=False)
     args = parser.parse_args()
 
     ckpt = args.ckpt_path
@@ -180,7 +180,7 @@ if __name__ == "__main__":
     subset_len = args.subset_len
     if subset_len is not None:
         subset_len = subset_len + "%"
-        
+
     use_enc2 = args.use_enc2
 
     main(
@@ -189,7 +189,7 @@ if __name__ == "__main__":
             "ckpt": ckpt,
             "src_dataset": src_dataset,
             "dest_dataset": dest_dataset,
-            "use_enc2": use_enc2
+            "use_enc2": use_enc2,
         }
     )
 
