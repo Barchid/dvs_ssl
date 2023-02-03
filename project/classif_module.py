@@ -56,6 +56,18 @@ class ClassifModule(pl.LightningModule):
         x = self.encoder(x)
         x = self.fc(x)
         return x
+    
+    def forward_analyze(self, x):
+        if self.mode == "snn" or self.mode == "snn2":
+            functional.reset_net(self.encoder)
+            x = x.permute(1, 0, 2, 3, 4)  # from (B,T,C,H,W) to (T, B, C, H, W)
+
+        if self.mode == "3dcnn":
+            x = x.permute(0, 2, 1, 3, 4)  # from (B,T,C,H,W) to (B,C,T,H,W)
+
+        feats = self.encoder(x)
+        x = self.fc(feats)        
+        return x, feats
 
     def shared_step(self, x, label):
         y_hat = self(x)
