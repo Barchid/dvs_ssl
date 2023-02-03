@@ -25,7 +25,7 @@ data_dir = "/sandbox0/sami/data" #"/data/fox-data/datasets/spiking_camera_datase
 
 
 def main(args):
-    trans = []
+    trans = ["background_activity", "flip_polarity", "crop", "transrot", "event_drop_2"]
     subset_len = args["subset_len"]
     ckpt = args["ckpt"]
     src_dataset = args["src_dataset"]
