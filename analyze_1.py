@@ -72,6 +72,10 @@ def main(args):
 
         with torch.no_grad():
             embeddings_matrix = torch.zeros((len(val_loader.dataset), 512))
+            stem_matrix = torch.zeros((len(val_loader.dataset), 262144))
+            res2_matrix = torch.zeros((len(val_loader.dataset), 65536))
+            res3_matrix = torch.zeros((len(val_loader.dataset), 32768))
+            res4_matrix = torch.zeros((len(val_loader.dataset), 16384))
             good_predictions = []
             bad_predictions = []
             idx_label = []
@@ -79,9 +83,16 @@ def main(args):
             module.eval()
             for idx, (inputs, label) in enumerate(val_loader):
                 idx_label.append(label)
-                
+
                 (X, Y_a, Y_b) = inputs
-                y_hat, feats = module.forward_analyze(X)
+                (
+                    y_hat,
+                    feats,
+                    stem_feat,
+                    res2_feat,
+                    res3_feat,
+                    res4_feat,
+                ) = module.forward_analyze(X)
                 y_hat = y_hat.squeeze()
                 pred = torch.argmax(y_hat).item()
 
@@ -91,15 +102,28 @@ def main(args):
                     bad_predictions.append(idx)
 
                 feats = feats.squeeze()
+                stem_feat = stem_feat.squeeze()
+                res2_feat = res2_feat.squeeze()
+                res3_feat = res3_feat.squeeze()
+                res4_feat = res4_feat.squeeze()
+
                 embeddings_matrix[idx] = feats
+                stem_matrix[idx] = stem_feat
+                res2_matrix[idx] = res2_feat
+                res3_matrix[idx] = res3_feat
+                res4_matrix[idx] = res4_feat
 
             torch.save(embeddings_matrix, f"embeddings_{src_dataset}_{module.mode}.pt")
+            torch.save(stem_matrix, f"stem_{src_dataset}_{module.mode}.pt")
+            torch.save(res2_matrix, f"res2_{src_dataset}_{module.mode}.pt")
+            torch.save(res3_matrix, f"res3_{src_dataset}_{module.mode}.pt")
+            torch.save(res4_matrix, f"res4_{src_dataset}_{module.mode}.pt")
 
             # write predictions
             json_content = {
                 "good": good_predictions,
                 "bad": bad_predictions,
-                "idx_label": idx_label
+                "idx_label": idx_label,
             }
             with open(f"predictions_{src_dataset}_{module.mode}.json", "w") as fp:
                 json.dump(json_content, fp)

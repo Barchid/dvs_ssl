@@ -12,6 +12,7 @@ import torchmetrics
 from project.models.models import get_encoder, get_encoder_3d
 from project.models.snn_models import get_encoder_snn, get_encoder_snn_2
 from project.models.utils import MeanSpike
+from utils.forward_analyze import forward_analyze_3dcnn, forward_analyze_cnn, forward_analyze_snn
 
 
 class ClassifModule(pl.LightningModule):
@@ -65,9 +66,16 @@ class ClassifModule(pl.LightningModule):
         if self.mode == "3dcnn":
             x = x.permute(0, 2, 1, 3, 4)  # from (B,T,C,H,W) to (B,C,T,H,W)
 
+        if self.mode == "3dcnn":
+            feats, stem_feat, res2_feat, res3_feat, res4_feat = forward_analyze_3dcnn(self.encoder, x)
+        elif self.mode == "cnn":
+            feats, stem_feat, res2_feat, res3_feat, res4_feat = forward_analyze_cnn(self.encoder, x)
+        else: # mode == "snn"
+            feats, stem_feat, res2_feat, res3_feat, res4_feat = forward_analyze_snn(self.encoder, x)
+        
         feats = self.encoder(x)
         x = self.fc(feats)        
-        return x, feats
+        return x, feats.flatten(), stem_feat.flatten(1), res2_feat.flatten(1), res3_feat.flatten(1), res4_feat.flatten(1)
 
     def shared_step(self, x, label):
         y_hat = self(x)
