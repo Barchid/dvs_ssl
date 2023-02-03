@@ -74,9 +74,12 @@ def main(args):
             embeddings_matrix = torch.zeros((len(val_loader.dataset), 512))
             good_predictions = []
             bad_predictions = []
+            idx_label = []
 
             module.eval()
             for idx, (inputs, label) in enumerate(val_loader):
+                idx_label.append(label)
+                
                 (X, Y_a, Y_b) = inputs
                 y_hat, feats = module.forward_analyze(X)
                 y_hat = y_hat.squeeze()
@@ -96,6 +99,7 @@ def main(args):
             json_content = {
                 "good": good_predictions,
                 "bad": bad_predictions,
+                "idx_label": idx_label
             }
             with open(f"predictions_{src_dataset}_{module.mode}.json", "w") as fp:
                 json.dump(json_content, fp)

@@ -134,3 +134,5 @@ experiments/*
 try.py
 real_main.py
 examples/*
+analys/*
+!analys/.gitkeep
