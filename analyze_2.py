@@ -4,7 +4,6 @@ import numpy as np
 import os
 from argparse import ArgumentParser
 from project.utils.uniform_loss import uniformity, tolerance
-from project.utils.cka import CKA, CudaCKA
 
 
 def main(
@@ -14,7 +13,6 @@ def main(
     name2: str,
     embeddings2: str,
     predictions2: str,
-    only_cka: bool
 ):
     dirnam = f"analys/analysis_{name1}_{name2}"
     os.makedirs(dirnam, exist_ok=True)
@@ -22,7 +20,6 @@ def main(
     overlap_file = f"{dirnam}/overlap.txt"
     anal1_file = f"{dirnam}/anal1.txt"
     anal2_file = f"{dirnam}/anal2.txt"
-    cka_file = f"{dirnam}/cka.txt"
     
     # load 1
     embeddings1 = torch.load(embeddings1)
@@ -33,19 +30,6 @@ def main(
     embeddings2 = torch.load(embeddings2)
     with open(predictions2, "r") as fp:
         predictions2 = json.load()
-        
-    if only_cka:
-        with torch.no_grad():
-            # CKA
-            print("CKA...")
-            cka = CKA("cpu").linear_CKA(embeddings1, embeddings2)
-            with open(cka_file, "w") as report:
-                report.write(f"\n\nCKA ANALYSIS OF M1=[{name1}] AND M2=[{name2}]\n")
-                report.write(f"{cka}\n")
-                report.flush()
-
-            print("DONE !")
-            exit()
 
     total = len(predictions2["good"]) + len(predictions2["bad"])
 
@@ -97,16 +81,6 @@ def main(
             report.write(f"UNIFORMITY={unif2}\nTOLERANCE={tole2}\n")
             report.flush()
 
-        # CKA
-        print("CKA...")
-        cka = CKA("cpu").linear_CKA(embeddings1, embeddings2)
-        with open(cka_file, "w") as report:
-            report.write(f"\n\nCKA ANALYSIS OF M1=[{name1}] AND M2=[{name2}]\n")
-            report.write(f"{cka}\n")
-            report.flush()
-
-        print("DONE !")
-
 
 def uniformity_tolerance(embeddings, idx_label):
     indexes = list(range(embeddings.shape[0]))
@@ -146,7 +120,6 @@ if __name__ == "__main__":
     parser.add_argument("--embeddings2", required=True, type=str)
     parser.add_argument("--predictions2", default=None, type=str)
     
-    parser.add_argument("--only_cka", action="store_true", default=False)
     args = parser.parse_args()
 
     main(
@@ -156,5 +129,4 @@ if __name__ == "__main__":
         name2=args.name2,
         embeddings2=args.embeddings2,
         predictions2=args.predictions2,
-        only_cka=args.only_cka
     )
