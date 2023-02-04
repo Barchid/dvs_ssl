@@ -12,7 +12,7 @@ import torchmetrics
 from project.models.models import get_encoder, get_encoder_3d
 from project.models.snn_models import get_encoder_snn, get_encoder_snn_2
 from project.models.utils import MeanSpike
-from utils.forward_analyze import forward_analyze_3dcnn, forward_analyze_cnn, forward_analyze_snn
+from project.utils.forward_analyze import forward_analyze_3dcnn, forward_analyze_cnn, forward_analyze_snn
 
 
 class ClassifModule(pl.LightningModule):
