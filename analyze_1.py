@@ -85,6 +85,7 @@ def main(args):
                 idx_label.append(label)
 
                 (X, Y_a, Y_b) = inputs
+                X = X.to(device)
                 (
                     y_hat,
                     feats,
@@ -94,18 +95,18 @@ def main(args):
                     res4_feat,
                 ) = module.forward_analyze(X)
                 y_hat = y_hat.squeeze()
-                pred = torch.argmax(y_hat).item()
+                pred = torch.argmax(y_hat).cpu().item()
 
                 if pred == label:
                     good_predictions.append(idx)
                 else:
                     bad_predictions.append(idx)
 
-                feats = feats.squeeze()
-                stem_feat = stem_feat.squeeze()
-                res2_feat = res2_feat.squeeze()
-                res3_feat = res3_feat.squeeze()
-                res4_feat = res4_feat.squeeze()
+                feats = feats.squeeze().cpu()
+                stem_feat = stem_feat.squeeze().cpu()
+                res2_feat = res2_feat.squeeze().cpu()
+                res3_feat = res3_feat.squeeze().cpu()
+                res4_feat = res4_feat.squeeze().cpu()
 
                 embeddings_matrix[idx] = feats
                 stem_matrix[idx] = stem_feat
