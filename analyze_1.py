@@ -82,7 +82,8 @@ def main(args):
 
             module.eval()
             for idx, (inputs, label) in enumerate(val_loader):
-                idx_label.append(label)
+                print('Batch n°', idx)
+                idx_label.append(label[0].item())
 
                 (X, Y_a, Y_b) = inputs
                 X = X.to(device)
