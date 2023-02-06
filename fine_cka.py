@@ -93,28 +93,28 @@ def main(args):
         subset_len=subset_len,
     )
 
-    # if ckpt is not None:
-    #     modu = SSLModule.load_from_checkpoint(
-    #         ckpt,
-    #         strict=False,
-    #         n_classes=src_num_classes,
-    #         epochs=epochs,
-    #         timesteps=timesteps,
-    #     )
+    if ckpt is not None:
+        modu = SSLModule.load_from_checkpoint(
+            ckpt,
+            strict=False,
+            n_classes=src_num_classes,
+            epochs=epochs,
+            timesteps=timesteps,
+        )
 
-    #     if modu.encoder1 is not None:
-    #         if use_enc2:
-    #             enco = modu.encoder2
-    #         else:
-    #             enco = modu.encoder1
-    #     else:
-    #         enco = modu.encoder
+        if modu.encoder1 is not None:
+            if use_enc2:
+                enco = modu.encoder2
+            else:
+                enco = modu.encoder1
+        else:
+            enco = modu.encoder
 
-    #     module.encoder = enco
+        module.encoder = enco
 
-    #     module.encoder.requires_grad_(False)
+        module.encoder.requires_grad_(False)
 
-    name = f"SUPERVISED_{src_dataset}_{dest_dataset}_{modu.enc1}_{modu.enc2}"
+    name = f"{src_dataset}_{dest_dataset}_{modu.enc1}_{modu.enc2}"
     for tr in trans:
         name += f"_{tr}"
 
