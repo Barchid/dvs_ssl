@@ -31,6 +31,7 @@ def main(args):
     src_dataset = args["src_dataset"]
     dest_dataset = args["dest_dataset"]
     use_enc2 = args["use_enc2"]
+    target_dir = args["target_dir"]
 
     dest_num_classes = 10
     if dest_dataset == "daily_action_dvs":
@@ -115,11 +116,11 @@ def main(args):
                 res3_matrix[idx] = res3_feat
                 res4_matrix[idx] = res4_feat
 
-            torch.save(embeddings_matrix, f"embeddings_{src_dataset}_{module.mode}.pt")
-            torch.save(stem_matrix, f"stem_{src_dataset}_{module.mode}.pt")
-            torch.save(res2_matrix, f"res2_{src_dataset}_{module.mode}.pt")
-            torch.save(res3_matrix, f"res3_{src_dataset}_{module.mode}.pt")
-            torch.save(res4_matrix, f"res4_{src_dataset}_{module.mode}.pt")
+            torch.save(embeddings_matrix, f"{target_dir}/embeddings_{src_dataset}_{module.mode}.pt")
+            torch.save(stem_matrix, f"{target_dir}/stem_{src_dataset}_{module.mode}.pt")
+            torch.save(res2_matrix, f"{target_dir}/res2_{src_dataset}_{module.mode}.pt")
+            torch.save(res3_matrix, f"{target_dir}/res3_{src_dataset}_{module.mode}.pt")
+            torch.save(res4_matrix, f"{target_dir}/res4_{src_dataset}_{module.mode}.pt")
 
             # write predictions
             json_content = {
@@ -127,7 +128,7 @@ def main(args):
                 "bad": bad_predictions,
                 "idx_label": idx_label,
             }
-            with open(f"predictions_{src_dataset}_{module.mode}.json", "w") as fp:
+            with open(f"{target_dir}/predictions_{src_dataset}_{module.mode}.json", "w") as fp:
                 json.dump(json_content, fp)
 
     except:
@@ -148,6 +149,7 @@ if __name__ == "__main__":
     parser.add_argument("--dest_dataset", default=None, type=str)
     parser.add_argument("--subset_len", default=None, type=str, choices=["10", "25"])
     parser.add_argument("--use_enc2", action="store_true", default=False)
+    parser.add_argument('--target_dir', default="experiments/results", type=str)
     args = parser.parse_args()
 
     ckpt = args.ckpt_path
@@ -164,6 +166,7 @@ if __name__ == "__main__":
             "src_dataset": src_dataset,
             "dest_dataset": dest_dataset,
             "use_enc2": use_enc2,
+            "target_dir": args.target_dir
         }
     )
 
