@@ -24,12 +24,12 @@ def main(
     # load 1
     embeddings1 = torch.load(embeddings1)
     with open(predictions1, "r") as fp:
-        predictions1 = json.load()
+        predictions1 = json.load(fp)
 
     # load 2
     embeddings2 = torch.load(embeddings2)
     with open(predictions2, "r") as fp:
-        predictions2 = json.load()
+        predictions2 = json.load(fp)
 
     total = len(predictions2["good"]) + len(predictions2["bad"])
 
