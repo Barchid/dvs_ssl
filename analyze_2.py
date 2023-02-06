@@ -3,7 +3,7 @@ import json
 import numpy as np
 import os
 from argparse import ArgumentParser
-from project.utils.uniform_loss import uniformity, tolerance
+from project.utils.uniform_loss import uniformity, tolerance, uniformity_orig, tolerance_orig
 
 
 def main(
@@ -20,7 +20,7 @@ def main(
     overlap_file = f"{dirnam}/overlap.txt"
     anal1_file = f"{dirnam}/anal1.txt"
     anal2_file = f"{dirnam}/anal2.txt"
-    
+
     # load 1
     embeddings1 = torch.load(embeddings1)
     with open(predictions1, "r") as fp:
@@ -84,6 +84,11 @@ def main(
 
 def uniformity_tolerance(embeddings, idx_label):
     indexes = list(range(embeddings.shape[0]))
+    val_targets = torch.tensor(idx_label, dtype=torch.long)
+    embeddings = torch.nn.functional.normalize(embeddings, p=2, dim=1)
+    tol = tolerance_orig(embeddings, val_targets)
+    unif = uniformity_orig(embeddings) * -1
+    return unif.item(), tol.item()
 
     pairs = [(a, b) for idx, a in enumerate(indexes) for b in indexes[idx + 1 :]]
     uniformities = torch.zeros(len(pairs))
@@ -98,7 +103,8 @@ def uniformity_tolerance(embeddings, idx_label):
         y_norm = y / torch.linalg.norm(y)  # normalize
         label_y = idx_label[j]
 
-        uniformities[i] = uniformity(x_norm, y_norm, t=2)
+        # uniformities[i] = uniformity(x_norm, y_norm, t=2)
+        uniformities[i] = torch.linalg.norm((x_norm - y_norm)).pow(2).mul(-2).exp()
 
         if label_x == label_y:
             indicator = 1.0
@@ -107,7 +113,9 @@ def uniformity_tolerance(embeddings, idx_label):
 
         tolerances[i] = tolerance(x, y, indicator)
 
-    return uniformities.mean(), tolerances.mean()
+    # u = uniformities.mean().log()
+
+    return uniformities.mean().log(), tolerances.mean()
 
 
 if __name__ == "__main__":
@@ -119,7 +127,7 @@ if __name__ == "__main__":
     parser.add_argument("--name2", required=True, type=str)
     parser.add_argument("--embeddings2", required=True, type=str)
     parser.add_argument("--predictions2", default=None, type=str)
-    
+
     args = parser.parse_args()
 
     main(
