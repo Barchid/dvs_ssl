@@ -86,19 +86,17 @@ if __name__ == "__main__":
     parser = ArgumentParser("coucou")
     parser.add_argument("--name1", required=True, type=str)
     parser.add_argument("--embeddings1", required=True, type=str)
-    parser.add_argument("--predictions1", default=None, type=str)
 
     parser.add_argument("--name2", required=True, type=str)
     parser.add_argument("--embeddings2", required=True, type=str)
-    parser.add_argument("--predictions2", default=None, type=str)
+    parser.add_argument('--labels_json', required=True, type=str)
 
     args = parser.parse_args()
 
     main(
         name1=args.name1,
         embeddings1=args.embeddings1,
-        predictions1=args.predictions1,
+        labels_json=args.labels_json,
         name2=args.name2,
         embeddings2=args.embeddings2,
-        predictions2=args.predictions2,
     )
