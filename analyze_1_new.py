@@ -46,14 +46,34 @@ def main(args):
     #     dest_num_classes = 2
 
     if ckpt is not None:
-        module = ClassifModule.load_from_checkpoint(
+        modu = SSLModule.load_from_checkpoint(
             ckpt,
             strict=False,
             n_classes=dest_num_classes,
             epochs=epochs,
             timesteps=timesteps,
-        ).to(device)
+        )
 
+        if modu.encoder1 is not None:
+            if use_enc2:
+                enco = modu.encoder2
+                mode_enco = modu.enc2
+            else:
+                enco = modu.encoder1
+                mode_enco = modu.enc1
+        else:
+            enco = modu.encoder
+            mode_enco = modu.enc1
+        
+        module = ClassifModule(
+            n_classes=dest_num_classes,
+            learning_rate=learning_rate,
+            epochs=epochs,
+            timesteps=timesteps,
+            mode=mode_enco,
+        ).to(device)
+        module.encoder = enco.to(device)
+        
     datamodule = DVSDataModule(
         1,
         dest_dataset,
