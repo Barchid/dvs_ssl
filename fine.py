@@ -21,7 +21,7 @@ learning_rate = 3e-3  # barlowsnn=0.1, vicregsnn=0.01, dvs=1e-3
 timesteps = 12
 batch_size = 128
 # dataset = "dvsgesture"
-data_dir = "data"  # "/data/fox-data/datasets/spiking_camera_datasets/"
+data_dir = "/sandbox0/sami/data"  # "/data/fox-data/datasets/spiking_camera_datasets/"
 
 
 def main(args):
@@ -104,9 +104,9 @@ def main(args):
 
         if modu.encoder1 is not None:
             if use_enc2:
-                enco = modu.encoder1
-            else:
                 enco = modu.encoder2
+            else:
+                enco = modu.encoder1
         else:
             enco = modu.encoder
 
