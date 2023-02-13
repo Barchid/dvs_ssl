@@ -119,7 +119,10 @@ def main(args):
 
         module.encoder.requires_grad_(False)
 
-    name = f"{src_dataset}_{dest_dataset}_{modu.enc1}_{modu.enc2}"
+    if use_enc2:
+        name = f"{src_dataset}_{dest_dataset}_{modu.enc2}_{modu.enc1}"
+    else:
+        name = f"{src_dataset}_{dest_dataset}_{modu.enc1}_{modu.enc2}"
     for tr in trans:
         name += f"_{tr}"
 
