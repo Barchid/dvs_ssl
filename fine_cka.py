@@ -71,13 +71,18 @@ def main(args):
             epochs=epochs,
             timesteps=timesteps,
         )
+        
+        if use_enc2:
+            enc = modu.enc2
+        else:
+            enc = modu.enc1
 
     module = ClassifModule(
         n_classes=dest_num_classes,
         learning_rate=learning_rate,
         epochs=epochs,
         timesteps=timesteps,
-        mode=modu.enc1,
+        mode=enc,
     )
 
     datamodule = DVSDataModule(
@@ -88,7 +93,7 @@ def main(args):
         barlow_transf=trans,
         in_memory=False,
         num_workers=0,
-        mode=modu.enc1,
+        mode=enc,
         use_barlow_trans=True,
         subset_len=subset_len,
     )
@@ -122,8 +127,8 @@ def main(args):
         max_epochs=epochs,
         gpus=torch.cuda.device_count(),
         callbacks=[checkpoint_callback],
-        logger=pl.loggers.TensorBoardLogger("experiments/ckas", name=f"{name}"),
-        default_root_dir=f"experiments/ckas/{name}",
+        logger=pl.loggers.TensorBoardLogger("/sandbox0/sami/experiments/ckas", name=f"{name}"),
+        default_root_dir=f"/sandbox0/sami/experiments/ckas/{name}",
         precision=16,
     )
 
