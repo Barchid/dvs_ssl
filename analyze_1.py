@@ -77,14 +77,12 @@ def main(args):
             res2_matrix = torch.zeros((len(val_loader.dataset), 65536))
             res3_matrix = torch.zeros((len(val_loader.dataset), 32768))
             res4_matrix = torch.zeros((len(val_loader.dataset), 16384))
-            good_predictions = []
-            bad_predictions = []
-            idx_label = []
-
+            predictions = torch.zeros(len(val_loader.dataset))
+            gts = torch.zeros(len(val_loader.dataset))
+            
             module.eval()
             for idx, (inputs, label) in enumerate(val_loader):
                 print('Batch n°', idx)
-                idx_label.append(label[0].item())
 
                 (X, Y_a, Y_b) = inputs
                 X = X.to(device)
@@ -97,12 +95,7 @@ def main(args):
                     res4_feat,
                 ) = module.forward_analyze(X)
                 y_hat = y_hat.squeeze()
-                pred = torch.argmax(y_hat).cpu().item()
-
-                if pred == label:
-                    good_predictions.append(idx)
-                else:
-                    bad_predictions.append(idx)
+                pred = torch.argmax(y_hat).cpu()
 
                 feats = feats.squeeze().cpu()
                 stem_feat = stem_feat.squeeze().cpu()
@@ -115,21 +108,21 @@ def main(args):
                 res2_matrix[idx] = res2_feat
                 res3_matrix[idx] = res3_feat
                 res4_matrix[idx] = res4_feat
+                gts[idx] = label[0]
+                predictions[idx] = pred
 
-            torch.save(embeddings_matrix, f"{target_dir}/embeddings_{src_dataset}_{module.mode}.pt")
-            torch.save(stem_matrix, f"{target_dir}/stem_{src_dataset}_{module.mode}.pt")
-            torch.save(res2_matrix, f"{target_dir}/res2_{src_dataset}_{module.mode}.pt")
-            torch.save(res3_matrix, f"{target_dir}/res3_{src_dataset}_{module.mode}.pt")
-            torch.save(res4_matrix, f"{target_dir}/res4_{src_dataset}_{module.mode}.pt")
 
-            # write predictions
-            json_content = {
-                "good": good_predictions,
-                "bad": bad_predictions,
-                "idx_label": idx_label,
+            tosave = {
+                "stem": stem_matrix,
+                "res2": res2_matrix,
+                "res3": res3_matrix,
+                "res4": res4_matrix,
+                "embeddings": embeddings_matrix,
+                "predictions": predictions,
+                "gts": gts
             }
-            with open(f"{target_dir}/predictions_{src_dataset}_{module.mode}.json", "w") as fp:
-                json.dump(json_content, fp)
+            
+            torch.save(tosave, f"{target_dir}/cka_stats.pt")
 
     except:
         # traceback.print_exc()
