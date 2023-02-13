@@ -32,6 +32,12 @@ def main(args):
     dest_dataset = args["dest_dataset"]
     use_enc2 = args["use_enc2"]
     target_dir = args["target_dir"]
+    
+    if not os.path.exists(target_dir):
+        os.makedirs(
+            target_dir,
+            exist_ok=True
+        )
 
     dest_num_classes = 10
     if dest_dataset == "daily_action_dvs":
