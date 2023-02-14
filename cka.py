@@ -103,7 +103,7 @@ def main():
             (enc_name, torch.load(stat_file))
         )
         
-        cka_cm(stats)
+    cka_cm(stats)
         
     
 
