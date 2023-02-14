@@ -24,7 +24,7 @@ def plot_confusion_matrix(data, labels, output_filename):
     plt.title("Confusion Matrix")
  
     # seaborn.set(font_scale=1.4)
-    ax = seaborn.heatmap(data, annot=False, cmap="afmhot", cbar_kws={'label': 'Linear CKA'})
+    ax = seaborn.heatmap(data, annot=True, cmap="plasma", cbar_kws={'label': 'Linear CKA'})
  
     ax.set_xticklabels(labels)
     ax.set_yticklabels(labels)
@@ -122,7 +122,11 @@ def main():
             (enc_name, torch.load(stat_file))
         )
         
-    cka_cm(stats)
+    cka_cm(stats, key="embeddings")
+    cka_cm(stats, key="stem")
+    cka_cm(stats, key="res2")
+    cka_cm(stats, key="res3")
+    cka_cm(stats, key="res4")
         
     
 
