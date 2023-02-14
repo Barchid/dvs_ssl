@@ -105,6 +105,8 @@ def main():
             (enc_name, torch.load(stat_file))
         )
         
+        cka_cm(stats)
+        
     
 
 if __name__ == "__main__":
