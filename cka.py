@@ -7,6 +7,7 @@ import torch
 import os
 from itertools import combinations
 
+dataset = "dvsgesture"
 
 def plot_confusion_matrix(data, labels, output_filename):
     """Plot confusion matrix using heatmap.
@@ -23,7 +24,7 @@ def plot_confusion_matrix(data, labels, output_filename):
     plt.title("Confusion Matrix")
  
     # seaborn.set(font_scale=1.4)
-    ax = seaborn.heatmap(data, annot=True, cmap="magma", cbar_kws={'label': 'Scale'})
+    ax = seaborn.heatmap(data, annot=False, cmap="afmhot", cbar_kws={'label': 'Linear CKA'})
  
     ax.set_xticklabels(labels)
     ax.set_yticklabels(labels)
@@ -81,7 +82,7 @@ def cka_cm(
         i = name2idx[name]
         data[i,i] = cka_val.item()
     
-    plot_confusion_matrix(data.tolist(), labels, "example.png")
+    plot_confusion_matrix(data.tolist(), labels, f"{dataset}_{key}_cka.png")
     return data
 
 
@@ -90,7 +91,7 @@ def main():
     
     stats = []
     for i, stat_dir in enumerate(os.listdir(path)):
-        if "dvsgesture" not in stat_dir:
+        if dataset not in stat_dir:
             continue
         
         stat_dir_path = os.path.join(path, stat_dir)
