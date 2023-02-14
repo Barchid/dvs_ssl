@@ -89,14 +89,12 @@ def main():
         enc_name = f"{enc1.upper()}"
         if enc2 == "supervised":
             enc_name += "_sup"
-        
-        if enc1 != enc2 and enc1 == "snn":
+        elif enc1 != enc2 and enc1 == "snn":
             if enc2 == "3dcnn":
                 enc_name += "_3d"
             else:
                 enc_name += "_cnn"
-        
-        if enc1 != enc2 and enc1 != "snn":
+        elif enc1 != enc2 and enc1 != "snn":
             enc_name += "_snn"
             
         stat_file = os.path.join(stat_dir_path, "cka_stats.pt")
