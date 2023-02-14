@@ -22,8 +22,8 @@ def plot_confusion_matrix(data, labels, output_filename):
  
     plt.title("Confusion Matrix")
  
-    seaborn.set(font_scale=1.4)
-    ax = seaborn.heatmap(data, annot=True, cmap="plasma", cbar_kws={'label': 'Scale'})
+    # seaborn.set(font_scale=1.4)
+    ax = seaborn.heatmap(data, annot=True, cmap="magma", cbar_kws={'label': 'Scale'})
  
     ax.set_xticklabels(labels)
     ax.set_yticklabels(labels)
@@ -37,7 +37,7 @@ def plot_confusion_matrix(data, labels, output_filename):
 def cka_cm(
     stats, key="embeddings"
 ):
-    data = [[0]] * len(stats)
+    data = np.zeros((len(stats), len(stats)))
     
     name2idx = {}
     labels = []
@@ -63,6 +63,7 @@ def cka_cm(
     for pair in pairs:
         name_X = pair[0][0]
         name_Y = pair[1][0]
+        # continue
         X = pair[0][1][key]
         Y = pair[1][1][key]
         
@@ -70,10 +71,17 @@ def cka_cm(
         i = name2idx[name_X]
         j = name2idx[name_Y]
         
-        data[i][j] = cka_val.item()
+        data[i,j] = cka_val.item()
+        data[j, i] = cka_val.item()
+        
+    for feat in features:
+        name = feat[0]
+        X = feat[1][key]
+        cka_val = cka_cool.linear_CKA(X, X)
+        i = name2idx[name]
+        data[i,i] = cka_val.item()
     
-    print(labels)
-    print(data)
+    plot_confusion_matrix(data.tolist(), labels, "example.png")
     return data
 
 
@@ -90,16 +98,22 @@ def main():
         enc1: str = stat_dir.split("_")[1]
         enc2 = stat_dir.split("_")[2]
         
-        enc_name = f"{enc1.upper()}"
+        if enc1 == "snn":
+            enc_name = "S"
+        elif enc1 == "cnn":
+            enc_name = "C"
+        else:
+            enc_name = "3"        
+        
         if enc2 == "supervised":
-            enc_name += "_sup"
+            enc_name += "sup"
         elif enc1 != enc2 and enc1 == "snn":
             if enc2 == "3dcnn":
-                enc_name += "_3d"
+                enc_name += "3"
             else:
-                enc_name += "_cnn"
+                enc_name += "c"
         elif enc1 != enc2 and enc1 != "snn":
-            enc_name += "_snn"
+            enc_name += "s"
             
         stat_file = os.path.join(stat_dir_path, "cka_stats.pt")
         
