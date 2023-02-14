@@ -44,8 +44,12 @@ def cka_cm(
     for i, stat in enumerate(stats):
         name = stat[0]
         labels.append(name)
-        name2idx[name] = i
-            
+
+    labels.sort()
+    
+    for i, la in enumerate(labels):
+        name2idx[la] = i
+        
     cka_cool = CKA()
     # res = list(combinations(test_list, 2))
     
