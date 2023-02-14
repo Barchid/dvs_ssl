@@ -3,16 +3,15 @@ import json
 import numpy as np
 import os
 from argparse import ArgumentParser
-from project.utils.uniform_loss import uniformity, tolerance, uniformity_orig, tolerance_orig
+from project.utils.uniform_loss import (
+    uniformity,
+    tolerance,
+    uniformity_orig,
+    tolerance_orig,
+)
 
 
-def main(
-    name1: str,
-    embeddings1: str,
-    name2: str,
-    embeddings2: str,
-    labels_json: str
-):
+def main(name1: str, embeddings1: str, name2: str, embeddings2: str, labels_json: str):
     dirnam = f"analys/analysis_{name1}_{name2}"
     os.makedirs(dirnam, exist_ok=True)
 
@@ -24,7 +23,7 @@ def main(
 
     # load 2
     embeddings2 = torch.load(embeddings2)
-    
+
     with open(labels_json, "r") as fp:
         labels_json = json.load(fp)
 
@@ -54,33 +53,6 @@ def uniformity_tolerance(embeddings, idx_label):
     unif = uniformity_orig(embeddings) * -1
     return unif.item(), tol.item()
 
-    pairs = [(a, b) for idx, a in enumerate(indexes) for b in indexes[idx + 1 :]]
-    uniformities = torch.zeros(len(pairs))
-    tolerances = torch.zeros(len(pairs))
-
-    for (i, j) in pairs:
-        x = embeddings[i]
-        x_norm = x / torch.linalg.norm(x)  # normalize
-        label_x = idx_label[i]
-
-        y = embeddings[j]
-        y_norm = y / torch.linalg.norm(y)  # normalize
-        label_y = idx_label[j]
-
-        # uniformities[i] = uniformity(x_norm, y_norm, t=2)
-        uniformities[i] = torch.linalg.norm((x_norm - y_norm)).pow(2).mul(-2).exp()
-
-        if label_x == label_y:
-            indicator = 1.0
-        else:
-            indicator = 0.0
-
-        tolerances[i] = tolerance(x, y, indicator)
-
-    # u = uniformities.mean().log()
-
-    return uniformities.mean().log(), tolerances.mean()
-
 
 if __name__ == "__main__":
     parser = ArgumentParser("coucou")
@@ -89,7 +61,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--name2", required=True, type=str)
     parser.add_argument("--embeddings2", required=True, type=str)
-    parser.add_argument('--labels_json', required=True, type=str)
+    parser.add_argument("--labels_json", required=True, type=str)
 
     args = parser.parse_args()
 

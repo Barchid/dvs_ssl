@@ -90,34 +90,6 @@ def uniformity_tolerance(embeddings, idx_label):
     unif = uniformity_orig(embeddings) * -1
     return unif.item(), tol.item()
 
-    pairs = [(a, b) for idx, a in enumerate(indexes) for b in indexes[idx + 1 :]]
-    uniformities = torch.zeros(len(pairs))
-    tolerances = torch.zeros(len(pairs))
-
-    for (i, j) in pairs:
-        x = embeddings[i]
-        x_norm = x / torch.linalg.norm(x)  # normalize
-        label_x = idx_label[i]
-
-        y = embeddings[j]
-        y_norm = y / torch.linalg.norm(y)  # normalize
-        label_y = idx_label[j]
-
-        # uniformities[i] = uniformity(x_norm, y_norm, t=2)
-        uniformities[i] = torch.linalg.norm((x_norm - y_norm)).pow(2).mul(-2).exp()
-
-        if label_x == label_y:
-            indicator = 1.0
-        else:
-            indicator = 0.0
-
-        tolerances[i] = tolerance(x, y, indicator)
-
-    # u = uniformities.mean().log()
-
-    return uniformities.mean().log(), tolerances.mean()
-
-
 if __name__ == "__main__":
     parser = ArgumentParser("coucou")
     parser.add_argument("--name1", required=True, type=str)
