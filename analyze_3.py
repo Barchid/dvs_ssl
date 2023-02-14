@@ -7,7 +7,7 @@ from project.utils.uniform_loss import uniformity, tolerance
 from project.utils.cka import CKA, CudaCKA
 import seaborn
 import matplotlib.pyplot as plt
- 
+
  
 def plot_confusion_matrix(data, labels, output_filename):
     """Plot confusion matrix using heatmap.
