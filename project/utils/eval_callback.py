@@ -72,7 +72,6 @@ class OnlineFineTuner(Callback):
         outputs: Sequence,
         batch: Sequence,
         batch_idx: int,
-        dataloader_idx: int,
     ) -> None:
         x, y = self.extract_online_finetuning_view(batch)
 
