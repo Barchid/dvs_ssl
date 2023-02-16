@@ -139,7 +139,7 @@ class MiniNImageNet(Dataset):
         Returns:
             a tuple of (events, target) where target is the index of the target class.
         """
-        orig_events = np.load(self.data[index])
+        orig_events = np.load(self.data[index])["event_data"]
 
         events = np.empty(orig_events.shape, dtype=self.dtype)
         events["x"] = orig_events["x"]
