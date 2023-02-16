@@ -124,11 +124,6 @@ class MiniNImageNet(Dataset):
         self.train_path = os.path.join(self.location_on_system, "extracted_train")
         self.val_path = os.path.join(self.location_on_system, "extracted_val")
 
-        self.classes = os.listdir(self.val_path)
-        print(self.classes)
-        print(len(self.classes))
-        exit()
-
         file_path = self.train_path if self.train else self.val_path
         # get all npz filename
         for class_dir in os.listdir(file_path):
