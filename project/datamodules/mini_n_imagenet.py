@@ -113,7 +113,7 @@ class MiniNImageNet(Dataset):
         "n01784675",
         "n01698640",
         "n01685808",
-    ]
+    ] # 100 classes
 
     def __init__(self, save_to, train=True, transform=None, target_transform=None):
         super(MiniNImageNet, self).__init__(

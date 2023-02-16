@@ -197,7 +197,7 @@ class BackgroundActivityNoise:
 
 
 def get_frame_representation(sensor_size, timesteps, dataset=None):
-    if dataset == "gen1":
+    if dataset == "gen1" or dataset == "mini-n-imagenet":
         return transforms.Compose(
             [ToFrame(sensor_size=sensor_size, n_event_bins=timesteps), BinarizeFrame()]
         )
