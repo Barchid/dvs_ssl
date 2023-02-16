@@ -19,10 +19,6 @@ class MiniNImageNet(Dataset):
             save_to, transform=transform, target_transform=target_transform
         )
         self.train = train
-        self.url = self.base_url
-        self.folder_name = os.path.join(
-            self.base_folder, "train" if self.train else "test"
-        )
 
         self.train_path = os.path.join(self.location_on_system, "extracted_train")
         self.val_path = os.path.join(self.location_on_system, "extracted_val")
@@ -31,6 +27,7 @@ class MiniNImageNet(Dataset):
         self.classes = os.listdir(self.val_path)
         print(self.classes)
         print(len(self.classes))
+        exit()
         
         file_path = self.train_path if self.train else self.val_path
         # get all npz filename
