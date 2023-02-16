@@ -19,6 +19,7 @@ from project.datamodules.ncars import NCARS
 from project.utils.barlow_transforms import BarlowTwinsTransform
 from project.utils.supervised_transforms import SupervisedTransform
 from project.datamodules.daily_action_dvs import DailyActionDVS
+from project.datamodules.mini_n_imagenet import MiniNImageNet
 
 
 class DVSDataModule(pl.LightningDataModule):
@@ -96,6 +97,8 @@ class DVSDataModule(pl.LightningDataModule):
             return DVSLip.sensor_size, len(DVSLip.classes)
         elif self.dataset == "daily_action_dvs":
             return DailyActionDVS.sensor_size, len(DailyActionDVS.classes)
+        elif self.dataset == "mini-n-imagenet":
+            return MiniNImageNet.sensor_size, len(MiniNImageNet.classes)
 
     def prepare_data(self) -> None:
         # downloads the dataset if it does not exist
@@ -116,6 +119,8 @@ class DVSDataModule(pl.LightningDataModule):
             DVSLip(save_to=self.data_dir)
         elif self.dataset == "daily_action_dvs":
             DailyActionDVS(save_to=self.data_dir)
+        elif self.dataset == "mini-n-imagenet":
+            MiniNImageNet(save_to=self.data_dir) # osef
 
     def setup(self, stage: Optional[str] = None) -> None:
         if self.dataset == "n-mnist":
@@ -202,6 +207,19 @@ class DVSDataModule(pl.LightningDataModule):
             train_len = int(0.9 * full_length)
             val_len = full_length - train_len
             self.train_set, self.val_set = random_split(dataset, [train_len, val_len])
+        elif self.dataset == "mini-n-imagenet":
+            self.train_set = MiniNImageNet(
+                save_to=self.data_dir,
+                transform=self.train_transform,
+                target_transform=None,
+                train=True,
+            )
+            self.val_set = MiniNImageNet(
+                save_to=self.data_dir,
+                transform=self.train_transform,
+                target_transform=None,
+                train=False,
+            )
 
         if self.subset_len is not None:
             print("CREATE SUBSET FOR SEMI-SUPERVISED!!!")
