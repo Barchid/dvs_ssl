@@ -29,7 +29,7 @@ class OnlineFineTuner(Callback):
         self.output_all = output_all
         self.enc = enc
 
-    def on_pretrain_routine_start(
+    def on_fit_start(
         self, trainer: pl.Trainer, pl_module: pl.LightningModule
     ) -> None:
 
