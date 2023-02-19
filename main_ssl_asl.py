@@ -20,7 +20,7 @@ def powerset(iterable):
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-epochs = 250
+epochs = 500
 learning_rate = 1e-2  # barlowsnn=0.1, vicregsnn=0.01, dvs=1e-3
 timesteps = 12
 batch_size = 128
@@ -83,7 +83,7 @@ def main(args):
         callbacks=[
             online_finetuner,
             checkpoint_callback,
-            # EarlyStopping(monitor="online_val_acc", mode="max", patience=75),
+            EarlyStopping(monitor="online_val_acc", mode="max", patience=75),
         ],
         # logger=pl.loggers.TensorBoardLogger("experiments", name=name),
         default_root_dir=f"/datas/sandbox/sami/experiments/{name}",
