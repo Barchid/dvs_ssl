@@ -176,7 +176,7 @@ class DVSDataModule(pl.LightningDataModule):
                 save_to=self.data_dir, transform=self.train_transform
             )
             full_length = len(dataset)
-            train_len = int(0.9 * full_length)
+            train_len = int(0.8 * full_length)
             val_len = full_length - train_len
             self.train_set, self.val_set = random_split(dataset, [train_len, val_len])
         elif self.dataset == "ncars":
