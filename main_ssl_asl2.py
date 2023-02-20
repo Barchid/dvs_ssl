@@ -98,7 +98,7 @@ def main(args):
             online_finetuner2,
             checkpoint_callback,
             checkpoint_callback2,
-            EarlyStopping(monitor="online_val_acc", mode="max", patience=75),
+            # EarlyStopping(monitor="online_val_acc", mode="max", patience=75),
         ],
         # logger=pl.loggers.TensorBoardLogger("experiments", name=name),
         default_root_dir=f"/sandbox0/sami/experiments/{name}",
