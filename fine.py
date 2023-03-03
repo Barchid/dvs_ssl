@@ -16,12 +16,12 @@ import traceback
 from datetime import datetime
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-epochs = 500
+epochs = 200 #500
 learning_rate = 3e-3  # barlowsnn=0.1, vicregsnn=0.01, dvs=1e-3
 timesteps = 12
 batch_size = 128
 # dataset = "dvsgesture"
-data_dir = "/sandbox0/sami/data"  # "/data/fox-data/datasets/spiking_camera_datasets/"
+data_dir = "/sandbox1/sami/data" #put sandbox0  # "/data/fox-data/datasets/spiking_camera_datasets/"
 
 
 def main(args):
@@ -123,8 +123,8 @@ def main(args):
         max_epochs=epochs,
         gpus=torch.cuda.device_count(),
         callbacks=[checkpoint_callback],
-        logger=pl.loggers.TensorBoardLogger("experiments/semisups", name=f"{name}"),
-        default_root_dir=f"experiments/semisups/{name}",
+        logger=pl.loggers.TensorBoardLogger("/sandbox1/sami/experiments/semisups", name=f"{name}"),
+        default_root_dir=f"/sandbox1/sami/experiments/semisups/{name}",
         precision=16,
     )
 
