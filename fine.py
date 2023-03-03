@@ -21,7 +21,7 @@ learning_rate = 3e-3  # barlowsnn=0.1, vicregsnn=0.01, dvs=1e-3
 timesteps = 12
 batch_size = 128
 # dataset = "dvsgesture"
-data_dir = "/sandbox1/sami/data" #put sandbox0  # "/data/fox-data/datasets/spiking_camera_datasets/"
+data_dir = "/data/fox-data/datasets/spiking_camera_datasets/" #"/sandbox1/sami/data" #put sandbox0  # "/data/fox-data/datasets/spiking_camera_datasets/"
 
 
 def main(args):
